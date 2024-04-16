@@ -14,7 +14,7 @@ describe("API endpoints", () => {
     it("return a 400 for an invalid login", async () => {
         // Arrange
         process.env.JWT_SECRET_KEY = "test";
-        
+
         const res: any = await request(app)
             .post("/users/login")
             .send({ email: "xyz@sadfjak.com", password: "2342388" })

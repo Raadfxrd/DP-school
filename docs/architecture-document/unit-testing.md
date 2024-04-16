@@ -1,4 +1,5 @@
 # Unit testing
+
 (Use this to demonstrate criterion k1.)
 
 A 'unit' is the smallest testable part of a piece of code. In most programming languages, this is a 'method' or 'function'.
@@ -118,7 +119,7 @@ In the above TypeScript test, you see the comments 'arrange', 'act', and 'assert
 
 ## Code Coverage
 
-You should always try to *cover* as much of your code with tests as possible. For this purpose, the metric *code coverage* exists. While 100% *code coverage* sounds amazing, in practice it proves to be near impossible. However, you can always achieve 100% *code coverage* on a specific function, or even a whole file. Start small, then grow bigger over time!
+You should always try to _cover_ as much of your code with tests as possible. For this purpose, the metric _code coverage_ exists. While 100% _code coverage_ sounds amazing, in practice it proves to be near impossible. However, you can always achieve 100% _code coverage_ on a specific function, or even a whole file. Start small, then grow bigger over time!
 
 ## Unit Test tools
 
@@ -135,4 +136,3 @@ The most commonly used test tools are. It is advisable to visit the websites of 
 [Python unit test tutorial](https://www.dataquest.io/blog/unit-tests-python/)
 
 [Unit Test tools](https://clouddevs.com/typescript/unit-testing/)
-
