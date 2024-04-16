@@ -1,4 +1,5 @@
 # Software testing
+
 (Use this to demonstrate criterion k1.)
 
 Testing is very important in software development! In fact, bugs almost always arise when writing software. Testing verifies the functionality and quality of the code. Errors and bugs can thus be found and, of course, resolved. Testing ensures reliability and consistency in the software, reducing the risk of malfunctions and errors. By performing tests, developers can be sure that the software meets the requirements and expectations of the end-users and/or the client.
@@ -7,14 +8,13 @@ We test software for quality control, to detect potential bugs.
 
 ### Overview of types of testing
 
-| Type             | What is tested?                                              | Why?                                                                              | Who?      |
-| ---------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------- | --------- |
-| Unit test        | Functionality of 1 component (unit) in the code.             | Testing if that one component functions.                                          | Developer |
-| Integration test | Functionality and performance of multiple code components.   | Testing that different components of the software work together.                   | Developer |
-| End-to-End test  | Software system interactions (backend to frontend events).   | Testing if the entire system works.                                                | Developer |
-| Regression test  | A scenario in which a bug surfaced in the software.          | Testing if a bug has been "fixed."                                                 | Developer |
-| Acceptance test  | The entire software suite.                                  | The client can test and confirm that the software works as it should.             | End-user  |
-
+| Type             | What is tested?                                            | Why?                                                                  | Who?      |
+| ---------------- | ---------------------------------------------------------- | --------------------------------------------------------------------- | --------- |
+| Unit test        | Functionality of 1 component (unit) in the code.           | Testing if that one component functions.                              | Developer |
+| Integration test | Functionality and performance of multiple code components. | Testing that different components of the software work together.      | Developer |
+| End-to-End test  | Software system interactions (backend to frontend events). | Testing if the entire system works.                                   | Developer |
+| Regression test  | A scenario in which a bug surfaced in the software.        | Testing if a bug has been "fixed."                                    | Developer |
+| Acceptance test  | The entire software suite.                                 | The client can test and confirm that the software works as it should. | End-user  |
 
 ### Test frameworks
 
@@ -33,4 +33,3 @@ Test Driven Development (TDD) is a development method where tests are written be
 [Top 10 integration test tools](https://katalon.com/resources-center/blog/integration-testing-tools)
 
 [E2E test frameworks](https://katalon.com/resources-center/blog/integration-testing-tools)
-
