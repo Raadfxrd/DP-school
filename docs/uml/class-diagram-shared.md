@@ -1,6 +1,5 @@
 ## First draft Class Diagram shared
 
-
 ```mermaid
 classDiagram
   direction RL
@@ -62,5 +61,5 @@ class AuthorizationLevel {
     UserData "0" --> "0..n" Address
     UserData "0" --> "0..n" CartItem
 
-    
+
 ```
