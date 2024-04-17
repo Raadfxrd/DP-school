@@ -1,49 +1,51 @@
-# Dit is de documentatiepagina van Borys
-
 # Documentatiepagina van Borys
 
 Deze pagina is ontworpen om een overzicht te geven van mijn persoonlijke en professionele ontwikkelingsdoelen binnen het IT-project waar ik als teamleider fungeer. Elk doel is zorgvuldig geformuleerd volgens de SMART-criteria (Specifiek, Meetbaar, Acceptabel, Realistisch, Tijdgebonden) om mijn groei in diverse kernvaardigheden te ondersteunen en te documenteren.
 
-## Eerste 2 weken: Plannings- en opstartfase
+## Strategische Communicatie
 
-### Specifiek:
+**Specifiek**: Ik zal mijn leiderschapscommunicatie verbeteren door duidelijk de projectdoelen en verwachtingen aan mijn team te verwoorden, met nadruk op precieze updates over projecttijdslijnen en technische vereisten.
 
-Ik ontwikkel een gedetailleerd onderwijsprojectplan dat alle kritieke paden, verantwoordelijkheden en tijdlijnen bevat. Dit plan zal ook de projectrandvoorwaarden zoals beschikbare tijd, educatieve middelen en technologische tools specificeren.
+**Meetbaar**: Vooruitgang wordt beoordeeld door directe feedback van mijn teamleden en een mentor, met als doel minstens 90% positieve feedback over de helderheid en effectiviteit van de communicatie.
 
-### Meetbaar:
+**Acceptabel**: Dit doel bevordert ethisch leiderschap door transparantie en verantwoordelijkheid in projectmanagement te waarborgen, wat positief bijdraagt aan de teammoraal en projectresultaten.
 
-Het succes van deze fase wordt beoordeeld op basis van de voltooiing en goedkeuring van het onderwijsprojectplan door de onderwijscoördinator en de betrokken leerkrachten.
+**Realistisch**: Met mijn huidige vaardigheden in leiderschap en middelen zoals regelmatige teamvergaderingen en mentorsessies, is het haalbaar om mijn communicatievaardigheden gedurende de projectduur te verbeteren.
 
-### Acceptabel:
+**Tijdgebonden**: Ik zal aan dit doel werken gedurende het hele project, met evaluaties na elke fase en een eindbeoordeling aan het einde van het project.
 
-Leerkrachten en betrokken educatieve stakeholders worden actief betrokken bij het planningsproces om te verzekeren dat het projectplan realistisch en uitvoerbaar is binnen de schoolomgeving.
+## Analytisch Probleemoplossen
 
-### Realistisch:
+**Specifiek**: Ik zal mijn probleemoplossende vaardigheden verfijnen door een belangrijk bruikbaarheidsprobleem in ons IT-systeem te identificeren en aan te pakken, gericht op het verbeteren van systeemintegratie en gebruikersinterface.
 
-De benodigde middelen zoals tijd in het rooster, beschikbare klaslokalen en onderwijsmaterialen worden toegewezen. Het plan houdt rekening met de educatieve normen en leerdoelen van de school.
+**Meetbaar**: Het succes van mijn initiatieven wordt beoordeeld door verbeteringen in systeemgebruik, beoordeeld door gebruikerstevredenheidsonderzoeken en prestatie-indicatoren, met als doel minstens 80% gebruikerstevredenheid.
 
-### Tijdsgebonden:
+**Acceptabel**: Dit doel is cruciaal omdat het direct bijdraagt aan de functionaliteit en efficiëntie van onze IT-oplossingen, wat invloed heeft op klanttevredenheid en operationeel succes.
 
-Het onderwijsprojectplan wordt binnen de eerste 2 weken voltooid en goedgekeurd, waardoor er voldoende tijd is voor de implementatie.
+**Realistisch**: Gezien de toegang tot gebruikersfeedback en analysetools, en met ondersteuning van IT-specialisten en mentoren, kan ik zinvol onderzoek uitvoeren en verbeteringen implementeren binnen de projecttijdlijn.
 
-## Volgende 3 weken: Uitvoerings- en integratiefase
+**Tijdgebonden**: Specifieke mijlpalen worden gesteld voor dit doel, in lijn met de algehele projectdeadlines om tijdige en geïntegreerde verbeteringen te waarborgen.
 
-### Specifiek:
+## Leiderschapsontwikkeling
 
-Het project wordt uitgevoerd volgens het goedgekeurde onderwijsprojectplan. Tegelijkertijd werk ik aan een integratieplan voor de duurzame inbedding van de projectresultaten binnen het onderwijscurriculum.
+**Specifiek**: Ik zal mijn leiderschaps- en besluitvormingsvaardigheden verbeteren door proactief deel te nemen aan projectplanning en kritieke beslissingsprocessen, en goed doordachte alternatieven en oplossingen aan te bieden.
 
-### Meetbaar:
+**Meetbaar**: Succes wordt gemeten door de implementatie van mijn suggesties in projectherzieningen en de feedback van de projecteigenaar, met als doel minstens drie geïmplementeerde veranderingen.
 
-De voortgang wordt wekelijks gemeten tijdens de vergaderingen met het onderwijzend personeel. Het succes van de integratie wordt geëvalueerd aan de hand van feedback van studenten en de impact op hun leerprestaties.
+**Acceptabel**: Het verbeteren van mijn leiderschapsvaardigheden is essentieel zowel professioneel als persoonlijk, omdat het helpt bij het bevorderen van een productieve teamomgeving en het optimaliseren van projectresultaten.
 
-### Acceptabel:
+**Realistisch**: Gezien mijn rol als teamleider en de gestructureerde feedbackmechanismen die aanwezig zijn, is het haalbaar om significante bijdragen te leveren aan het succes van het project.
 
-De uitvoering en integratie van het project krijgen steun van alle betrokkenen, inclusief studenten en onderwijspersoneel, om de acceptatie en betrokkenheid te maximaliseren.
+**Tijdgebonden**: Ik zal mij gedurende het project op dit doel richten, met evaluaties aan het einde van elke projectfase om mijn aanpak te volgen en indien nodig aan te passen.
 
-### Realistisch:
+## Samenwerkend Engagement
 
-Het project is ontworpen met inachtneming van de schoolcontext en bestaande educatieve processen om een naadloze integratie te garanderen.
+**Specifiek**: Ik streef ernaar mijn vaardigheden in samenwerkend engagement te verbeteren door effectief te coördineren met mijn projectteam en mentoren, waarbij ik actief deelneem aan discussies, tijdige projectupdates geef en eventuele teamconflicten constructief oplos.
 
-### Tijdsgebonden:
+**Meetbaar**: Vooruitgang wordt beoordeeld door feedback van teamleden en projectbegeleiders over mijn samenwerkings- en conflictoplossingsvaardigheden, met als doel het verminderen van misverstanden met minstens 50% en het verbeteren van de algemene teamtevredenheid met 20%.
 
-De uitvoering van het project en de eerste fase van de educatieve integratie worden binnen de volgende 3 weken voltooid, met als doel volledige operationele inbedding in het onderwijsprogramma tegen het einde van deze periode.
+**Acceptabel**: Dit doel is van vitaal belang voor mijn persoonlijke groei en het succes van het project, aangezien effectief teamwork cruciaal is voor het bereiken van onze doelstellingen.
+
+**Realistisch**: Met regelmatige teamvergaderingen en vastgestelde communicatiekanalen is het haalbaar om mijn samenwerkingsvaardigheden binnen de projecttijdlijn te verbeteren.
+
+**Tijdgebonden**: Dit doel zal de drie fasen van het project beslaan, met specifieke beoordelingen na elke fase om bijdragen te beoordelen en indien nodig aanpassingen te maken.
