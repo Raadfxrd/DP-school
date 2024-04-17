@@ -1,6 +1,5 @@
 First draft Class Diagram backend
 
-
 ```mermaid
 classDiagram
   direction RL
@@ -27,7 +26,7 @@ class Address {
 }
 
 class AuthorizationLevel{
-     <<enumeration>> 
+     <<enumeration>>
   USER = "user"
   EMPLOYEE = "employee"
   ADMIN = "admin"
@@ -43,7 +42,7 @@ class OrderItem {
 
 class Order {
   + id: number
-  + products: OrderItem[]  
+  + products: OrderItem[]
   + status: string
 }
 
@@ -121,5 +120,5 @@ class UserController  {
     UserData "0" --> "0..n" Adress
     UserData "0" --> "0..n" CartItem
 
-    
+
 ```

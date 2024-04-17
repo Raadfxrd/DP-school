@@ -10,11 +10,12 @@ Als je iets bedenkt dat hier handig bij kan zet het er graag bij.
 -   Class, Intefaces, Types & Enums: PascalCase
 -   CONSTANTS: FULL CAPS (dotenv variables)
 
-
-
 ## Feature documentatie template
-___
+
+---
+
 ### Naam Feature:
+
 --/--/24
 <br>Gemaakt door:
 
@@ -23,7 +24,8 @@ ___
 ![Alt text]("")
 
 Bronnen:
-___
+
+---
 
 ## Commit rules
 
