@@ -320,6 +320,57 @@ export class Root extends LitElement {
     }
 
     /**
+     * Renders the login button in the navigation
+     */
+    private renderLoginInNav(): TemplateResult {
+        if (this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Login;
+            }}
+        >
+            <button>Inloggen</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the register button in the navigation
+     */
+    private renderRegisterInNav(): TemplateResult {
+        if (this._isLoggedIn) {
+            return html``;
+        }
+
+        return html` <div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Register;
+            }}
+        >
+            <button>Registreren</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the logout button in the navigation
+     */
+    private renderLogoutInNav(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`
+            <div @click=${this.clickLogoutButton}>
+                <button>Logout</button>
+            </div>
+        `;
+    }
+
+    /** Here will all the functionalities for the login and register pages follow **/
+
+    /**
      * Renders the login page
      */
     private renderLogin(): TemplateResult {
@@ -374,55 +425,6 @@ export class Root extends LitElement {
                     </button>
                     door hier te klikken.
                 </div>
-            </div>
-        `;
-    }
-
-    /**
-     * Renders the login button in the navigation
-     */
-    private renderLoginInNav(): TemplateResult {
-        if (this._isLoggedIn) {
-            return html``;
-        }
-
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Login;
-            }}
-        >
-            <button>Inloggen</button>
-        </div>`;
-    }
-
-    /**
-     * Renders the register button in the navigation
-     */
-    private renderRegisterInNav(): TemplateResult {
-        if (this._isLoggedIn) {
-            return html``;
-        }
-
-        return html` <div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Register;
-            }}
-        >
-            <button>Registreren</button>
-        </div>`;
-    }
-
-    /**
-     * Renders the logout button in the navigation
-     */
-    private renderLogoutInNav(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``;
-        }
-
-        return html`
-            <div @click=${this.clickLogoutButton}>
-                <button>Logout</button>
             </div>
         `;
     }
