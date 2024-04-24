@@ -31,7 +31,7 @@ export class Root extends LitElement {
         }
 
         footer {
-            background-color: #ecae20;
+            background-color: #c4aad0;
             padding: 10px;
             text-align: center;
         }
@@ -39,6 +39,7 @@ export class Root extends LitElement {
         nav {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 10px;
         }
 
@@ -46,6 +47,40 @@ export class Root extends LitElement {
             width: auto;
             height: 100px;
             cursor: pointer;
+        }
+
+        nav button {
+            text-decoration: none;
+            background-color: #fbfbfa;
+            border: none;
+            padding: 0px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-family: "Rubik Mono One", monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav button::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background-color: #c4aad0;
+            transition: width 0.3s ease;
+        }
+
+        nav button:hover::after {
+            width: 100%;
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            justify-content: space-around;
+            width: 40%;
         }
 
         .form {
@@ -168,8 +203,8 @@ export class Root extends LitElement {
         this._cartItemsCount = result.cartItems?.length || 0;
 
         alert(
-            `Hallo ${result.email}!\r\n\r\nJe hebt de volgende producten in je winkelmandje:\r\n- ${
-                result.cartItems?.join("\r\n- ") || "Geen"
+            `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
+                result.cartItems?.join("\r\n- ") || "None"
             }`
         );
     }
@@ -220,7 +255,9 @@ export class Root extends LitElement {
         return html`
             <header>
                 <nav>
-                    ${this.renderProductsInNav()} ${this.renderNewsInNav()}
+                    <div class="nav-left">
+                        ${this.renderProductsInNav()} ${this.renderNewsInNav()} ${this.renderAccountInNav()}
+                    </div>
                     <div
                         class="logo"
                         @click=${(): void => {
@@ -229,9 +266,10 @@ export class Root extends LitElement {
                     >
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
-
-                    ${this.renderLoginInNav()} ${this.renderRegisterInNav()} ${this.renderCartInNav()}
-                    ${this.renderLogoutInNav()}
+                    <div class="nav-right">
+                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderRegisterInNav()}
+                        ${this.renderCartInNav()} ${this.renderLogoutInNav()}
+                    </div>
                 </nav>
             </header>
             <main>${contentTemplate}</main>
@@ -246,15 +284,13 @@ export class Root extends LitElement {
         const orderItems: TemplateResult[] = this._orderItems.map((e) => this.renderOrderItem(e));
 
         if (orderItems.length === 0) {
-            return html`<div class="order-items">Laden... Even geduld alstublieft.</div> `;
+            return html`<div class="order-items">Loading... Please wait a moment.</div> `;
         }
 
         return html`
-            <h1>Welkom op de Luca Stars webshop!</h1>
+            <h1>Welcome to Don't Play!</h1>
 
-            ${this._isLoggedIn
-                ? nothing
-                : html`<p>Je moet ingelogd zijn om producten aan je winkelmandje toe te kunnen voegen!</p>`}
+            ${this._isLoggedIn ? nothing : html`<p>You must be logged in to add items to the cart.</p>`}
 
             <div class="order-items">${orderItems}</div>
         `;
@@ -270,9 +306,10 @@ export class Root extends LitElement {
             <div class="order-item">
                 <h2>${orderItem.name}</h2>
                 <p>${orderItem.description}</p>
+                <img src="${orderItem.imageURLs[0]}" alt="${orderItem.name}" />
                 ${this._isLoggedIn
                     ? html`<button @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
-                          Toevoegen aan winkelmandje
+                          Add to cart
                       </button>`
                     : nothing}
             </div>
@@ -288,7 +325,7 @@ export class Root extends LitElement {
                 this._currentPage = RouterPage.Home;
             }}
         >
-            <button>Producten</button>
+            <button>Products</button>
         </div>`;
     }
 
@@ -302,7 +339,37 @@ export class Root extends LitElement {
                 this._currentPage = RouterPage.Home;
             }}
         >
-            <button>Nieuws</button>
+            <button>News</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the account button in the navigation
+     */
+    private renderAccountInNav(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Account</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the search button in the navigation
+     */
+    private renderSearchInNav(): TemplateResult {
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Search</button>
         </div>`;
     }
 
@@ -315,7 +382,7 @@ export class Root extends LitElement {
         }
 
         return html`<div @click=${this.clickCartButton}>
-            <button>Winkelmandje (${this._cartItemsCount} producten)</button>
+            <button>Cart (${this._cartItemsCount} products)</button>
         </div>`;
     }
 
@@ -332,7 +399,7 @@ export class Root extends LitElement {
                 this._currentPage = RouterPage.Login;
             }}
         >
-            <button>Inloggen</button>
+            <button>Login</button>
         </div>`;
     }
 
@@ -349,7 +416,7 @@ export class Root extends LitElement {
                 this._currentPage = RouterPage.Register;
             }}
         >
-            <button>Registreren</button>
+            <button>Register</button>
         </div>`;
     }
 
@@ -379,7 +446,7 @@ export class Root extends LitElement {
                 ${this.renderEmail()} ${this.renderPassword()}
 
                 <div>
-                    <button @click="${this.submitLoginForm}" type="submit">Inloggen</button>
+                    <button @click="${this.submitLoginForm}" type="submit">Login</button>
                 </div>
 
                 <div>
@@ -389,9 +456,9 @@ export class Root extends LitElement {
                             this._currentPage = RouterPage.Register;
                         }}"
                     >
-                        Registreer
+                        Register
                     </button>
-                    je door hier te klikken.
+                    by clicking here
                 </div>
             </div>
         `;
@@ -404,14 +471,14 @@ export class Root extends LitElement {
         return html`
             <div class="form">
                 <div>
-                    <label for="username">Naam</label>
+                    <label for="username">Name</label>
                     <input type="text" id="name" value=${this._name} @change=${this.onChangeName} />
                 </div>
 
                 ${this.renderEmail()} ${this.renderPassword()}
 
                 <div>
-                    <button @click="${this.submitRegisterForm}" type="submit">Registreer</button>
+                    <button @click="${this.submitRegisterForm}" type="submit">Register</button>
                 </div>
 
                 <div>
@@ -423,7 +490,7 @@ export class Root extends LitElement {
                     >
                         Login
                     </button>
-                    door hier te klikken.
+                    by clicking here
                 </div>
             </div>
         `;
@@ -450,7 +517,7 @@ export class Root extends LitElement {
      */
     private renderPassword(): TemplateResult {
         return html`<div>
-            <label for="password">Wachtwoord</label>
+            <label for="password">Password</label>
             <input type="password" value=${this._password} @change=${this.onChangePassword} />
         </div>`;
     }

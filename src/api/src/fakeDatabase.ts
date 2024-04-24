@@ -1,6 +1,6 @@
 /**
  * This file represents a database with two tables: User and OrderItem.
- * 
+ *
  * It should be noted that this fake database does not directly translate to an actual relational database.
  */
 import { OrderItem, UserData } from "@shared/types";
