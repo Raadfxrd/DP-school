@@ -220,6 +220,7 @@ export class Root extends LitElement {
         return html`
             <header>
                 <nav>
+                    ${this.renderProductsInNav()} ${this.renderNewsInNav()}
                     <div
                         class="logo"
                         @click=${(): void => {
@@ -276,6 +277,46 @@ export class Root extends LitElement {
                     : nothing}
             </div>
         `;
+    }
+
+    /**
+     * Renders the products button in the navigation
+     */
+    private renderProductsInNav(): TemplateResult {
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Producten</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the news button in the navigation
+     */
+
+    private renderNewsInNav(): TemplateResult {
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Nieuws</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the cart button in the navigation
+     */
+    private renderCartInNav(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`<div @click=${this.clickCartButton}>
+            <button>Winkelmandje (${this._cartItemsCount} producten)</button>
+        </div>`;
     }
 
     /**
@@ -368,19 +409,6 @@ export class Root extends LitElement {
             }}
         >
             <button>Registreren</button>
-        </div>`;
-    }
-
-    /**
-     * Renders the cart button in the navigation
-     */
-    private renderCartInNav(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``;
-        }
-
-        return html`<div @click=${this.clickCartButton}>
-            <button>Winkelmandje (${this._cartItemsCount} producten)</button>
         </div>`;
     }
 
