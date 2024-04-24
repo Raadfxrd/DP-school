@@ -1,6 +1,6 @@
 /**
  * This file represents a database with two tables: User and OrderItem.
- * 
+ *
  * It should be noted that this fake database does not directly translate to an actual relational database.
  */
 import { OrderItem, UserData } from "@shared/types";
@@ -26,20 +26,41 @@ export const orderItems: OrderItem[] = [
         name: "Item 1",
         description: "Description 1",
         price: 10,
-        imageURLs: ["https://via.placeholder.com/150"],
+        imageURLs: ["https://via.placeholder.com/450"],
     },
     {
         id: 2,
         name: "Item 2",
         description: "Description 2",
         price: 20,
-        imageURLs: ["https://via.placeholder.com/150"],
+        imageURLs: ["https://via.placeholder.com/450"],
     },
     {
         id: 3,
         name: "Item 3",
         description: "Description 3",
         price: 30,
-        imageURLs: ["https://via.placeholder.com/150"],
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 4,
+        name: "Item 4",
+        description: "Description 4",
+        price: 40,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 5,
+        name: "Item 5",
+        description: "Description 5",
+        price: 50,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 6,
+        name: "Item 6",
+        description: "Description 6",
+        price: 60,
+        imageURLs: ["https://via.placeholder.com/450"],
     },
 ];

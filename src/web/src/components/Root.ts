@@ -28,10 +28,12 @@ export class Root extends LitElement {
 
         main {
             padding: 10px;
+            margin-left: 30px;
+            margin-right: 30px;
         }
 
         footer {
-            background-color: #ecae20;
+            background-color: #c4aad0;
             padding: 10px;
             text-align: center;
         }
@@ -39,6 +41,7 @@ export class Root extends LitElement {
         nav {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 10px;
         }
 
@@ -46,6 +49,76 @@ export class Root extends LitElement {
             width: auto;
             height: 100px;
             cursor: pointer;
+        }
+
+        nav button {
+            text-decoration: none;
+            background-color: #fbfbfa;
+            border: none;
+            padding: 0px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-family: "Rubik Mono One", monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav button::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background-color: #c4aad0;
+            transition: width 0.3s ease;
+        }
+
+        nav button:hover::after {
+            width: 100%;
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            justify-content: space-around;
+            width: 40%;
+        }
+
+        .order-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 50px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        .order-item {
+            border: 3px solid #c4aad0;
+            padding: 20px;
+            padding-top: 0px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .order-item .text-content {
+            align-self: stretch;
+            text-align: center;
+        }
+
+        .order-item .product-price {
+            margin-top: 20px;
+            align-self: flex-end;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .order-item img {
+            width: 450px;
+            height: auto;
+            max-width: 100%;
         }
 
         .form {
@@ -168,8 +241,8 @@ export class Root extends LitElement {
         this._cartItemsCount = result.cartItems?.length || 0;
 
         alert(
-            `Hallo ${result.email}!\r\n\r\nJe hebt de volgende producten in je winkelmandje:\r\n- ${
-                result.cartItems?.join("\r\n- ") || "Geen"
+            `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
+                result.cartItems?.join("\r\n- ") || "None"
             }`
         );
     }
@@ -220,7 +293,9 @@ export class Root extends LitElement {
         return html`
             <header>
                 <nav>
-                    ${this.renderProductsInNav()} ${this.renderNewsInNav()}
+                    <div class="nav-left">
+                        ${this.renderProductsInNav()} ${this.renderNewsInNav()} ${this.renderAccountInNav()}
+                    </div>
                     <div
                         class="logo"
                         @click=${(): void => {
@@ -229,13 +304,14 @@ export class Root extends LitElement {
                     >
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
-
-                    ${this.renderLoginInNav()} ${this.renderRegisterInNav()} ${this.renderCartInNav()}
-                    ${this.renderLogoutInNav()}
+                    <div class="nav-right">
+                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderRegisterInNav()}
+                        ${this.renderCartInNav()} ${this.renderLogoutInNav()}
+                    </div>
                 </nav>
             </header>
             <main>${contentTemplate}</main>
-            <footer>Copyright &copy; Luca Stars 2024</footer>
+            <footer>Copyright &copy; Don't Play</footer>
         `;
     }
 
@@ -246,18 +322,10 @@ export class Root extends LitElement {
         const orderItems: TemplateResult[] = this._orderItems.map((e) => this.renderOrderItem(e));
 
         if (orderItems.length === 0) {
-            return html`<div class="order-items">Laden... Even geduld alstublieft.</div> `;
+            return html`<div class="order-items">Loading... Please wait a moment.</div> `;
         }
 
-        return html`
-            <h1>Welkom op de Luca Stars webshop!</h1>
-
-            ${this._isLoggedIn
-                ? nothing
-                : html`<p>Je moet ingelogd zijn om producten aan je winkelmandje toe te kunnen voegen!</p>`}
-
-            <div class="order-items">${orderItems}</div>
-        `;
+        return html` <div class="order-items">${orderItems}</div> `;
     }
 
     /**
@@ -268,11 +336,15 @@ export class Root extends LitElement {
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="order-item">
-                <h2>${orderItem.name}</h2>
-                <p>${orderItem.description}</p>
+                <div class="text-content">
+                    <h2>${orderItem.name}</h2>
+                    <p>${orderItem.description}</p>
+                </div>
+                <img src="${orderItem.imageURLs}" alt="${orderItem.name}" />
+                <p class="product-price">Price: €${orderItem.price}</p>
                 ${this._isLoggedIn
                     ? html`<button @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
-                          Toevoegen aan winkelmandje
+                          Add to cart
                       </button>`
                     : nothing}
             </div>
@@ -371,6 +443,127 @@ export class Root extends LitElement {
     /** Here will all the functionalities for the login and register pages follow **/
 
     /**
+     * Renders the products button in the navigation
+     */
+    private renderProductsInNav(): TemplateResult {
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Products</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the news button in the navigation
+     */
+
+    private renderNewsInNav(): TemplateResult {
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>News</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the account button in the navigation
+     */
+    private renderAccountInNav(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Account</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the search button in the navigation
+     */
+    private renderSearchInNav(): TemplateResult {
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Search</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the cart button in the navigation
+     */
+    private renderCartInNav(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`<div @click=${this.clickCartButton}>
+            <button>Cart (${this._cartItemsCount} products)</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the login button in the navigation
+     */
+    private renderLoginInNav(): TemplateResult {
+        if (this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Login;
+            }}
+        >
+            <button>Login</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the register button in the navigation
+     */
+    private renderRegisterInNav(): TemplateResult {
+        if (this._isLoggedIn) {
+            return html``;
+        }
+
+        return html` <div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Register;
+            }}
+        >
+            <button>Register</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the logout button in the navigation
+     */
+    private renderLogoutInNav(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`
+            <div @click=${this.clickLogoutButton}>
+                <button>Logout</button>
+            </div>
+        `;
+    }
+
+    /** Here will all the functionalities for the login and register pages follow **/
+
+    /**
      * Renders the login page
      */
     private renderLogin(): TemplateResult {
@@ -379,7 +572,7 @@ export class Root extends LitElement {
                 ${this.renderEmail()} ${this.renderPassword()}
 
                 <div>
-                    <button @click="${this.submitLoginForm}" type="submit">Inloggen</button>
+                    <button @click="${this.submitLoginForm}" type="submit">Login</button>
                 </div>
 
                 <div>
@@ -389,9 +582,9 @@ export class Root extends LitElement {
                             this._currentPage = RouterPage.Register;
                         }}"
                     >
-                        Registreer
+                        Register
                     </button>
-                    je door hier te klikken.
+                    by clicking here
                 </div>
             </div>
         `;
@@ -404,14 +597,14 @@ export class Root extends LitElement {
         return html`
             <div class="form">
                 <div>
-                    <label for="username">Naam</label>
+                    <label for="username">Name</label>
                     <input type="text" id="name" value=${this._name} @change=${this.onChangeName} />
                 </div>
 
                 ${this.renderEmail()} ${this.renderPassword()}
 
                 <div>
-                    <button @click="${this.submitRegisterForm}" type="submit">Registreer</button>
+                    <button @click="${this.submitRegisterForm}" type="submit">Register</button>
                 </div>
 
                 <div>
@@ -423,7 +616,7 @@ export class Root extends LitElement {
                     >
                         Login
                     </button>
-                    door hier te klikken.
+                    by clicking here
                 </div>
             </div>
         `;
@@ -450,7 +643,7 @@ export class Root extends LitElement {
      */
     private renderPassword(): TemplateResult {
         return html`<div>
-            <label for="password">Wachtwoord</label>
+            <label for="password">Password</label>
             <input type="password" value=${this._password} @change=${this.onChangePassword} />
         </div>`;
     }
