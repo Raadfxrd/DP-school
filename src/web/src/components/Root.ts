@@ -58,6 +58,57 @@ export class Root extends LitElement {
             display: block;
             margin-bottom: 5px;
         }
+
+        .login-container {
+            max-width: 320px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-form h1 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #5c6bc0;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        .login-form button:hover {
+            background-color: #3f51b5;
+        }
+
+        .login-form .message {
+            text-align: center;
+        }
+        .login-form .message a {
+            color: #5c6bc0;
+            text-decoration: none;
+        }
     `;
 
     @state()
