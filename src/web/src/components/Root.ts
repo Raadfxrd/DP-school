@@ -11,6 +11,10 @@ enum RouterPage {
     Home = "orderItems",
     Login = "login",
     Register = "register",
+    Games = "games",
+    Merchandise = "merchandise",
+    News = "news",
+    Account = "account",
 }
 
 /**
@@ -28,10 +32,12 @@ export class Root extends LitElement {
 
         main {
             padding: 10px;
+            margin-left: 30px;
+            margin-right: 30px;
         }
 
         footer {
-            background-color: #ecae20;
+            background-color: #c4aad0;
             padding: 10px;
             text-align: center;
         }
@@ -39,13 +45,151 @@ export class Root extends LitElement {
         nav {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
         }
 
         nav .logo img {
             width: auto;
             height: 100px;
             cursor: pointer;
+        }
+
+        nav button {
+            text-decoration: none;
+            background-color: #fbfbfa;
+            border: none;
+            padding: 0px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-family: "Rubik Mono One", monospace;
+            letter-spacing: -1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav button::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background-color: #c4aad0;
+            transition: width 0.3s ease;
+        }
+
+        nav button:hover::after {
+            width: 100%;
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            justify-content: space-around;
+            width: 45%;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            width: 100%;
+            top: 100%;
+            left: 0;
+            background-color: #fbfbfa;
+            display: flex;
+            justify-content: space-around;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .dropdown-content.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0px);
+        }
+
+        .dropdown-section {
+            flex-grow: 1;
+            text-align: center;
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dropdown-section button {
+            background: none;
+            border: none;
+            padding: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            outline: none;
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-section button span {
+            position: relative;
+            display: inline-block; /* Inline-block so it wraps the content */
+        }
+
+        .dropdown-section button span::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #c4aad0;
+            transition: width 0.3s ease;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: auto;
+            bottom: -5px;
+        }
+
+        .dropdown-section button:hover span::after {
+            width: 100%;
+        }
+
+        .order-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 50px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        .order-item {
+            border: 3px solid #c4aad0;
+            padding: 20px;
+            padding-top: 0px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .order-item .text-content {
+            align-self: stretch;
+            text-align: center;
+        }
+
+        .order-item .product-price {
+            margin-top: 20px;
+            align-self: flex-end;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .order-item img {
+            width: 450px;
+            height: auto;
+            max-width: 100%;
         }
 
         .form {
@@ -113,6 +257,9 @@ export class Root extends LitElement {
 
     @state()
     private _currentPage: RouterPage = RouterPage.Home;
+
+    @state()
+    private _showProductsDropdown: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
@@ -219,10 +366,31 @@ export class Root extends LitElement {
         this._cartItemsCount = result.cartItems?.length || 0;
 
         alert(
-            `Hallo ${result.email}!\r\n\r\nJe hebt de volgende producten in je winkelmandje:\r\n- ${
-                result.cartItems?.join("\r\n- ") || "Geen"
+            `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
+                result.cartItems?.join("\r\n- ") || "None"
             }`
         );
+    }
+
+    /**
+     * Toggle the products dropdown in the navigation
+     */
+    private toggleProductsDropdown(e: MouseEvent): void {
+        e.preventDefault();
+        this._showProductsDropdown = !this._showProductsDropdown;
+        this.requestUpdate();
+    }
+
+    /**
+     * Navigate to a specific page
+     *
+     * @param page Page to navigate to
+     */
+    private navigateToPage(page: RouterPage, event: MouseEvent): void {
+        event.stopPropagation(); // Prevents the click from being registered on underlying or parent elements
+        this._currentPage = page;
+        this._showProductsDropdown = false; // Close dropdown after selection
+        this.requestUpdate(); // Ensure the component re-renders
     }
 
     /**
@@ -271,7 +439,9 @@ export class Root extends LitElement {
         return html`
             <header>
                 <nav>
-                    ${this.renderProductsInNav()} ${this.renderNewsInNav()}
+                    <div class="nav-left">
+                        ${this.renderProductsInNav()} ${this.renderNewsInNav()} ${this.renderAccountInNav()}
+                    </div>
                     <div
                         class="logo"
                         @click=${(): void => {
@@ -280,13 +450,14 @@ export class Root extends LitElement {
                     >
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
-
-                    ${this.renderLoginInNav()} ${this.renderRegisterInNav()} ${this.renderCartInNav()}
-                    ${this.renderLogoutInNav()}
+                    <div class="nav-right">
+                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderRegisterInNav()}
+                        ${this.renderCartInNav()} ${this.renderLogoutInNav()}
+                    </div>
                 </nav>
             </header>
             <main>${contentTemplate}</main>
-            <footer>Copyright &copy; Luca Stars 2024</footer>
+            <footer>Copyright &copy; Don't Play</footer>
         `;
     }
 
@@ -297,18 +468,10 @@ export class Root extends LitElement {
         const orderItems: TemplateResult[] = this._orderItems.map((e) => this.renderOrderItem(e));
 
         if (orderItems.length === 0) {
-            return html`<div class="order-items">Laden... Even geduld alstublieft.</div> `;
+            return html`<div class="order-items">Loading... Please wait a moment.</div> `;
         }
 
-        return html`
-            <h1>Welkom op de Luca Stars webshop!</h1>
-
-            ${this._isLoggedIn
-                ? nothing
-                : html`<p>Je moet ingelogd zijn om producten aan je winkelmandje toe te kunnen voegen!</p>`}
-
-            <div class="order-items">${orderItems}</div>
-        `;
+        return html` <div class="order-items">${orderItems}</div> `;
     }
 
     /**
@@ -319,11 +482,15 @@ export class Root extends LitElement {
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="order-item">
-                <h2>${orderItem.name}</h2>
-                <p>${orderItem.description}</p>
+                <div class="text-content">
+                    <h2>${orderItem.name}</h2>
+                    <p>${orderItem.description}</p>
+                </div>
+                <img src="${orderItem.imageURLs}" alt="${orderItem.name}" />
+                <p class="product-price">Price: €${orderItem.price}</p>
                 ${this._isLoggedIn
                     ? html`<button @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
-                          Toevoegen aan winkelmandje
+                          Add to cart
                       </button>`
                     : nothing}
             </div>
@@ -334,13 +501,25 @@ export class Root extends LitElement {
      * Renders the products button in the navigation
      */
     private renderProductsInNav(): TemplateResult {
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Home;
-            }}
-        >
-            <button>Producten</button>
-        </div>`;
+        return html`
+            <div @click=${this.toggleProductsDropdown}>
+                <button>Products</button>
+                <div class=${this._showProductsDropdown ? "dropdown-content visible" : "dropdown-content"}>
+                    <div class="dropdown-section">
+                        <button @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Games, e)}>
+                            Games
+                        </button>
+                    </div>
+                    <div class="dropdown-section">
+                        <button
+                            @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Merchandise, e)}
+                        >
+                            Merchandise
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     /**
@@ -353,7 +532,37 @@ export class Root extends LitElement {
                 this._currentPage = RouterPage.Home;
             }}
         >
-            <button>Nieuws</button>
+            <button>News</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the account button in the navigation
+     */
+    private renderAccountInNav(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``;
+        }
+
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Account</button>
+        </div>`;
+    }
+
+    /**
+     * Renders the search button in the navigation
+     */
+    private renderSearchInNav(): TemplateResult {
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Search</button>
         </div>`;
     }
 
@@ -366,7 +575,7 @@ export class Root extends LitElement {
         }
 
         return html`<div @click=${this.clickCartButton}>
-            <button>Winkelmandje (${this._cartItemsCount} producten)</button>
+            <button>Cart (${this._cartItemsCount} products)</button>
         </div>`;
     }
 
@@ -383,7 +592,7 @@ export class Root extends LitElement {
                 this._currentPage = RouterPage.Login;
             }}
         >
-            <button>Inloggen</button>
+            <button>Login</button>
         </div>`;
     }
 
@@ -400,7 +609,7 @@ export class Root extends LitElement {
                 this._currentPage = RouterPage.Register;
             }}
         >
-            <button>Registreren</button>
+            <button>Register</button>
         </div>`;
     }
 
@@ -430,7 +639,7 @@ export class Root extends LitElement {
                 ${this.renderEmail()} ${this.renderPassword()}
 
                 <div>
-                    <button @click="${this.submitLoginForm}" type="submit">Inloggen</button>
+                    <button @click="${this.submitLoginForm}" type="submit">Login</button>
                 </div>
 
                 <div>
@@ -440,9 +649,9 @@ export class Root extends LitElement {
                             this._currentPage = RouterPage.Register;
                         }}"
                     >
-                        Registreer
+                        Register
                     </button>
-                    je door hier te klikken.
+                    by clicking here
                 </div>
             </div>
         `;
@@ -455,14 +664,14 @@ export class Root extends LitElement {
         return html`
             <div class="form">
                 <div>
-                    <label for="username">Naam</label>
+                    <label for="username">Name</label>
                     <input type="text" id="name" value=${this._name} @change=${this.onChangeName} />
                 </div>
 
                 ${this.renderEmail()} ${this.renderPassword()}
 
                 <div>
-                    <button @click="${this.submitRegisterForm}" type="submit">Registreer</button>
+                    <button @click="${this.submitRegisterForm}" type="submit">Register</button>
                 </div>
 
                 <div>
@@ -474,7 +683,7 @@ export class Root extends LitElement {
                     >
                         Login
                     </button>
-                    door hier te klikken.
+                    by clicking here
                 </div>
             </div>
         `;
@@ -501,7 +710,7 @@ export class Root extends LitElement {
      */
     private renderPassword(): TemplateResult {
         return html`<div>
-            <label for="password">Wachtwoord</label>
+            <label for="password">Password</label>
             <input type="password" value=${this._password} @change=${this.onChangePassword} />
         </div>`;
     }
