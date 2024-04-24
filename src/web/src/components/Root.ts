@@ -42,7 +42,6 @@ export class Root extends LitElement {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
         }
 
         nav .logo img {
@@ -59,6 +58,7 @@ export class Root extends LitElement {
             font-size: 1.5rem;
             cursor: pointer;
             font-family: "Rubik Mono One", monospace;
+            letter-spacing: -1px;
             position: relative;
             overflow: hidden;
         }
@@ -82,7 +82,7 @@ export class Root extends LitElement {
         .nav-right {
             display: flex;
             justify-content: space-around;
-            width: 40%;
+            width: 45%;
         }
 
         .order-items {
