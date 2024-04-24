@@ -635,24 +635,24 @@ export class Root extends LitElement {
      */
     private renderLogin(): TemplateResult {
         return html`
-            <div class="form">
-                ${this.renderEmail()} ${this.renderPassword()}
-
-                <div>
-                    <button @click="${this.submitLoginForm}" type="submit">Login</button>
-                </div>
-
-                <div>
-                    Of
-                    <button
-                        @click="${(): void => {
-                            this._currentPage = RouterPage.Register;
-                        }}"
-                    >
-                        Register
-                    </button>
-                    by clicking here
-                </div>
+            <div class="login-container">
+                <form id="loginForm" class="login-form" @submit=${this.submitLoginForm}>
+                    <h1>Inloggen</h1>
+                    ${this.renderEmail()} ${this.renderPassword()}
+                    <div>
+                        <button type="submit">Login</button>
+                    </div>
+                    <p class="message">
+                        No Account?
+                        <a
+                            @click="${(): void => {
+                                this._currentPage = RouterPage.Register;
+                                this.requestUpdate();
+                            }}"
+                            >Create an account</a
+                        >
+                    </p>
+                </form>
             </div>
         `;
     }
