@@ -28,6 +28,8 @@ export class Root extends LitElement {
 
         main {
             padding: 10px;
+            margin-left: 30px;
+            margin-right: 30px;
         }
 
         footer {
@@ -81,6 +83,42 @@ export class Root extends LitElement {
             display: flex;
             justify-content: space-around;
             width: 40%;
+        }
+
+        .order-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 50px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        .order-item {
+            border: 3px solid #c4aad0;
+            padding: 20px;
+            padding-top: 0px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .order-item .text-content {
+            align-self: stretch;
+            text-align: center;
+        }
+
+        .order-item .product-price {
+            margin-top: 20px;
+            align-self: flex-end;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .order-item img {
+            width: 450px;
+            height: auto;
+            max-width: 100%;
         }
 
         .form {
@@ -273,7 +311,7 @@ export class Root extends LitElement {
                 </nav>
             </header>
             <main>${contentTemplate}</main>
-            <footer>Copyright &copy; Luca Stars 2024</footer>
+            <footer>Copyright &copy; Don't Play</footer>
         `;
     }
 
@@ -287,13 +325,7 @@ export class Root extends LitElement {
             return html`<div class="order-items">Loading... Please wait a moment.</div> `;
         }
 
-        return html`
-            <h1>Welcome to Don't Play!</h1>
-
-            ${this._isLoggedIn ? nothing : html`<p>You must be logged in to add items to the cart.</p>`}
-
-            <div class="order-items">${orderItems}</div>
-        `;
+        return html` <div class="order-items">${orderItems}</div> `;
     }
 
     /**
@@ -304,9 +336,12 @@ export class Root extends LitElement {
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="order-item">
-                <h2>${orderItem.name}</h2>
-                <p>${orderItem.description}</p>
-                <img src="${orderItem.imageURLs[0]}" alt="${orderItem.name}" />
+                <div class="text-content">
+                    <h2>${orderItem.name}</h2>
+                    <p>${orderItem.description}</p>
+                </div>
+                <img src="${orderItem.imageURLs}" alt="${orderItem.name}" />
+                <p class="product-price">Price: €${orderItem.price}</p>
                 ${this._isLoggedIn
                     ? html`<button @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
                           Add to cart
