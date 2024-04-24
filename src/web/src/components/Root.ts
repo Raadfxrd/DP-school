@@ -11,6 +11,10 @@ enum RouterPage {
     Home = "orderItems",
     Login = "login",
     Register = "register",
+    Games = "games",
+    Merchandise = "merchandise",
+    News = "news",
+    Account = "account",
 }
 
 /**
@@ -42,6 +46,8 @@ export class Root extends LitElement {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            width: 100%;
+            position: relative;
         }
 
         nav .logo img {
@@ -83,6 +89,71 @@ export class Root extends LitElement {
             display: flex;
             justify-content: space-around;
             width: 45%;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            width: 100%;
+            top: 100%;
+            left: 0;
+            background-color: #fbfbfa;
+            display: flex;
+            justify-content: space-around;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .dropdown-content.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0px);
+        }
+
+        .dropdown-section {
+            flex-grow: 1;
+            text-align: center;
+            padding: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dropdown-section button {
+            background: none;
+            border: none;
+            padding: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            outline: none;
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-section button span {
+            position: relative;
+            display: inline-block; /* Inline-block so it wraps the content */
+        }
+
+        .dropdown-section button span::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #c4aad0;
+            transition: width 0.3s ease;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: auto;
+            bottom: -5px;
+        }
+
+        .dropdown-section button:hover span::after {
+            width: 100%;
         }
 
         .order-items {
@@ -135,6 +206,9 @@ export class Root extends LitElement {
 
     @state()
     private _currentPage: RouterPage = RouterPage.Home;
+
+    @state()
+    private _showProductsDropdown: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
@@ -248,6 +322,27 @@ export class Root extends LitElement {
     }
 
     /**
+     * Toggle the products dropdown in the navigation
+     */
+    private toggleProductsDropdown(e: MouseEvent): void {
+        e.preventDefault();
+        this._showProductsDropdown = !this._showProductsDropdown;
+        this.requestUpdate();
+    }
+
+    /**
+     * Navigate to a specific page
+     *
+     * @param page Page to navigate to
+     */
+    private navigateToPage(page: RouterPage, event: MouseEvent): void {
+        event.stopPropagation(); // Prevents the click from being registered on underlying or parent elements
+        this._currentPage = page;
+        this._showProductsDropdown = false; // Close dropdown after selection
+        this.requestUpdate(); // Ensure the component re-renders
+    }
+
+    /**
      * Handler for the logout button
      */
     private async clickLogoutButton(): Promise<void> {
@@ -355,13 +450,25 @@ export class Root extends LitElement {
      * Renders the products button in the navigation
      */
     private renderProductsInNav(): TemplateResult {
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Home;
-            }}
-        >
-            <button>Products</button>
-        </div>`;
+        return html`
+            <div @click=${this.toggleProductsDropdown}>
+                <button>Products</button>
+                <div class=${this._showProductsDropdown ? "dropdown-content visible" : "dropdown-content"}>
+                    <div class="dropdown-section">
+                        <button @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Games, e)}>
+                            Games
+                        </button>
+                    </div>
+                    <div class="dropdown-section">
+                        <button
+                            @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Merchandise, e)}
+                        >
+                            Merchandise
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     /**
