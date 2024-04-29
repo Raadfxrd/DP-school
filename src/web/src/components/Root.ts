@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { LitElement, TemplateResult, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { UserService } from "../services/UserService";
@@ -5,6 +6,7 @@ import { OrderItem } from "@shared/types/OrderItem";
 import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { ProductPage } from "./ProductPage";
 
 /** Enumeration to keep track of all the different pages */
 enum RouterPage {
@@ -15,8 +17,14 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-}
+    Product = "product", // Nieuwse route voor de productpagina
 
+}
+declare global {
+    interface HTMLElementTagNameMap {
+        "product-page": ProductPage;
+    }
+}
 /**
  * Custom element based on Lit for the header of the webshop.
  *
@@ -24,6 +32,7 @@ enum RouterPage {
  */
 @customElement("webshop-root")
 export class Root extends LitElement {
+    [x: string]: unknown;
     public static styles = css`
         header {
             background-color: #fbfbfa;
@@ -381,9 +390,17 @@ export class Root extends LitElement {
             case RouterPage.Register:
                 contentTemplate = this.renderRegister();
                 break;
+
+            case RouterPage.Product:
+                 contentTemplate = html`<product-page .productData=${this.selectedProduct}></product-page>`;
+                 break;
             default:
                 contentTemplate = this.renderHome();
+            
+
         }
+
+    
 
         return html`
             <header>
@@ -437,6 +454,7 @@ export class Root extends LitElement {
                 </div>
                 <img src="${orderItem.imageURLs}" alt="${orderItem.name}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
+                <button @click=${() => this.navigateToProductPage(orderItem)}>View Details</button>
                 ${this._isLoggedIn
                     ? html`<button @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
                           Add to cart
@@ -446,6 +464,12 @@ export class Root extends LitElement {
         `;
     }
 
+private navigateToProductPage(product: any): void {
+    this.selectedProduct = product; // Sla de geselecteerde productgegevens op
+    this._currentPage = RouterPage.Product; // Navigeer naar de productpagina
+}
+
+    
     /**
      * Renders the products button in the navigation
      */
