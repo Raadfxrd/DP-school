@@ -227,6 +227,9 @@ export class Root extends LitElement {
 
     @state()
     public _cartItemsCount: number = 0;
+    
+    @state()
+    public selectedProduct: OrderItem | undefined = undefined;
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -235,6 +238,7 @@ export class Root extends LitElement {
     private _email: string = "";
     private _password: string = "";
     private _name: string = "";
+
 
     public async connectedCallback(): Promise<void> {
         super.connectedCallback();
@@ -391,9 +395,10 @@ export class Root extends LitElement {
                 contentTemplate = this.renderRegister();
                 break;
 
-            case RouterPage.Product:
-                 contentTemplate = html`<product-page .productData=${this.selectedProduct}></product-page>`;
-                 break;
+                case RouterPage.Product:
+                    contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
+                    break;
+                
             default:
                 contentTemplate = this.renderHome();
             
@@ -464,12 +469,20 @@ export class Root extends LitElement {
         `;
     }
 
-private navigateToProductPage(product: any): void {
-    this.selectedProduct = product; // Sla de geselecteerde productgegevens op
-    this._currentPage = RouterPage.Product; // Navigeer naar de productpagina
+    private navigateToProductPage(orderItem: OrderItem): void {
+        this._currentPage = RouterPage.Product; // Navigeer naar de productpagina
+        this.selectedProduct = orderItem; // Stel het geselecteerde product in
+        this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
+    }
+    private renderProductPage(): TemplateResult {
+        if (!this.selectedProduct) {
+            return html``;
+    }
+    return html`<product-page .productData=${this.selectedProduct}></product-page>`;
+
 }
 
-    
+
     /**
      * Renders the products button in the navigation
      */
