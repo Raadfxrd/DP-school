@@ -93,13 +93,12 @@ export class Root extends LitElement {
 
         .dropdown-content {
             position: absolute;
-            width: 100%;
+            width: 25%;
             top: 100%;
             left: 0;
             background-color: #fbfbfa;
             display: flex;
             justify-content: space-around;
-            z-index: 1000;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-20px);
