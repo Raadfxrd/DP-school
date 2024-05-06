@@ -196,6 +196,65 @@ export class Root extends LitElement {
             margin-bottom: 5px;
         }
 
+        .login-container {
+            max-width: 360px; /* Iets breder voor betere leesbaarheid */
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-form h1 {
+            color: #5a4e7c; /* Donkere paarse kleur voor de kop */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 10px;
+            color: #5a4e7c; /* Tekstkleur */
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box; /* Voorkomt problemen met padding en breedte */
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #957dad; /* Zachtere paarse tint */
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        .login-form button:hover {
+            background-color: #5a4e7c; /* Donkerdere paars voor hover effect */
+        }
+
+        .login-form .message {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-form .message a {
+            color: #957dad; /* Link kleur */
+            text-decoration: none;
+        }
+
+        .login-form .message a:hover {
+            text-decoration: underline;
+        }
+
         footer {
             display: flex;
             justify-content: space-around;
@@ -367,7 +426,14 @@ export class Root extends LitElement {
      * Handler for the register form
      */
     private async submitRegisterForm(): Promise<void> {
-        // TODO: Validation
+        console.log("Submitting registration form...");
+        console.log(`Name: ${this._name}, Email: ${this._email}, Password: ${this._password}`);
+
+        // Voeg extra validatie toe als nodig
+        if (!this._name || !this._email || !this._password) {
+            alert("Please fill out all fields.");
+            return;
+        }
 
         const result: boolean = await this._userService.register({
             email: this._email,
@@ -376,7 +442,7 @@ export class Root extends LitElement {
         });
 
         if (result) {
-            alert("Succesfully registered!");
+            alert("Successfully registered!");
 
             this._currentPage = RouterPage.Login;
         } else {
@@ -722,24 +788,24 @@ export class Root extends LitElement {
      */
     private renderLogin(): TemplateResult {
         return html`
-            <div class="form">
-                ${this.renderEmail()} ${this.renderPassword()}
-
-                <div>
-                    <button @click="${this.submitLoginForm}" type="submit">Login</button>
-                </div>
-
-                <div>
-                    Of
-                    <button
-                        @click="${(): void => {
-                            this._currentPage = RouterPage.Register;
-                        }}"
-                    >
-                        Register
-                    </button>
-                    by clicking here
-                </div>
+            <div class="login-container">
+                <form id="loginForm" class="login-form" @submit=${this.submitLoginForm}>
+                    <h1>Inloggen</h1>
+                    ${this.renderEmail()} ${this.renderPassword()}
+                    <div>
+                        <button type="submit">Login</button>
+                    </div>
+                    <p class="message">
+                        No Account?
+                        <a
+                            @click="${(): void => {
+                                this._currentPage = RouterPage.Register;
+                                this.requestUpdate();
+                            }}"
+                            >Create an account</a
+                        >
+                    </p>
+                </form>
             </div>
         `;
     }
@@ -749,29 +815,47 @@ export class Root extends LitElement {
      */
     private renderRegister(): TemplateResult {
         return html`
-            <div class="form">
-                <div>
-                    <label for="username">Name</label>
-                    <input type="text" id="name" value=${this._name} @change=${this.onChangeName} />
-                </div>
+            <div class="login-container">
+                <form id="registerForm" class="login-form" @submit=${this.submitRegisterForm}>
+                    <h1>Register</h1>
 
-                ${this.renderEmail()} ${this.renderPassword()}
+                    <!-- Name field -->
+                    <div>
+                        <label for="name">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Enter your name"
+                            value=${this._name}
+                            @change=${this.onChangeName}
+                            required
+                        />
+                    </div>
 
-                <div>
-                    <button @click="${this.submitRegisterForm}" type="submit">Register</button>
-                </div>
+                    <!-- Email field -->
+                    ${this.renderEmail()}
 
-                <div>
-                    Of
-                    <button
-                        @click="${(): void => {
-                            this._currentPage = RouterPage.Login;
-                        }}"
-                    >
-                        Login
-                    </button>
-                    by clicking here
-                </div>
+                    <!-- Password field -->
+                    ${this.renderPassword()}
+
+                    <!-- Register button -->
+                    <div>
+                        <button type="submit">Register</button>
+                    </div>
+
+                    <!-- Link to login page -->
+                    <p class="message">
+                        Already have an account?
+                        <a
+                            @click="${(): void => {
+                                this._currentPage = RouterPage.Login;
+                                this.requestUpdate();
+                            }}"
+                            >Log in</a
+                        >
+                    </p>
+                </form>
             </div>
         `;
     }
