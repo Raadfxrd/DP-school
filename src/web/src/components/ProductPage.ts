@@ -1,10 +1,16 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { OrderItem } from "@shared/types/OrderItem";
+import { UserService } from "../services/UserService";
 
 @customElement("product-page")
 export class ProductPage extends LitElement {
     @property({ type: Object }) public productData!: OrderItem;
+    @property({ type: Boolean }) private _isLoggedIn: boolean = false;
+    @property({ type: Number }) public cartItemsCount: number = 0;
+
+
+    private userService: UserService = new UserService();
 
     public static styles = css`
 
@@ -91,7 +97,7 @@ export class ProductPage extends LitElement {
 }
 
 .add-to-cart-btn:hover {
-    background-color: #0056b3;
+    background-color: #f81c39;
 }
 
 .add-to-cart-btn:focus {
@@ -121,19 +127,33 @@ export class ProductPage extends LitElement {
         
     `;
 
-    public addToCart(): void {
-        if (this.productData) {
-            // Dispatch een custom event "addToCart" met het productdata als detail
-            this.dispatchEvent(new CustomEvent("addToCart", { detail: this.productData }));
+
+
+    public setLoggedInStatus(isLoggedIn: boolean): void {
+        this._isLoggedIn = isLoggedIn;
+    }
+
+    public async addToCart(): Promise<void> {
+        if (this.productData && this._isLoggedIn) {
+            // Roep de methode aan van de UserService om het product aan de winkelwagen toe te voegen
+            const result: number | undefined = await this.userService.addOrderItemToCart(this.productData.id);
+    
+            if (result) {
+                // Handel de reactie af, bijvoorbeeld bijwerken van de winkelwagen teller
+                this.cartItemsCount = result;
+            } else {
+                // Handel het geval af waarin het product niet aan de winkelwagen kan worden toegevoegd
+                console.error("Failed to add item to cart.");
+            }
         }
     }
+    
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     public render() {
         if (!this.productData) {
             return html`<div>No product data available</div>`;
         }
-    
         return html`
            <div class="product-card">
     <div class="badge">New</div>
@@ -153,6 +173,7 @@ export class ProductPage extends LitElement {
 </div>
 
         `;
+        
     }
     
     }

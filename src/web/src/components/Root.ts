@@ -200,7 +200,46 @@ export class Root extends LitElement {
             height: auto;
             max-width: 100%;
         }
-
+        .addItemToCart{
+            display: inline-block;
+            width: 100%;
+            height: 40px;
+            background-color: #c4aad0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+    
+        .addItemToCart:hover {
+            background-color: #0f0e0e;
+        }
+        .addItemToCart:focus {
+            outline: none;
+        }
+        .addItemToCart:active {
+         transform: translateY(1px);
+        }
+        .Details{
+            display: inline-block;
+            width: 100%;
+            height: 40px;
+            background-color: #c4aad0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
         .form {
             display: flex;
             flex-direction: column;
@@ -242,6 +281,7 @@ export class Root extends LitElement {
 
     public async connectedCallback(): Promise<void> {
         super.connectedCallback();
+        
 
         await this.getWelcome();
         await this.getOrderItems();
@@ -342,7 +382,6 @@ export class Root extends LitElement {
         this._showProductsDropdown = !this._showProductsDropdown;
         this.requestUpdate();
     }
-
     /**
      * Navigate to a specific page
      *
@@ -459,9 +498,9 @@ export class Root extends LitElement {
                 </div>
                 <img src="${orderItem.imageURLs}" alt="${orderItem.name}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
-                <button @click=${() => this.navigateToProductPage(orderItem)}>View Details</button>
+                <button class="Details" @click=${() => this.navigateToProductPage(orderItem)}>View Details</button>
                 ${this._isLoggedIn
-                    ? html`<button @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
+                    ? html`<button class="addItemToCart" @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
                           Add to cart
                       </button>`
                     : nothing}
