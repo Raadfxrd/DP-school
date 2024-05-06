@@ -18,6 +18,7 @@ enum RouterPage {
     News = "news",
     Account = "account",
     Product = "product", // Nieuwse route voor de productpagina
+
 }
 declare global {
     interface HTMLElementTagNameMap {
@@ -602,6 +603,7 @@ export class Root extends LitElement {
                 contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
                 break;
 
+
             default:
                 contentTemplate = this.renderHome();
         }
@@ -622,7 +624,7 @@ export class Root extends LitElement {
                     </div>
                     <div class="nav-right">
                         ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderCartInNav()}
-                        ${this.renderLogoutInNav()}
+                        ${this.renderLogoutInNav()} ${this.renderAdminButton()}
                     </div>
                 </nav>
             </header>
@@ -730,7 +732,7 @@ export class Root extends LitElement {
                     <h2>${orderItem.name}</h2>
                     <p>${orderItem.description}</p>
                 </div>
-                <img src="${orderItem.imageURLs}" alt="${orderItem.name}" />
+                <img src=" ${orderItem.imageURLs}" alt="${orderItem.name}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
                 <button class="details" @click=${() => this.navigateToProductPage(orderItem)}>
                     View details
@@ -966,6 +968,23 @@ export class Root extends LitElement {
             />
         </div>`;
     }
+
+/**
+ * Renders the admin button in the navigation if user is logged in
+ */
+private renderAdminButton(): TemplateResult {
+    if (!this._isLoggedIn) {
+        return html``; // Render nothing if user is not logged in
+    }
+
+    return html`
+        <div @click=${(): void => {
+    
+        }}>
+            <button>Admin Page</button>
+        </div>
+    `;
+}
 
     /**
      * Renders the password input field with change-tracking
