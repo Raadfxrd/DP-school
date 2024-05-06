@@ -6,6 +6,7 @@ import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 
+
 /** Enumeration to keep track of all the different pages */
 enum RouterPage {
     Home = "orderItems",
@@ -48,6 +49,7 @@ export class Root extends LitElement {
             justify-content: space-between;
             width: 100%;
             position: relative;
+            background-color: white;
         }
 
         nav .logo img {
@@ -55,6 +57,24 @@ export class Root extends LitElement {
             height: 100px;
             cursor: pointer;
         }
+         .cartimg img {
+            width: auto;
+            height: 75px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .cartbutton{
+            background-color: transparent;
+            position: fixed;
+            width: auto;
+            height: 75px;
+            border-radius: 50%;
+            bottom: 5%;
+            right: 4%;
+            padding: none;
+            border: none;
+       }
 
         nav button {
             text-decoration: none;
@@ -68,6 +88,8 @@ export class Root extends LitElement {
             position: relative;
             overflow: hidden;
         }
+
+
 
         nav button::after {
             content: "";
@@ -400,9 +422,12 @@ export class Root extends LitElement {
                     </div>
                     <div class="nav-right">
                         ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderRegisterInNav()}
-                        ${this.renderCartInNav()} ${this.renderLogoutInNav()}
+                         ${this.renderLogoutInNav()}
                     </div>
                 </nav>
+                <div class="cartbutton">
+                        ${this.renderCartInNav()}
+                    </div>
             </header>
             <main>${contentTemplate}</main>
             <footer>Copyright &copy; Don't Play</footer>
@@ -427,14 +452,14 @@ export class Root extends LitElement {
      *
      * @param orderItem Order item to render
      */
-    private renderOrderItem(orderItem: OrderItem): TemplateResult {
+    private renderOrderItem(orderItem: OrderItem): TemplateResult{
         return html`
             <div class="order-item">
                 <div class="text-content">
                     <h2>${orderItem.name}</h2>
                     <p>${orderItem.description}</p>
                 </div>
-                <img src="${orderItem.imageURLs}" alt="${orderItem.name}" />
+                <img src=" ${orderItem.imageURLs}" alt="${orderItem.name}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
                 ${this._isLoggedIn
                     ? html`<button @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
@@ -519,7 +544,14 @@ export class Root extends LitElement {
      */
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
-            return html``;
+            return html`
+            <div class="cartimg">
+                <button class="cartbutton">
+                    <img src="/assets/img/cartimg.png" alt="cartimg" />
+                </button>
+                
+            </div>
+            `;
         }
 
         return html`<div @click=${this.clickCartButton}>
