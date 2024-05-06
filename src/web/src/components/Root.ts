@@ -632,7 +632,7 @@ export class Root extends LitElement {
                     </div>
                     <div class="nav-right">
                         ${this.renderSearchInNav()} ${this.renderLoginInNav()} 
-                        ${this.renderRegisterInNav()}
+                        <!-- ${this.renderRegisterInNav()} -->
                          ${this.renderLogoutInNav()}
                     </div>
                 </nav>
