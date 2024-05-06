@@ -482,8 +482,8 @@ export class Root extends LitElement {
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
                     <div class="nav-right">
-                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderRegisterInNav()}
-                        ${this.renderCartInNav()} ${this.renderLogoutInNav()}
+                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderCartInNav()}
+                        ${this.renderLogoutInNav()}
                     </div>
                 </nav>
             </header>
@@ -499,7 +499,6 @@ export class Root extends LitElement {
                         <li><a href="#">Account</a></li>
                         <li><a href="#">Cart</a></li>
                         <li><a href="#">Login</a></li>
-                        <li><a href="#">Register</a></li>
                     </ul>
                 </div>
                 <div class="social-media">
@@ -698,23 +697,6 @@ export class Root extends LitElement {
             }}
         >
             <button>Login</button>
-        </div>`;
-    }
-
-    /**
-     * Renders the register button in the navigation
-     */
-    private renderRegisterInNav(): TemplateResult {
-        if (this._isLoggedIn) {
-            return html``;
-        }
-
-        return html` <div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Register;
-            }}
-        >
-            <button>Register</button>
         </div>`;
     }
 
