@@ -631,7 +631,8 @@ export class Root extends LitElement {
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
                     <div class="nav-right">
-                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderRegisterInNav()}
+                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} 
+                        ${this.renderRegisterInNav()}
                          ${this.renderLogoutInNav()}
                     </div>
                 </nav>
