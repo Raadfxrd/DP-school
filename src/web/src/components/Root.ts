@@ -35,6 +35,13 @@ declare global {
 export class Root extends LitElement {
     [x: string]: unknown;
     public static styles = css`
+        :host {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 100vh; /* This ensures that the root element takes at least the height of the viewport */
+        }
+
         header {
             background-color: #fbfbfa;
             padding: 10px;
@@ -44,6 +51,7 @@ export class Root extends LitElement {
             padding: 10px;
             margin-left: 30px;
             margin-right: 30px;
+            flex: 1 0 auto; /* Expand main content area to push the footer down */
         }
 
         nav {
@@ -215,7 +223,8 @@ export class Root extends LitElement {
             height: auto;
             max-width: 100%;
         }
-        .addItemToCart{
+
+        .addItemToCart {
             display: inline-block;
             width: 100%;
             height: 40px;
@@ -230,17 +239,20 @@ export class Root extends LitElement {
             transition: background-color 0.3s;
             margin-top: 10px;
         }
-    
+
         .addItemToCart:hover {
             background-color: #0f0e0e;
         }
+
         .addItemToCart:focus {
             outline: none;
         }
+
         .addItemToCart:active {
-         transform: translateY(1px);
+            transform: translateY(1px);
         }
-        .Details{
+
+        .details {
             display: inline-block;
             width: 100%;
             height: 40px;
@@ -255,6 +267,11 @@ export class Root extends LitElement {
             transition: background-color 0.3s;
             margin-top: 10px;
         }
+
+        .details:hover {
+            background-color: #8e7996;
+        }
+
         .form {
             display: flex;
             flex-direction: column;
@@ -269,6 +286,7 @@ export class Root extends LitElement {
         .login-container {
             max-width: 360px; /* Iets breder voor betere leesbaarheid */
             margin: auto;
+            margin-top: 150px;
             padding: 20px;
             background-color: #f9f9f9;
             border-radius: 8px;
@@ -331,6 +349,7 @@ export class Root extends LitElement {
             background-color: #c4aad0;
             padding: 20px;
             font-family: "Rubik", sans-serif;
+            flex-shrink: 0; /* Keep the footer from shrinking */
         }
 
         .sitemap,
@@ -429,7 +448,7 @@ export class Root extends LitElement {
 
     @state()
     public _cartItemsCount: number = 0;
-    
+
     @state()
     public selectedProduct: OrderItem | undefined = undefined;
 
@@ -441,10 +460,8 @@ export class Root extends LitElement {
     private _password: string = "";
     private _name: string = "";
 
-
     public async connectedCallback(): Promise<void> {
         super.connectedCallback();
-        
 
         await this.getWelcome();
         await this.getOrderItems();
@@ -604,17 +621,14 @@ export class Root extends LitElement {
                 contentTemplate = this.renderRegister();
                 break;
 
-                case RouterPage.Product:
-                    contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
-                    break;
-                
+            case RouterPage.Product:
+                contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
+                break;
+
+
             default:
                 contentTemplate = this.renderHome();
-            
-
         }
-
-    
 
         return html`
             <header>
@@ -631,9 +645,8 @@ export class Root extends LitElement {
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
                     <div class="nav-right">
-                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} 
-                        <!-- ${this.renderRegisterInNav()} -->
-                         ${this.renderLogoutInNav()}
+                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderCartInNav()}
+                        ${this.renderLogoutInNav()} ${this.renderAdminButton()}
                     </div>
                 </nav>
                 <div class="cartbutton">
@@ -746,9 +759,14 @@ export class Root extends LitElement {
                 </div>
                 <img src=" ${orderItem.imageURLs}" alt="${orderItem.name}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
-                <button class="Details" @click=${() => this.navigateToProductPage(orderItem)}>View Details</button>
+                <button class="details" @click=${() => this.navigateToProductPage(orderItem)}>
+                    View details
+                </button>
                 ${this._isLoggedIn
-                    ? html`<button class="addItemToCart" @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
+                    ? html`<button
+                          class="addItemToCart"
+                          @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}
+                      >
                           Add to cart
                       </button>`
                     : nothing}
@@ -764,11 +782,9 @@ export class Root extends LitElement {
     private renderProductPage(): TemplateResult {
         if (!this.selectedProduct) {
             return html``;
+        }
+        return html`<product-page .productData=${this.selectedProduct}></product-page>`;
     }
-    return html`<product-page .productData=${this.selectedProduct}></product-page>`;
-
-}
-
 
     /**
      * Renders the products button in the navigation
@@ -984,6 +1000,23 @@ export class Root extends LitElement {
             />
         </div>`;
     }
+
+/**
+ * Renders the admin button in the navigation if user is logged in
+ */
+private renderAdminButton(): TemplateResult {
+    if (!this._isLoggedIn) {
+        return html``; // Render nothing if user is not logged in
+    }
+
+    return html`
+        <div @click=${(): void => {
+    
+        }}>
+            <button>Admin Page</button>
+        </div>
+    `;
+}
 
     /**
      * Renders the password input field with change-tracking

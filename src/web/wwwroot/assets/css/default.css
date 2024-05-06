@@ -24,3 +24,9 @@ body {
     margin: 0;
     background-color: #fbfbfa;
 }
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
