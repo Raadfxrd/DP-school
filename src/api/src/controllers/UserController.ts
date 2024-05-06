@@ -6,6 +6,7 @@ import { UserLoginFormModel, UserRegisterFormModel } from "@shared/formModels";
 import { orderItems, users } from "../fakeDatabase";
 import { CustomJwtPayload } from "../types/jwt";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { queryDatabase } from "../../database/database";
 
 /**
  * Handles all endpoints related to the User resource
@@ -20,35 +21,35 @@ export class UserController {
      * @param req Request object
      * @param res Response object
      */
-    public register(req: Request, res: Response): void {
-        const formModel: UserRegisterFormModel = req.body as UserRegisterFormModel;
+    public async register(req: Request, res: Response): Promise<void> {
+        const { name: username, email, password } = req.body as UserRegisterFormModel;
 
-        // TODO: Validate empty email/password/name
+        // Hash het wachtwoord
+        const hashedPassword: string = await bcrypt.hash(password, 10);
 
-        // Validate if the user already exists
-        const existingUser: UserData | undefined = users.find((u) => u.email === formModel.email);
+        // Voeg de nieuwe gebruiker toe aan de database
+        await queryDatabase(
+            "INSERT INTO user (username, email, password) VALUES (?, ?, ?)",
+            username,
+            email,
+            hashedPassword
+        );
 
-        if (existingUser) {
-            res.status(400).json({ message: "This email address is already used." });
+        try {
+            // Controleer of de gebruiker al bestaat
+            const [existingUsers] = await queryDatabase<[any[], any]>("SELECT id FROM user WHERE email = ?", [
+                email,
+            ]);
+            if (existingUsers.length > 0) {
+                res.status(400).json({ message: "This email address is already used." });
+                return;
+            }
 
-            return;
+            res.status(201).json({ message: "Successfully registered user." });
+        } catch (error: any) {
+            console.error("Database Error:", error); // Voeg dit toe om de foutmelding te loggen
+            res.status(500).json({ message: "Database error", error: error.message });
         }
-
-        // Hash the password
-        const hashedPassword: string = bcrypt.hashSync(formModel.password, 10);
-
-        // Create a new user and store it in the "fake" database
-        const user: UserData = {
-            id: this.generateFakeId(),
-
-            email: formModel.email,
-            password: hashedPassword,
-            name: formModel.name,
-        };
-
-        users.push(user);
-
-        res.status(200).json({ message: "Successfully registered user." });
     }
 
     /**
@@ -156,7 +157,7 @@ export class UserController {
      * Generate an id for a user
      *
      * @note Do not use this method in production, it exists purely for our fake database!
-     * 
+     *
      * @returns Generated id
      */
     private generateFakeId(): number {
