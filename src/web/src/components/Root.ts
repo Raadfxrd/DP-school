@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { LitElement, TemplateResult, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { UserService } from "../services/UserService";
@@ -5,6 +6,7 @@ import { OrderItem } from "@shared/types/OrderItem";
 import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { ProductPage } from "./ProductPage";
 
 
 /** Enumeration to keep track of all the different pages */
@@ -16,8 +18,14 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-}
+    Product = "product", // Nieuwse route voor de productpagina
 
+}
+declare global {
+    interface HTMLElementTagNameMap {
+        "product-page": ProductPage;
+    }
+}
 /**
  * Custom element based on Lit for the header of the webshop.
  *
@@ -25,6 +33,7 @@ enum RouterPage {
  */
 @customElement("webshop-root")
 export class Root extends LitElement {
+    [x: string]: unknown;
     public static styles = css`
         header {
             background-color: #fbfbfa;
@@ -206,7 +215,46 @@ export class Root extends LitElement {
             height: auto;
             max-width: 100%;
         }
-
+        .addItemToCart{
+            display: inline-block;
+            width: 100%;
+            height: 40px;
+            background-color: #c4aad0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+    
+        .addItemToCart:hover {
+            background-color: #0f0e0e;
+        }
+        .addItemToCart:focus {
+            outline: none;
+        }
+        .addItemToCart:active {
+         transform: translateY(1px);
+        }
+        .Details{
+            display: inline-block;
+            width: 100%;
+            height: 40px;
+            background-color: #c4aad0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
         .form {
             display: flex;
             flex-direction: column;
@@ -381,6 +429,9 @@ export class Root extends LitElement {
 
     @state()
     public _cartItemsCount: number = 0;
+    
+    @state()
+    public selectedProduct: OrderItem | undefined = undefined;
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -390,8 +441,10 @@ export class Root extends LitElement {
     private _password: string = "";
     private _name: string = "";
 
+
     public async connectedCallback(): Promise<void> {
         super.connectedCallback();
+        
 
         await this.getWelcome();
         await this.getOrderItems();
@@ -499,7 +552,6 @@ export class Root extends LitElement {
         this._showProductsDropdown = !this._showProductsDropdown;
         this.requestUpdate();
     }
-
     /**
      * Navigate to a specific page
      *
@@ -551,9 +603,18 @@ export class Root extends LitElement {
             case RouterPage.Register:
                 contentTemplate = this.renderRegister();
                 break;
+
+                case RouterPage.Product:
+                    contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
+                    break;
+                
             default:
                 contentTemplate = this.renderHome();
+            
+
         }
+
+    
 
         return html`
             <header>
@@ -684,14 +745,29 @@ export class Root extends LitElement {
                 </div>
                 <img src=" ${orderItem.imageURLs}" alt="${orderItem.name}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
+                <button class="Details" @click=${() => this.navigateToProductPage(orderItem)}>View Details</button>
                 ${this._isLoggedIn
-                    ? html`<button @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
+                    ? html`<button class="addItemToCart" @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}>
                           Add to cart
                       </button>`
                     : nothing}
             </div>
         `;
     }
+
+    private navigateToProductPage(orderItem: OrderItem): void {
+        this._currentPage = RouterPage.Product; // Navigeer naar de productpagina
+        this.selectedProduct = orderItem; // Stel het geselecteerde product in
+        this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
+    }
+    private renderProductPage(): TemplateResult {
+        if (!this.selectedProduct) {
+            return html``;
+    }
+    return html`<product-page .productData=${this.selectedProduct}></product-page>`;
+
+}
+
 
     /**
      * Renders the products button in the navigation
