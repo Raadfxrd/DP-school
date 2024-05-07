@@ -89,6 +89,7 @@ export class UserController {
         const token: string = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
 
         res.json({ token });
+        console.log(this.generateFakeId);
     }
 
     /**
