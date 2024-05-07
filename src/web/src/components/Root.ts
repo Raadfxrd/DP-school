@@ -17,13 +17,15 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-    Product = "product", // Nieuwse route voor de productpagina
+    Product = "product", // Nieuwe route voor de productpagina
 }
+
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
     }
 }
+
 /**
  * Custom element based on Lit for the header of the webshop.
  *
@@ -66,28 +68,10 @@ export class Root extends LitElement {
             height: 100px;
             cursor: pointer;
         }
-        .cartimg img {
-            width: auto;
-            height: 75px;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .cartbutton {
-            background-color: transparent;
-            position: fixed;
-            width: auto;
-            height: 75px;
-            border-radius: 50%;
-            bottom: 5%;
-            right: 4%;
-            padding: none;
-            border: none;
-        }
 
         nav button {
             text-decoration: none;
-            background-color: #fbfbfa;
+            background-color: #fff;
             border: none;
             padding: 0px;
             font-size: 1.5rem;
@@ -125,7 +109,6 @@ export class Root extends LitElement {
             width: 25%;
             top: 80%;
             left: 0;
-            background-color: #fbfbfa;
             display: flex;
             justify-content: space-around;
             opacity: 0;
@@ -186,7 +169,7 @@ export class Root extends LitElement {
 
         .order-items {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
             gap: 50px;
             margin-top: 50px;
             margin-bottom: 50px;
@@ -246,6 +229,25 @@ export class Root extends LitElement {
 
         .addItemToCart:active {
             transform: translateY(1px);
+        }
+
+        .cartimg img {
+            width: auto;
+            height: 75px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .cartbutton {
+            background-color: transparent;
+            position: fixed;
+            width: auto;
+            height: 75px;
+            border-radius: 50%;
+            bottom: 5%;
+            right: 4%;
+            padding: none;
+            border: none;
         }
 
         .details {
