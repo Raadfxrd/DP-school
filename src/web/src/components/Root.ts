@@ -8,7 +8,6 @@ import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { ProductPage } from "./ProductPage";
 
-
 /** Enumeration to keep track of all the different pages */
 enum RouterPage {
     Home = "orderItems",
@@ -18,14 +17,15 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-    Product = "product", // Nieuwse route voor de productpagina
-
+    Product = "product", // Nieuwe route voor de productpagina
 }
+
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
     }
 }
+
 /**
  * Custom element based on Lit for the header of the webshop.
  *
@@ -68,28 +68,10 @@ export class Root extends LitElement {
             height: 100px;
             cursor: pointer;
         }
-         .cartimg img {
-            width: auto;
-            height: 75px;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .cartbutton{
-            background-color: transparent;
-            position: fixed;
-            width: auto;
-            height: 75px;
-            border-radius: 50%;
-            bottom: 5%;
-            right: 4%;
-            padding: none;
-            border: none;
-       }
 
         nav button {
             text-decoration: none;
-            background-color: #fbfbfa;
+            background-color: #fff;
             border: none;
             padding: 0px;
             font-size: 1.5rem;
@@ -99,8 +81,6 @@ export class Root extends LitElement {
             position: relative;
             overflow: hidden;
         }
-
-
 
         nav button::after {
             content: "";
@@ -129,7 +109,6 @@ export class Root extends LitElement {
             width: 25%;
             top: 80%;
             left: 0;
-            background-color: #fbfbfa;
             display: flex;
             justify-content: space-around;
             opacity: 0;
@@ -190,7 +169,7 @@ export class Root extends LitElement {
 
         .order-items {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
             gap: 50px;
             margin-top: 50px;
             margin-bottom: 50px;
@@ -250,6 +229,25 @@ export class Root extends LitElement {
 
         .addItemToCart:active {
             transform: translateY(1px);
+        }
+
+        .cartimg img {
+            width: auto;
+            height: 75px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .cartbutton {
+            background-color: transparent;
+            position: fixed;
+            width: auto;
+            height: 75px;
+            border-radius: 50%;
+            bottom: 5%;
+            right: 4%;
+            padding: none;
+            border: none;
         }
 
         .details {
@@ -625,7 +623,6 @@ export class Root extends LitElement {
                 contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
                 break;
 
-
             default:
                 contentTemplate = this.renderHome();
         }
@@ -649,9 +646,7 @@ export class Root extends LitElement {
                         ${this.renderLogoutInNav()} ${this.renderAdminButton()}
                     </div>
                 </nav>
-                <div class="cartbutton">
-                        ${this.renderCartInNav()}
-                    </div>
+                <div class="cartbutton">${this.renderCartInNav()}</div>
             </header>
             <main>${contentTemplate}</main>
             <footer>
@@ -750,7 +745,7 @@ export class Root extends LitElement {
      *
      * @param orderItem Order item to render
      */
-    private renderOrderItem(orderItem: OrderItem): TemplateResult{
+    private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="order-item">
                 <div class="text-content">
@@ -860,12 +855,11 @@ export class Root extends LitElement {
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html`
-            <div class="cartimg">
-                <button class="cartbutton">
-                    <img src="/assets/img/cartimg.png" alt="cartimg" />
-                </button>
-                
-            </div>
+                <div class="cartimg">
+                    <button class="cartbutton">
+                        <img src="/assets/img/cartimg.png" alt="cartimg" />
+                    </button>
+                </div>
             `;
         }
 
@@ -1001,22 +995,20 @@ export class Root extends LitElement {
         </div>`;
     }
 
-/**
- * Renders the admin button in the navigation if user is logged in
- */
-private renderAdminButton(): TemplateResult {
-    if (!this._isLoggedIn) {
-        return html``; // Render nothing if user is not logged in
-    }
+    /**
+     * Renders the admin button in the navigation if user is logged in
+     */
+    private renderAdminButton(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``; // Render nothing if user is not logged in
+        }
 
-    return html`
-        <div @click=${(): void => {
-    
-        }}>
-            <button>Admin Page</button>
-        </div>
-    `;
-}
+        return html`
+            <div @click=${(): void => {}}>
+                <button>Admin Page</button>
+            </div>
+        `;
+    }
 
     /**
      * Renders the password input field with change-tracking
