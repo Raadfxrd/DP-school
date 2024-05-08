@@ -7,6 +7,8 @@ import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { ProductPage } from "./ProductPage";
+import "./GamesPage";
+import "./MerchandisePage";
 
 /** Enumeration to keep track of all the different pages */
 enum RouterPage {
@@ -19,11 +21,13 @@ enum RouterPage {
     Account = "account",
     Product = "product", // Nieuwse route voor de productpagina
 }
+
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
     }
 }
+
 /**
  * Custom element based on Lit for the header of the webshop.
  *
@@ -87,7 +91,7 @@ export class Root extends LitElement {
 
         nav button {
             text-decoration: none;
-            background-color: #fbfbfa;
+            background-color: #fff;
             border: none;
             padding: 0px;
             font-size: 1.5rem;
@@ -123,9 +127,8 @@ export class Root extends LitElement {
         .dropdown-content {
             position: absolute;
             width: 25%;
-            top: 80%;
+            top: 60%;
             left: 0;
-            background-color: #fbfbfa;
             display: flex;
             justify-content: space-around;
             opacity: 0;
@@ -613,12 +616,21 @@ export class Root extends LitElement {
             case RouterPage.Login:
                 contentTemplate = this.renderLogin();
                 break;
+
             case RouterPage.Register:
                 contentTemplate = this.renderRegister();
                 break;
 
             case RouterPage.Product:
-                contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
+                contentTemplate = this.renderProductPage(); // Use renderProductPage
+                break;
+
+            case RouterPage.Games:
+                contentTemplate = html`<games-page></games-page>`; // Add this line
+                break;
+
+            case RouterPage.Merchandise:
+                contentTemplate = html`<merchandise-page></merchandise-page>`; // Add this line
                 break;
 
             default:
@@ -994,21 +1006,6 @@ export class Root extends LitElement {
     }
 
     /**
-     * Renders the admin button in the navigation if user is logged in
-     */
-    private renderAdminButton(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``; // Render nothing if user is not logged in
-        }
-
-        return html`
-            <div @click=${(): void => {}}>
-                <button>Admin Page</button>
-            </div>
-        `;
-    }
-
-    /**
      * Renders the password input field with change-tracking
      */
     private renderPassword(): TemplateResult {
@@ -1037,5 +1034,20 @@ export class Root extends LitElement {
      */
     private onChangeName(event: InputEvent): void {
         this._name = (event.target as HTMLInputElement).value;
+    }
+
+    /**
+     * Renders the admin button in the navigation if user is logged in
+     */
+    private renderAdminButton(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``; // Render nothing if user is not logged in
+        }
+
+        return html`
+            <div @click=${(): void => {}}>
+                <button>Admin Page</button>
+            </div>
+        `;
     }
 }

@@ -30,12 +30,8 @@ export function handleTokenBasedAuthentication(
     let jwtToken: CustomJwtToken | undefined;
 
     try {
-        jwtToken = jwt.verify(
-            authenticationToken,
-            process.env.JWT_SECRET_KEY
-        ) as CustomJwtToken;
-    }
-    catch {
+        jwtToken = jwt.verify(authenticationToken, process.env.JWT_SECRET_KEY) as CustomJwtToken;
+    } catch {
         // Do nothing
     }
 
