@@ -9,6 +9,8 @@ import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { ProductPage } from "./ProductPage";
 import "./GamesPage";
 import "./MerchandisePage";
+import "./GamesPage";
+import "./MerchandisePage";
 
 enum RouterPage {
     Home = "orderItems",
@@ -91,6 +93,7 @@ export class Root extends LitElement {
         nav button {
             text-decoration: none;
             background-color: #fff;
+            background-color: #fff;
             border: none;
             padding: 0px;
             font-size: 1.5rem;
@@ -131,6 +134,7 @@ export class Root extends LitElement {
         .dropdown-content {
             position: absolute;
             width: 25%;
+            top: 60%;
             top: 60%;
             left: 0;
             display: flex;
@@ -683,11 +687,11 @@ export class Root extends LitElement {
                 break;
 
             case RouterPage.Games:
-                contentTemplate = html`<games-page></games-page>`;
+                contentTemplate = html`<games-page></games-page>`; // Add this line
                 break;
 
             case RouterPage.Merchandise:
-                contentTemplate = html`<merchandise-page></merchandise-page>`;
+                contentTemplate = html`<merchandise-page></merchandise-page>`; // Add this line
                 break;
 
             default:
@@ -1111,6 +1115,21 @@ export class Root extends LitElement {
      */
     private onChangeName(event: InputEvent): void {
         this._name = (event.target as HTMLInputElement).value;
+    }
+
+    /**
+     * Renders the admin button in the navigation if user is logged in
+     */
+    private renderAdminButton(): TemplateResult {
+        if (!this._isLoggedIn) {
+            return html``; // Render nothing if user is not logged in
+        }
+
+        return html`
+            <div @click=${(): void => {}}>
+                <button>Admin Page</button>
+            </div>
+        `;
     }
 
     /**
