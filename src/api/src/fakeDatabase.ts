@@ -64,3 +64,99 @@ export const orderItems: OrderItem[] = [
         imageURLs: ["https://via.placeholder.com/450"],
     },
 ];
+
+/**
+ * Merchandise table
+ */
+export const merchandise: OrderItem[] = [
+    {
+        id: 1,
+        name: "Item 1",
+        description: "Description 1",
+        price: 10,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 2,
+        name: "Item 2",
+        description: "Description 2",
+        price: 20,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 3,
+        name: "Item 3",
+        description: "Description 3",
+        price: 30,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 4,
+        name: "Item 4",
+        description: "Description 4",
+        price: 40,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 5,
+        name: "Item 5",
+        description: "Description 5",
+        price: 50,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 6,
+        name: "Item 6",
+        description: "Description 6",
+        price: 60,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+];
+
+/**
+ * Games table
+ */
+export const games: OrderItem[] = [
+    {
+        id: 1,
+        name: "Game 1",
+        description: "Description 1",
+        price: 10,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 2,
+        name: "Game 2",
+        description: "Description 2",
+        price: 20,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 3,
+        name: "Game 3",
+        description: "Description 3",
+        price: 30,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 4,
+        name: "Game 4",
+        description: "Description 4",
+        price: 40,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 5,
+        name: "Game 5",
+        description: "Description 5",
+        price: 50,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+    {
+        id: 6,
+        name: "Game 6",
+        description: "Description 6",
+        price: 60,
+        imageURLs: ["https://via.placeholder.com/450"],
+    },
+];
