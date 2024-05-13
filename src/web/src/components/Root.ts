@@ -66,23 +66,37 @@ export class Root extends LitElement {
             height: 100px;
             cursor: pointer;
         }
-        .cartimg img {
-            width: auto;
+        
+        /* .cartdiv{
+            width: 75px;
             height: 75px;
             cursor: pointer;
             border-radius: 50%;
+        } */
+
+        .cartimg{
+            width: 75px;
+            height: 75px;
+            padding: none;
+            border: none;
         }
 
         .cartbutton {
-            background-color: transparent;
             position: fixed;
             width: auto;
             height: 75px;
-            border-radius: 50%;
             bottom: 5%;
-            right: 4%;
+            right: 3%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cartbuttondesign{
+            cursor: pointer;
             padding: none;
             border: none;
+            border-radius: 50%;
+            background: transparent;
         }
 
         nav button {
@@ -640,7 +654,7 @@ export class Root extends LitElement {
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
                     <div class="nav-right">
-                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderCartInNav()}
+                        ${this.renderSearchInNav()} ${this.renderLoginInNav()}
                         ${this.renderLogoutInNav()} ${this.renderAdminButton()}
                     </div>
                 </nav>
@@ -853,11 +867,9 @@ export class Root extends LitElement {
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html`
-                <div class="cartimg">
-                    <button class="cartbutton">
-                        <img src="/assets/img/cartimg.png" alt="cartimg" />
+                    <button class="cartbuttondesign">
+                        <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
                     </button>
-                </div>
             `;
         }
 
