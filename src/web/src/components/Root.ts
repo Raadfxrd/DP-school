@@ -189,7 +189,7 @@ export class Root extends LitElement {
 
         .order-items {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
             gap: 50px;
             margin-top: 50px;
             margin-bottom: 50px;
