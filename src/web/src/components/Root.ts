@@ -682,7 +682,7 @@ export class Root extends LitElement {
                 break;
 
             case RouterPage.Product:
-                contentTemplate = this.renderProductPage(); // Use renderProductPage
+                contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
                 break;
 
             case RouterPage.Games:
