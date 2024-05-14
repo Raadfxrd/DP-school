@@ -7,6 +7,7 @@ import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { ProductPage } from "./ProductPage";
+import { CartPage } from "./CartPage";
 
 /** Enumeration to keep track of all the different pages */
 enum RouterPage {
@@ -18,10 +19,14 @@ enum RouterPage {
     News = "news",
     Account = "account",
     Product = "product", // Nieuwse route voor de productpagina
+    Cart = "cart",
 }
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
+    }
+    interface HTMLElementTagNameMap {
+        "cart-page": CartPage;
     }
 }
 /**
@@ -67,12 +72,6 @@ export class Root extends LitElement {
             cursor: pointer;
         }
         
-        /* .cartdiv{
-            width: 75px;
-            height: 75px;
-            cursor: pointer;
-            border-radius: 50%;
-        } */
 
         .cartimg{
             width: 75px;
@@ -557,7 +556,7 @@ export class Root extends LitElement {
      */
     private async clickCartButton(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
-
+        this.renderCartPage();
         if (!result) {
             return;
         }
@@ -633,6 +632,10 @@ export class Root extends LitElement {
 
             case RouterPage.Product:
                 contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
+                break;
+
+            case RouterPage.Cart:
+                contentTemplate = this.renderCartPage();
                 break;
 
             default:
@@ -793,6 +796,16 @@ export class Root extends LitElement {
         return html`<product-page .productData=${this.selectedProduct}></product-page>`;
     }
 
+    private navigateToCartPage(): void {
+        this._currentPage = RouterPage.Cart; // Navigeer naar de productpagina
+        this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
+    }
+
+    private renderCartPage(): TemplateResult {
+
+        return html`<cart-page></cart-page>`;
+    }
+
     /**
      * Renders the products button in the navigation
      */
@@ -867,7 +880,8 @@ export class Root extends LitElement {
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html`
-                    <button class="cartbuttondesign">
+                    <button class="cartbuttondesign"
+                    @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}>
                         <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
                     </button>
             `;
