@@ -918,33 +918,13 @@ export class Root extends LitElement {
      * Renders the search bar in the navigation
      */
     private renderSearchInNav(): TemplateResult {
-        if (this._showSearchBar) {
-            return html` <div class="searchbar show">
-                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
-            </div>`;
-        } else if (this._hideSearchBar) {
-            return html` <div class="searchbar hide">
-                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
-            </div>`;
-        } else {
-            return html` <div @click=${this.showSearchBar}>
-                <button>Search</button>
-            </div>`;
-        }
-    }
-
-    private showSearchBar(): void {
-        this._showSearchBar = true;
-        this._hideSearchBar = false;
-    }
-
-    private startHideSearchBar(): void {
-        this._showSearchBar = false;
-        this._hideSearchBar = true;
-        setTimeout(() => {
-            this._hideSearchBar = false;
-            this.requestUpdate();
-        }, 300);
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Search</button>
+        </div>`;
     }
 
     /**
