@@ -287,14 +287,10 @@ export class Root extends LitElement {
 
     public async connectedCallback(): Promise<void> {
         super.connectedCallback();
-
         await this.getWelcome();
         await this.getOrderItems();
     }
 
-    /**
-     * Check if the current token is valid and update the cart item total
-     */
     private async getWelcome(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
 
@@ -304,9 +300,6 @@ export class Root extends LitElement {
         }
     }
 
-    /**
-     * Get all available order items
-     */
     private async getOrderItems(): Promise<void> {
         const result: OrderItem[] | undefined = await this._orderItemService.getAll();
 
@@ -317,11 +310,13 @@ export class Root extends LitElement {
         this._orderItems = result;
     }
 
-    /**
-     * Handler for the login form
-     */
-    private async submitLoginForm(): Promise<void> {
-        // TODO: Validation
+    private async submitLoginForm(event: Event): Promise<void> {
+        event.preventDefault();
+
+        if (!this._email || !this._password) {
+            alert("Please fill out all fields.");
+            return;
+        }
 
         const result: boolean = await this._userService.login({
             email: this._email,
@@ -329,24 +324,19 @@ export class Root extends LitElement {
         });
 
         if (result) {
-            alert("Succesfully logged in!");
-
+            alert("Successfully logged in!");
             await this.getWelcome();
-
             this._currentPage = RouterPage.Home;
         } else {
             alert("Failed to login!");
         }
     }
 
-    /**
-     * Handler for the register form
-     */
-    private async submitRegisterForm(): Promise<void> {
+    private async submitRegisterForm(event: Event): Promise<void> {
+        event.preventDefault();
         console.log("Submitting registration form...");
         console.log(`Name: ${this._name}, Email: ${this._email}, Password: ${this._password}`);
 
-        // Voeg extra validatie toe als nodig
         if (!this._name || !this._email || !this._password) {
             alert("Please fill out all fields.");
             return;
@@ -360,16 +350,12 @@ export class Root extends LitElement {
 
         if (result) {
             alert("Successfully registered!");
-
             this._currentPage = RouterPage.Login;
         } else {
             alert("Failed to register!");
         }
     }
 
-    /**
-     * Handler for the cart button
-     */
     private async clickCartButton(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
 
@@ -386,43 +372,25 @@ export class Root extends LitElement {
         );
     }
 
-    /**
-     * Toggle the products dropdown in the navigation
-     */
     private toggleProductsDropdown(e: MouseEvent): void {
         e.preventDefault();
         this._showProductsDropdown = !this._showProductsDropdown;
         this.requestUpdate();
     }
 
-    /**
-     * Navigate to a specific page
-     *
-     * @param page Page to navigate to
-     */
     private navigateToPage(page: RouterPage, event: MouseEvent): void {
-        event.stopPropagation(); // Prevents the click from being registered on underlying or parent elements
+        event.stopPropagation();
         this._currentPage = page;
-        this._showProductsDropdown = false; // Close dropdown after selection
-        this.requestUpdate(); // Ensure the component re-renders
+        this._showProductsDropdown = false;
+        this.requestUpdate();
     }
 
-    /**
-     * Handler for the logout button
-     */
     private async clickLogoutButton(): Promise<void> {
         await this._userService.logout();
-
         this._tokenService.removeToken();
-
         this._isLoggedIn = false;
     }
 
-    /**
-     * Handler for the "Add to cart"-button
-     *
-     * @param orderItem Order item to add to the cart
-     */
     private async addItemToCart(orderItem: OrderItem): Promise<void> {
         const result: number | undefined = await this._userService.addOrderItemToCart(orderItem.id);
 
@@ -433,9 +401,6 @@ export class Root extends LitElement {
         this._cartItemsCount = result;
     }
 
-    /**
-     * Renders the components
-     */
     protected render(): TemplateResult {
         let contentTemplate: TemplateResult;
 
@@ -475,24 +440,16 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the home page, which contains a list of all order items.
-     */
     private renderHome(): TemplateResult {
         const orderItems: TemplateResult[] = this._orderItems.map((e) => this.renderOrderItem(e));
 
         if (orderItems.length === 0) {
-            return html`<div class="order-items">Loading... Please wait a moment.</div> `;
+            return html`<div class="order-items">Loading... Please wait a moment.</div>`;
         }
 
         return html` <div class="order-items">${orderItems}</div> `;
     }
 
-    /**
-     * Renders a single order item
-     *
-     * @param orderItem Order item to render
-     */
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="order-item">
@@ -511,9 +468,6 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the products button in the navigation
-     */
     private renderProductsInNav(): TemplateResult {
         return html`
             <div @click=${this.toggleProductsDropdown}>
@@ -536,23 +490,16 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the news button in the navigation
-     */
-
     private renderNewsInNav(): TemplateResult {
         return html`<div
             @click=${(): void => {
-                this._currentPage = RouterPage.Home;
+                this._currentPage = RouterPage.News;
             }}
         >
             <button>News</button>
         </div>`;
     }
 
-    /**
-     * Renders the account button in the navigation
-     */
     private renderAccountInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html``;
@@ -560,16 +507,13 @@ export class Root extends LitElement {
 
         return html`<div
             @click=${(): void => {
-                this._currentPage = RouterPage.Home;
+                this._currentPage = RouterPage.Account;
             }}
         >
             <button>Account</button>
         </div>`;
     }
 
-    /**
-     * Renders the search button in the navigation
-     */
     private renderSearchInNav(): TemplateResult {
         return html`<div
             @click=${(): void => {
@@ -580,9 +524,6 @@ export class Root extends LitElement {
         </div>`;
     }
 
-    /**
-     * Renders the cart button in the navigation
-     */
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html``;
@@ -593,9 +534,6 @@ export class Root extends LitElement {
         </div>`;
     }
 
-    /**
-     * Renders the login button in the navigation
-     */
     private renderLoginInNav(): TemplateResult {
         if (this._isLoggedIn) {
             return html``;
@@ -610,15 +548,12 @@ export class Root extends LitElement {
         </div>`;
     }
 
-    /**
-     * Renders the register button in the navigation
-     */
     private renderRegisterInNav(): TemplateResult {
         if (this._isLoggedIn) {
             return html``;
         }
 
-        return html` <div
+        return html`<div
             @click=${(): void => {
                 this._currentPage = RouterPage.Register;
             }}
@@ -627,9 +562,6 @@ export class Root extends LitElement {
         </div>`;
     }
 
-    /**
-     * Renders the logout button in the navigation
-     */
     private renderLogoutInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html``;
@@ -642,11 +574,6 @@ export class Root extends LitElement {
         `;
     }
 
-    /** Here will all the functionalities for the login and register pages follow **/
-
-    /**
-     * Renders the login page
-     */
     private renderLogin(): TemplateResult {
         return html`
             <div class="login-container">
@@ -671,9 +598,6 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the register page
-     */
     private renderRegister(): TemplateResult {
         return html`
             <div class="login-container">
@@ -721,49 +645,39 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the e-mail input field with change-tracking
-     */
     private renderEmail(): TemplateResult {
-        return html`<div>
-            <label for="email">E-mail</label>
-            <input
-                type="text"
-                name="email"
-                placeholder="test@test.nl"
-                value=${this._email}
-                @change=${this.onChangeEmail}
-            />
-        </div>`;
+        return html`
+            <div>
+                <label for="email">E-mail</label>
+                <input
+                    type="text"
+                    name="email"
+                    placeholder="test@test.nl"
+                    value=${this._email}
+                    @change=${this.onChangeEmail}
+                    required
+                />
+            </div>
+        `;
     }
 
-    /**
-     * Renders the password input field with change-tracking
-     */
     private renderPassword(): TemplateResult {
-        return html`<div>
-            <label for="password">Password</label>
-            <input type="password" value=${this._password} @change=${this.onChangePassword} />
-        </div>`;
+        return html`
+            <div>
+                <label for="password">Password</label>
+                <input type="password" value=${this._password} @change=${this.onChangePassword} required />
+            </div>
+        `;
     }
 
-    /**
-     * Handles changes to the e-mail input field
-     */
     private onChangeEmail(event: InputEvent): void {
         this._email = (event.target as HTMLInputElement).value;
     }
 
-    /**
-     * Handles changes to the password input field
-     */
     private onChangePassword(event: InputEvent): void {
         this._password = (event.target as HTMLInputElement).value;
     }
 
-    /**
-     * Handles changes to the name input field
-     */
     private onChangeName(event: InputEvent): void {
         this._name = (event.target as HTMLInputElement).value;
     }
