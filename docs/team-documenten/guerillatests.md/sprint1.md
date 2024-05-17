@@ -19,3 +19,11 @@
 |K5|Assymetrisch|Yup|Ja|Yup|Prima|Weet niks op het moment|Idk|
 |K6|Ja|Weet niet|Misschien iets minimalistischer|Ja|Past erbij|Idk|Idk|
 
+
+## Resultaten
+
+- Meer focussen op UX
+- De P in DP fixen (gefixed)
+- Hoe het eruit ziet is goed
+- Assymetrisch navbalk (gefixed)
+- Huidige thema 
