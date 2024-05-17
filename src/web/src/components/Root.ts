@@ -858,6 +858,8 @@ export class Root extends LitElement {
     }
     
 
+    
+
     private navigateToCartPage(): void {
         this._currentPage = RouterPage.Cart; // Navigeer naar de productpagina
         this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
@@ -961,6 +963,7 @@ export class Root extends LitElement {
             <button>Login</button>
         </div>`;
     }
+
     
 
     /**
@@ -1079,6 +1082,7 @@ export class Root extends LitElement {
         `;
     }
 
+   
 
 
     private renderPassword(): TemplateResult {
