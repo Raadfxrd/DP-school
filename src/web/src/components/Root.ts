@@ -742,27 +742,6 @@ export class Root extends LitElement {
         `;
     }
 
-    private navigateToProductPage(orderItem: OrderItem): void {
-        this._currentPage = RouterPage.Product; // Navigeer naar de productpagina
-        this.selectedProduct = orderItem; // Stel het geselecteerde product in
-        this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
-    }
-    private renderProductPage(): TemplateResult {
-        if (!this.selectedProduct) {
-            return html``;
-        }
-        return html`<product-page .productData=${this.selectedProduct}></product-page>`;
-    }
-
-    private navigateToCartPage(): void {
-        this._currentPage = RouterPage.Cart; // Navigeer naar de productpagina
-        this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
-    }
-
-    private renderCartPage(): TemplateResult {
-
-        return html`<cart-page></cart-page>`;
-    }
 
     private navigateToProductPage(orderItem: OrderItem): void {
         this._currentPage = RouterPage.Product; // Navigeer naar de productpagina
@@ -775,6 +754,7 @@ export class Root extends LitElement {
         }
         return html`<product-page .productData=${this.selectedProduct}></product-page>`;
     }
+    
 
     private navigateToCartPage(): void {
         this._currentPage = RouterPage.Cart; // Navigeer naar de productpagina
@@ -870,6 +850,7 @@ export class Root extends LitElement {
             <button>Login</button>
         </div>`;
     }
+    
 
     /**
      * Renders the register button in the navigation
@@ -1002,20 +983,7 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the admin button in the navigation if user is logged in
-     */
-    private renderAdminButton(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``; // Render nothing if user is not logged in
-        }
 
-        return html`
-            <div @click=${(): void => {}}>
-                <button>Admin Page</button>
-            </div>
-        `;
-    }
 
     private renderPassword(): TemplateResult {
         return html`
