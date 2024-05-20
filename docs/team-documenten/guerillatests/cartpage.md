@@ -1,16 +1,15 @@
 # UX/UI Test
 ### Vragen:
-- Vraag 1: Is de Navbar intuitive?
-- Vraag 2: Als je op deze website zou belanden zou je het vertrouwen?
-- Vraag 3: Is de logo passend met de thema van de site, en is mooi in jouw mening?
-- Vraag 4: Passen de login en registratie pagina's bij de design van de home page?
-
-- Vraag 5: Wat vind je van de kleuren palette?
-- Vraag 6: Als je een ding mocht veranderen wat zou het zijn?
-- Vraag 7: Wat is een aspect van de website dat je vind dat we mee moeten brengen terwijl we het verder bouwen?
+- Vraag 1: Wat vind je van de kleuren?
+- Vraag 2: Is alles overzichtelijk?
+- Vraag 3: Zijn de iconen duidelijk
 
 ### Resultaten
-||Vraag 1|Vraag 2|Vraag 3|Vraag 4|Vraag 5|Vraag 6|Vraag 7|
-|---|---|---|---|---|---|---|---|
-|K1|Ja|Yup|Ja|Ja|Goed|Niks echts|Idk|
-|K2|Misschien zou je iets anders aan de linker kant kunnen zetten voor symmetrie|Ik speel net echt games dus nee|Ziet er wel grappig uit, 
+||Vraag 1|Vraag 2|
+|---|---|---|
+|K1|Prijs en total moet zwart zijn|Ja behalve de kleur verandering|Prullenback adden|
+|K2|Rood laat het slecht uitzien|My cart moet boven aanstaan en andere font|Ja|
+
+
+De font heb ik aangepast voor de nummers niet de game titel. Dit heb ik gedaan zodat er nog wat contrast is met de letters.
+![alt text]("\assets/mycarttesting.JPG")
