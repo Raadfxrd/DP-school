@@ -249,6 +249,20 @@ export class Root extends LitElement {
             margin-top: 10px;
         }
 
+        .cartcount{
+            color: white;
+            height: 20px;
+            width: 20px;
+            background-color: red;
+            border-radius: 50%;
+            display: flex;
+            margin-bottom: 10px;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            position: absolute;
+        }
+
         .addItemToCart:hover {
             background-color: #0f0e0e;
         }
@@ -542,7 +556,7 @@ export class Root extends LitElement {
 
     private async clickCartButton(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
-        this.renderCartPage();
+        this.navigateToCartPage();
         if (!result) {
             return;
         }
@@ -833,7 +847,10 @@ export class Root extends LitElement {
         }
 
         return html`<div @click=${this.clickCartButton}>
-            <button>Cart (${this._cartItemsCount} products)</button>
+            <button  class="cartbuttondesign" @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}>
+                    <div class="cartcount">${this._cartItemsCount}</div>
+                    <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+            </button>
         </div>`;
     }
 

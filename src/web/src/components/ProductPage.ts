@@ -3,6 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 import { OrderItem } from "@shared/types/OrderItem";
 import { UserService } from "../services/UserService";
 
+
 @customElement("product-page")
 export class ProductPage extends LitElement {
     @property({ type: Object }) public productData!: OrderItem;
@@ -134,7 +135,7 @@ export class ProductPage extends LitElement {
     }
 
     public async addToCart(): Promise<void> {
-        if (this.productData && this._isLoggedIn) {
+        if (this._isLoggedIn) {
             // Roep de methode aan van de UserService om het product aan de winkelwagen toe te voegen
             const result: number | undefined = await this.userService.addOrderItemToCart(this.productData.id);
     

@@ -164,4 +164,33 @@ export class UserService {
             return undefined;
         }
     }
+
+    public async getItemFromCart(): Promise<number | undefined> {
+        const token: string | undefined = this._tokenService.getToken();
+    
+
+        if (!token) {
+            return undefined;
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/id}`, {
+            });
+
+            if(response.ok){
+                console.log(response);
+            }
+
+
+            if (!response.ok) {
+                console.error(response);
+                return undefined;
+            }
+
+            return (await response.json()) as number;
+        } catch (error) {
+            console.error("Get items cart error", error);
+            return undefined;
+        }
+    }
 }

@@ -1,7 +1,10 @@
 import { LitElement, html, css } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { OrderItem } from "@shared/types/OrderItem";
 import { UserService } from "../services/UserService";
+import { TokenService } from "../services/TokenService";
+import { OrderItemService } from "../services/OrderItemService";
+import { TemplateResult } from "lit";
 
 @customElement("cart-page")
 export class CartPage extends LitElement {
@@ -9,9 +12,12 @@ export class CartPage extends LitElement {
     @property({ type: Boolean }) private _isLoggedIn: boolean = false;
     @property({ type: Number }) public cartItemsCount: number = 0;
 
-
+    @state() private _cartItemsArray: OrderItem[] = [];
     private userService: UserService = new UserService();
+    private _tokenService: TokenService = new TokenService();
+    private orderItemService: OrderItemService = new OrderItemService();
 
+    
     public static styles = css`
 
     .cart-body{
@@ -186,6 +192,28 @@ export class CartPage extends LitElement {
 }
         
     `;
+   
+
+  public async firstUpdated(): Promise<void> {
+    await this.loadCartItems();
+}
+
+
+private async loadCartItems(): Promise<void> {
+    const orderItems: any = await this.orderItemService.getAll();
+    if (orderItems) {
+        this._cartItemsArray = orderItems;
+        this.cartItemsCount = orderItems.length;
+    }
+}
+
+    public load(): any{
+        if(this._cartItemsArray === null){
+            console.log(this._cartItemsArray);
+            return;
+        }
+        
+    }
 
 
 
@@ -193,15 +221,14 @@ export class CartPage extends LitElement {
         this._isLoggedIn = isLoggedIn;
     }
 
+
     
 
+
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    public render() {
+
+        private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
-        <div class="cart-body">
-            <div class="my-cart-title">
-            My Cart:
-            </div>
             <div class="product-box">
             <div class="game-cart-item">
                 <div class="game-info">
@@ -210,8 +237,8 @@ export class CartPage extends LitElement {
                         <img src="">
                     </div>
                     <div class="game-description-text">
-                        <p class="game-title">GAME 1</p>
-                        <p class="game-description">Lorem ipsum dolor sit amet, vel quis magna et quos internos ut minima fugit...</p>
+                        <p class="game-title">${orderItem.name}</p>
+                        <p class="game-description">${orderItem.description}</p>
                     </div>
                 </div>
                 <div class="game-amount">
@@ -220,23 +247,65 @@ export class CartPage extends LitElement {
                             <button class="remove-btn">
                                 <img src="/assets/img/trash.png">
                             </button>
-                            <button class="quantity-btn minus">-</button>
-                            <span class="quantity">3</span>
-                            <button class="quantity-btn plus">+</button>
+                            <button class="quantity-btn minus" @click=${(): void => this.quantityCalculator(orderItem.id, -1)}> - </button>
+                            <span class="quantity" >${orderItem.quantity}</span>
+                            <button class="quantity-btn plus" @click=${(): void => this.quantityCalculator(orderItem.id, 1)}> + </button>
                     </div>
                     </div>
-                    <span class="game-price">€20.00</span>
+                    <span class="game-price">${orderItem.price}</span>
                 </div>
             </div>
             </div>
-            <div class="checkout-box">
-                <button class="checkout-button">Checkout</button>
-                <div class="total-price">Total: €20.00</div>
-            </div>
-        </div>
 
         `;
         
     }
+    
+    private quantityCalculator(itemId: number, change: number): void {
+        const updatedItems: OrderItem[] = this._cartItemsArray.map((item) => {
+            if (item.id === itemId) {
+                const newQuantity : number = Math.max(item.quantity + change, 1);
+                return { ...item, quantity: newQuantity };
+            }
+            return item;
+        });
+
+        this._cartItemsArray = updatedItems;
+    }
+
+
+
+    private calculateTotalPrice(): number {
+        return this._cartItemsArray.reduce((total, item) => total + item.price * item.quantity, 0);
+    }
+
+    public renderMyCartText(): TemplateResult{
+        return html`
+        <div class="my-cart-title">
+        My Cart:
+        </div>`;
+    }
+
+    public renderCheckout(): TemplateResult{
+        return html`
+        <div class="checkout-box">
+                <button class="checkout-button">Checkout</button>
+                <div class="total-price">Total:> €${this.calculateTotalPrice()}</div>
+            </div>`;
+    }
+
+    public render(): TemplateResult {
+        return html`
+          <div class="cart-body">
+            ${this._cartItemsArray.length === 0
+              ? html`<div>Loading... Please wait a moment.</div>`
+              : html`
+                ${this.renderMyCartText()}
+                ${this._cartItemsArray.map(item => this.renderOrderItem(item))}
+                ${this.renderCheckout()}
+              `}
+          </div>
+        `;
+      }
     
     }
