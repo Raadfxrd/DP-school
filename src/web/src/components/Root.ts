@@ -335,7 +335,8 @@ export class Root extends LitElement {
         this._newsItems = [
             {
                 title: "Breaking News",
-                content: "This is a brief summary of the news item. Click to read more...",
+                content:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
                 expanded: false,
             },
         ];
@@ -733,7 +734,7 @@ export class Root extends LitElement {
                             @click=${(): void => this.toggleNewsItem(index)}
                         >
                             <h3>${item.title}</h3>
-                            <p>${item.content}</p>
+                            <p>${item.expanded ? item.content : item.content.substring(0, 50) + "..."}</p>
                         </div>
                     `
                 )}
@@ -743,7 +744,9 @@ export class Root extends LitElement {
     }
 
     private toggleNewsItem(index: number): void {
-        this._newsItems[index].expanded = !this._newsItems[index].expanded;
+        this._newsItems = this._newsItems.map((item, i) =>
+            i === index ? { ...item, expanded: !item.expanded } : item
+        );
         this.requestUpdate();
     }
 
