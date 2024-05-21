@@ -12,4 +12,5 @@
 
 
 De font heb ik aangepast voor de nummers niet de game titel. Dit heb ik gedaan zodat er nog wat contrast is met de letters.
-![alt text]("\assets/mycarttesting.JPG")
+
+![Alt text]("../../../../assets/mycarttesting.png")
