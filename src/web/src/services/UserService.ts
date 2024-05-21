@@ -21,7 +21,10 @@ export class UserService {
      * @returns `true` when successful, otherwise `false`.
      */
     public async login(formData: UserLoginFormModel): Promise<boolean> {
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/login`, {
+        const url: string = `${viteConfiguration.API_URL}users/login`;
+        console.log(`Login URL: ${url}`);
+
+        const response: Response = await fetch(url, {
             method: "post",
             headers: headers,
             body: JSON.stringify(formData),
@@ -29,7 +32,6 @@ export class UserService {
 
         if (!response.ok) {
             console.error(response);
-
             return false;
         }
 
@@ -37,7 +39,6 @@ export class UserService {
 
         if (json.token) {
             this._tokenService.setToken(json.token);
-
             return true;
         }
 
@@ -52,7 +53,10 @@ export class UserService {
      * @returns `true` when successful, otherwise `false`.
      */
     public async register(formData: UserRegisterFormModel): Promise<boolean> {
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/register`, {
+        const url: string = `${viteConfiguration.API_URL}users/register`;
+        console.log(`Register URL: ${url}`);
+
+        const response: Response = await fetch(url, {
             method: "post",
             headers: headers,
             body: JSON.stringify(formData),
@@ -60,7 +64,6 @@ export class UserService {
 
         if (!response.ok) {
             console.error(response);
-
             return false;
         }
 
@@ -79,14 +82,16 @@ export class UserService {
             return false;
         }
 
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/logout`, {
+        const url: string = `${viteConfiguration.API_URL}users/logout`;
+        console.log(`Logout URL: ${url}`);
+
+        const response: Response = await fetch(url, {
             method: "get",
             headers: { ...headers, authorization: token },
         });
 
         if (!response.ok) {
             console.error(response);
-
             return false;
         }
 
@@ -105,14 +110,16 @@ export class UserService {
             return undefined;
         }
 
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/hello`, {
+        const url: string = `${viteConfiguration.API_URL}users/hello`;
+        console.log(`GetWelcome URL: ${url}`);
+
+        const response: Response = await fetch(url, {
             method: "get",
             headers: { ...headers, authorization: token },
         });
 
         if (!response.ok) {
             console.error(response);
-
             return undefined;
         }
 
@@ -131,14 +138,16 @@ export class UserService {
             return undefined;
         }
 
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/${id}`, {
+        const url: string = `${viteConfiguration.API_URL}users/cart/${id}`;
+        console.log(`AddOrderItemToCart URL: ${url}`);
+
+        const response: Response = await fetch(url, {
             method: "post",
             headers: { ...headers, authorization: token },
         });
 
         if (!response.ok) {
             console.error(response);
-
             return undefined;
         }
 
