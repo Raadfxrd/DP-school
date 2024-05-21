@@ -9,8 +9,6 @@ import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { ProductPage } from "./ProductPage";
 import "./GamesPage";
 import "./MerchandisePage";
-import "./GamesPage";
-import "./MerchandisePage";
 
 enum RouterPage {
     Home = "orderItems",
@@ -71,6 +69,7 @@ export class Root extends LitElement {
             height: 100px;
             cursor: pointer;
         }
+
         .cartimg img {
             width: auto;
             height: 75px;
@@ -92,7 +91,6 @@ export class Root extends LitElement {
 
         nav button {
             text-decoration: none;
-            background-color: #fff;
             background-color: #fff;
             border: none;
             padding: 0px;
@@ -128,36 +126,31 @@ export class Root extends LitElement {
         .search-login-container {
             display: flex;
             justify-content: space-between;
-            width: 140px; /* adjust as needed */
+            width: 140px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
         }
 
         .dropdown-content {
+            padding-top: 10px;
+            display: none;
             position: absolute;
-            width: 25%;
-            top: 60%;
-            top: 60%;
-            left: 0;
-            display: flex;
-            justify-content: space-around;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
         }
 
-        .dropdown-content.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0px);
+        .dropdown:hover .dropdown-content {
+            display: block;
         }
 
         .dropdown-section {
-            flex-grow: 1;
             text-align: center;
-            padding: 15px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 12px 16px;
         }
 
         .dropdown-section button {
@@ -168,31 +161,6 @@ export class Root extends LitElement {
             cursor: pointer;
             text-align: center;
             outline: none;
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-section button span {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-section button span::after {
-            content: "";
-            display: block;
-            width: 0;
-            height: 2px;
-            background: #c4aad0;
-            transition: width 0.3s ease;
-            position: absolute;
-            left: 0;
-            right: 0;
-            margin: auto;
-            bottom: -5px;
-        }
-
-        .dropdown-section button:hover span::after {
-            width: 100%;
         }
 
         .searchbar {
@@ -857,9 +825,9 @@ export class Root extends LitElement {
      */
     private renderProductsInNav(): TemplateResult {
         return html`
-            <div @click=${this.toggleProductsDropdown}>
+            <div class="dropdown">
                 <button>Products</button>
-                <div class=${this._showProductsDropdown ? "dropdown-content visible" : "dropdown-content"}>
+                <div class="dropdown-content">
                     <div class="dropdown-section">
                         <button @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Games, e)}>
                             Games
@@ -1115,21 +1083,6 @@ export class Root extends LitElement {
      */
     private onChangeName(event: InputEvent): void {
         this._name = (event.target as HTMLInputElement).value;
-    }
-
-    /**
-     * Renders the admin button in the navigation if user is logged in
-     */
-    private renderAdminButton(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``; // Render nothing if user is not logged in
-        }
-
-        return html`
-            <div @click=${(): void => {}}>
-                <button>Admin Page</button>
-            </div>
-        `;
     }
 
     /**
