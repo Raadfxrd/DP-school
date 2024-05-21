@@ -260,6 +260,46 @@ export class Root extends LitElement {
         .login-form .message a:hover {
             text-decoration: underline;
         }
+
+        .news-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .news-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .news-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .news-item h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .news-item p {
+            margin: 0;
+        }
+
+        .news-item.empty {
+            background-color: #eee;
+            text-align: center;
+            color: #888;
+        }
+
+        .news-content {
+            display: none;
+        }
+
+        .news-item.expanded .news-content {
+            display: block;
+        }
     `;
 
     @state()
@@ -273,6 +313,9 @@ export class Root extends LitElement {
 
     @state()
     private _orderItems: OrderItem[] = [];
+
+    @state()
+    private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
 
     @state()
     public _cartItemsCount: number = 0;
@@ -289,6 +332,13 @@ export class Root extends LitElement {
         super.connectedCallback();
         await this.getWelcome();
         await this.getOrderItems();
+        this._newsItems = [
+            {
+                title: "Breaking News",
+                content: "This is a brief summary of the news item. Click to read more...",
+                expanded: false,
+            },
+        ];
     }
 
     private async getWelcome(): Promise<void> {
@@ -410,6 +460,9 @@ export class Root extends LitElement {
                 break;
             case RouterPage.Register:
                 contentTemplate = this.renderRegister();
+                break;
+            case RouterPage.News:
+                contentTemplate = this.renderNews();
                 break;
             default:
                 contentTemplate = this.renderHome();
@@ -668,6 +721,30 @@ export class Root extends LitElement {
                 <input type="password" value=${this._password} @change=${this.onChangePassword} required />
             </div>
         `;
+    }
+
+    private renderNews(): TemplateResult {
+        return html`
+            <div class="news-container">
+                ${this._newsItems.map(
+                    (item, index) => html`
+                        <div
+                            class="news-item ${item.expanded ? "expanded" : ""}"
+                            @click=${(): void => this.toggleNewsItem(index)}
+                        >
+                            <h3>${item.title}</h3>
+                            <p>${item.content}</p>
+                        </div>
+                    `
+                )}
+                <div class="news-item empty">More news coming soon...</div>
+            </div>
+        `;
+    }
+
+    private toggleNewsItem(index: number): void {
+        this._newsItems[index].expanded = !this._newsItems[index].expanded;
+        this.requestUpdate();
     }
 
     private onChangeEmail(event: InputEvent): void {
