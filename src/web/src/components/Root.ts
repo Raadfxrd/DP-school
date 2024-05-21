@@ -267,30 +267,43 @@ export class Root extends LitElement {
             gap: 20px;
         }
 
+        .news-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .news-item {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 5px;
+            border: 2px solid #5a4e7c;
+            padding: 15px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
         }
 
         .news-item:hover {
             background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .news-item h3 {
             margin: 0 0 10px 0;
+            color: #5a4e7c;
+            font-size: 1.2em;
         }
 
         .news-item p {
             margin: 0;
+            color: #333;
+            font-size: 1em;
         }
 
         .news-item.empty {
             background-color: #eee;
             text-align: center;
             color: #888;
+            border: 2px dashed #5a4e7c;
         }
 
         .news-content {
