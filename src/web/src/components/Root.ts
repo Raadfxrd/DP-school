@@ -10,7 +10,6 @@ import { ProductPage } from "./ProductPage";
 import "./GamesPage";
 import "./MerchandisePage";
 
-/** Enumeration to keep track of all the different pages */
 enum RouterPage {
     Home = "orderItems",
     Login = "login",
@@ -19,7 +18,7 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-    Product = "product", // Nieuwse route voor de productpagina
+    Product = "product", // Nieuwste route voor de productpagina
 }
 
 declare global {
@@ -41,7 +40,7 @@ export class Root extends LitElement {
             display: flex;
             flex-direction: column;
             flex: 1;
-            min-height: 100vh; /* This ensures that the root element takes at least the height of the viewport */
+            min-height: 100vh;
         }
 
         header {
@@ -53,7 +52,7 @@ export class Root extends LitElement {
             padding: 10px;
             margin-left: 30px;
             margin-right: 30px;
-            flex: 1 0 auto; /* Expand main content area to push the footer down */
+            flex: 1 0 auto;
         }
 
         nav {
@@ -97,7 +96,6 @@ export class Root extends LitElement {
             font-size: 1.5rem;
             cursor: pointer;
             font-family: "Rubik Mono One", monospace;
-            letter-spacing: -1px;
             position: relative;
             overflow: hidden;
         }
@@ -122,6 +120,12 @@ export class Root extends LitElement {
             display: flex;
             justify-content: space-around;
             width: 45%;
+        }
+
+        .search-login-container {
+            display: flex;
+            justify-content: space-between;
+            width: 140px; /* adjust as needed */
         }
 
         .dropdown-content {
@@ -187,8 +191,40 @@ export class Root extends LitElement {
             width: 100%;
         }
 
+        .searchbar {
+            opacity: 0;
+            width: 150px;
+        }
+
+        .searchbar.show {
+            animation: showSearchBar 0.3s forwards;
+        }
+
+        .searchbar.hide {
+            animation: hideSearchBar 0.3s forwards;
+        }
+
+        .searchbar input {
+            font-family: "Rubik Mono One", monospace;
+            font-size: 1.5rem;
+            border: none;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .searchbar input::placeholder {
+            color: #000000;
+        }
+
+        .searchbar input:focus {
+            border-bottom: 3px solid #c4aad0;
+        }
+
         .order-items {
             display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
             grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
             gap: 50px;
             margin-top: 50px;
@@ -348,7 +384,7 @@ export class Root extends LitElement {
             background-color: #c4aad0;
             padding: 20px;
             font-family: "Rubik", sans-serif;
-            flex-shrink: 0; /* Keep the footer from shrinking */
+            flex-shrink: 0;
         }
 
         .sitemap,
@@ -378,7 +414,7 @@ export class Root extends LitElement {
 
         .sitemap ul li {
             list-style: none;
-            flex: 1 0 50%; /* This will make each list item take up 50% of the width of the ul */
+            flex: 1 0 50%;
             width: 80%;
             margin: 0 auto;
             text-align: center;
@@ -431,6 +467,24 @@ export class Root extends LitElement {
         .icon:hover {
             filter: brightness(0) invert(1);
         }
+
+        @keyframes showSearchBar {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes hideSearchBar {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
     `;
 
     @state()
@@ -438,6 +492,9 @@ export class Root extends LitElement {
 
     @state()
     private _showProductsDropdown: boolean = false;
+
+    @state()
+    private _showSearchBar: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
@@ -568,6 +625,7 @@ export class Root extends LitElement {
         this._showProductsDropdown = !this._showProductsDropdown;
         this.requestUpdate();
     }
+
     /**
      * Navigate to a specific page
      *
@@ -652,8 +710,8 @@ export class Root extends LitElement {
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
                     <div class="nav-right">
-                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderCartInNav()}
-                        ${this.renderLogoutInNav()} ${this.renderAdminButton()}
+                        <div class="search-login-container">${this.renderSearchInNav()}</div>
+                        ${this.renderLoginInNav()} ${this.renderLogoutInNav()} ${this.renderAdminButton()}
                     </div>
                 </nav>
                 <div class="cartbutton">${this.renderCartInNav()}</div>
@@ -847,16 +905,36 @@ export class Root extends LitElement {
     }
 
     /**
-     * Renders the search button in the navigation
+     * Renders the search bar in the navigation
      */
     private renderSearchInNav(): TemplateResult {
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Home;
-            }}
-        >
-            <button>Search</button>
-        </div>`;
+        if (this._showSearchBar) {
+            return html` <div class="searchbar show">
+                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
+            </div>`;
+        } else if (this._hideSearchBar) {
+            return html` <div class="searchbar hide">
+                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
+            </div>`;
+        } else {
+            return html` <div @click=${this.showSearchBar}>
+                <button>Search</button>
+            </div>`;
+        }
+    }
+
+    private showSearchBar(): void {
+        this._showSearchBar = true;
+        this._hideSearchBar = false;
+    }
+
+    private startHideSearchBar(): void {
+        this._showSearchBar = false;
+        this._hideSearchBar = true;
+        setTimeout(() => {
+            this._hideSearchBar = false;
+            this.requestUpdate();
+        }, 300);
     }
 
     /**
