@@ -686,7 +686,7 @@ export class Root extends LitElement {
                     <h2>${orderItem.title}</h2>
                     <p>${orderItem.description}</p>
                 </div>
-                <img src="${orderItem.thumbnail}" alt="${orderItem.title}" />
+                <img src="${orderItem.thumbnail}.jpg" alt="${orderItem.title}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
                 <button class="details" @click=${(): void => this.handleDetailsClick(orderItem)}>
                     View details
