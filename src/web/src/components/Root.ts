@@ -9,7 +9,7 @@ import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { ProductPage } from "./ProductPage";
 import "./GamesPage";
 import "./MerchandisePage";
-
+//import connection from "./database";
 /** Enumeration to keep track of all the different pages */
 enum RouterPage {
     Home = "orderItems",
