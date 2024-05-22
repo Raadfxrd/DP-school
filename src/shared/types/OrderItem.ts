@@ -1,7 +1,10 @@
-export type OrderItem = {
+export type product = {
     id: number;
-    name: string;
+    title: string;
+    thumbnail: string;
+    images: string[];
     description?: string;
+    authors: string[];
+    tags: string[];
     price: number;
-    imageURLs?: string[];
 };

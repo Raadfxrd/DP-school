@@ -1,12 +1,12 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, UserConfig } from "vite";
 import { resolve } from "path";
 import { globSync } from "glob";
 import eslint from "vite-plugin-eslint";
 
-export default defineConfig((config) => {
-    const env: Record<string, string> = loadEnv(config.mode, process.cwd(), "VITE");
+export default defineConfig(({ mode }): UserConfig => {
+    const env: Record<string, string> = loadEnv(mode, process.cwd(), "VITE");
 
-    const viteConfiguration: any = Object.entries(env).reduce((prev, [key, val]) => {
+    const viteConfiguration: Record<string, string> = Object.entries(env).reduce((prev, [key, val]) => {
         return {
             ...prev,
             [key.substring("VITE_".length)]: val,
@@ -15,7 +15,7 @@ export default defineConfig((config) => {
 
     let htmlFiles: string[];
 
-    if (config.mode === "development") {
+    if (mode === "development") {
         htmlFiles = globSync("**/*.html", {
             cwd: resolve(__dirname, "./wwwroot"),
         });
@@ -25,9 +25,9 @@ export default defineConfig((config) => {
         });
     }
 
-    const input: any = {};
-    htmlFiles.forEach((e: string, i: number) => {
-        input[`app_${i}`] = resolve(e);
+    const input: Record<string, string> = {};
+    htmlFiles.forEach((file: string, index: number) => {
+        input[`app_${index}`] = resolve(file);
     });
 
     return {
@@ -35,34 +35,18 @@ export default defineConfig((config) => {
         root: "wwwroot",
         appType: "mpa",
         resolve: {
-            alias: {
-                "/src": resolve(__dirname, "./src"),
-            },
+            alias: { "/src": resolve(__dirname, "./src") },
         },
         build: {
             sourcemap: true,
-            rollupOptions: {
-                input: input,
-            },
+            rollupOptions: { input },
             outDir: resolve(__dirname, "../../dist/web"),
             emptyOutDir: true,
         },
-        esbuild: {
-            supported: {
-                "top-level-await": true,
-            },
-        },
+        esbuild: { supported: { "top-level-await": true } },
         plugins: [eslint()],
-        define: {
-            viteConfiguration: viteConfiguration,
-        },
-        server: {
-            strictPort: true,
-            port: 3000,
-        },
-        preview: {
-            strictPort: true,
-            port: 3000,
-        },
+        define: { viteConfiguration: JSON.stringify(viteConfiguration) }, // Correct stringification
+        server: { strictPort: true, port: 3000 },
+        preview: { strictPort: true, port: 3000 },
     };
 });
