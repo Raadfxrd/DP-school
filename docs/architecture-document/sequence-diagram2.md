@@ -65,3 +65,16 @@ sequenceDiagram
 
 
 ```
+
+1. **Wat is het verschil tussen UDP en TCP?**
+
+-   **UDP (User Datagram Protocol)** is een verbindingsloos protocol dat snelle, maar onbetrouwbare communicatie biedt zonder garantie van levering of volgorde.
+-   **TCP (Transmission Control Protocol)** is een verbindingsgeoriënteerd protocol dat betrouwbare communicatie biedt door middel van bevestigingen, foutcorrectie en het garanderen van volgorde.
+
+2. **Wat is DNS?**
+
+-   **DNS (Domain Name System)** is een systeem dat domeinnamen omzet in IP-adressen, waardoor gebruikers gemakkelijk toegang krijgen tot websites door gebruik te maken van leesbare namen in plaats van IP-adressen.
+
+3. **Wat is DHCP?**
+
+-   **DHCP (Dynamic Host Configuration Protocol)** is een netwerkprotocol dat automatisch IP-adressen en andere netwerkconfiguratieparameters toewijst aan apparaten in een netwerk, zodat ze kunnen communiceren met andere IP-netwerken.
