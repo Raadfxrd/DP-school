@@ -9,7 +9,6 @@ import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { ProductPage } from "./ProductPage";
 import "./GamesPage";
 import "./MerchandisePage";
-
 enum RouterPage {
     Home = "orderItems",
     Login = "login",
