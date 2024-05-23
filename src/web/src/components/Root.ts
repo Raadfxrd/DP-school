@@ -5,6 +5,7 @@ import { OrderItem } from "@shared/types/OrderItem";
 import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { UserData } from "@shared/types/UserData";
 
 /** Enumeration to keep track of all the different pages */
 enum RouterPage {
@@ -267,12 +268,6 @@ export class Root extends LitElement {
             gap: 20px;
         }
 
-        .news-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
         .news-item {
             border: 2px solid #5a4e7c;
             padding: 15px;
@@ -313,6 +308,28 @@ export class Root extends LitElement {
         .news-item.expanded .news-content {
             display: block;
         }
+
+        .profile-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container h2 {
+            color: #5a4e7c;
+            text-align: center;
+        }
+
+        .profile-item {
+            margin: 10px 0;
+        }
+
+        .profile-item span {
+            font-weight: bold;
+        }
     `;
 
     @state()
@@ -329,6 +346,9 @@ export class Root extends LitElement {
 
     @state()
     private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
+
+    @state()
+    private _userProfile?: UserData;
 
     @state()
     public _cartItemsCount: number = 0;
@@ -372,6 +392,14 @@ export class Root extends LitElement {
         }
 
         this._orderItems = result;
+    }
+
+    private async getUserProfile(): Promise<void> {
+        const result: UserData | undefined = await this._userService.getUserProfile();
+
+        if (result) {
+            this._userProfile = result;
+        }
     }
 
     private async submitLoginForm(event: Event): Promise<void> {
@@ -446,6 +474,9 @@ export class Root extends LitElement {
         event.stopPropagation();
         this._currentPage = page;
         this._showProductsDropdown = false;
+        if (page === RouterPage.Account) {
+            void this.getUserProfile();
+        }
         this.requestUpdate();
     }
 
@@ -477,6 +508,9 @@ export class Root extends LitElement {
                 break;
             case RouterPage.News:
                 contentTemplate = this.renderNews();
+                break;
+            case RouterPage.Account:
+                contentTemplate = this.renderAccount();
                 break;
             default:
                 contentTemplate = this.renderHome();
@@ -572,11 +606,7 @@ export class Root extends LitElement {
             return html``;
         }
 
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Account;
-            }}
-        >
+        return html`<div @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Account, e)}>
             <button>Account</button>
         </div>`;
     }
@@ -752,6 +782,27 @@ export class Root extends LitElement {
                     `
                 )}
                 <div class="news-item empty">More news coming soon...</div>
+            </div>
+        `;
+    }
+
+    private renderAccount(): TemplateResult {
+        if (!this._userProfile) {
+            return html`<div>Loading...</div>`;
+        }
+
+        return html`
+            <div class="profile-container">
+                <h2>User Profile</h2>
+                <div class="profile-item"><span>Username:</span> ${this._userProfile.username || ""}</div>
+                <div class="profile-item"><span>Email:</span> ${this._userProfile.email || ""}</div>
+                <div class="profile-item"><span>Date:</span> ${this._userProfile.date || ""}</div>
+                <div class="profile-item"><span>Gender:</span> ${this._userProfile.gender || ""}</div>
+                <div class="profile-item"><span>Street:</span> ${this._userProfile.street || ""}</div>
+                <div class="profile-item">
+                    <span>House Number:</span> ${this._userProfile.houseNumber || ""}
+                </div>
+                <div class="profile-item"><span>Country:</span> ${this._userProfile.country || ""}</div>
             </div>
         `;
     }
