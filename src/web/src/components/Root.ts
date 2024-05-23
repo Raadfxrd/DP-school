@@ -21,7 +21,9 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-    Product = "product", // Nieuwse route voor de productpagina
+    Admin = "admin",
+    Product = "product",
+    Cart = "cart",
 }
 
 declare global {
@@ -81,23 +83,30 @@ export class Root extends LitElement {
             height: 100px;
             cursor: pointer;
         }
-        .cartimg img {
-            width: auto;
+
+        .cartimg {
+            width: 75px;
             height: 75px;
-            cursor: pointer;
-            border-radius: 50%;
+            padding: none;
+            border: none;
         }
 
         .cartbutton {
-            background-color: transparent;
             position: fixed;
             width: auto;
             height: 75px;
-            border-radius: 50%;
             bottom: 5%;
-            right: 4%;
+            right: 3%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cartbuttondesign {
+            cursor: pointer;
             padding: none;
             border: none;
+            border-radius: 50%;
+            background: transparent;
         }
 
         nav button {
@@ -281,25 +290,6 @@ export class Root extends LitElement {
 
         .addItemToCart:active {
             transform: translateY(1px);
-        }
-
-        .cartimg img {
-            width: auto;
-            height: 75px;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .cartbutton {
-            background-color: transparent;
-            position: fixed;
-            width: auto;
-            height: 75px;
-            border-radius: 50%;
-            bottom: 5%;
-            right: 4%;
-            padding: none;
-            border: none;
         }
 
         .details {
@@ -896,12 +886,6 @@ export class Root extends LitElement {
         return html` <div class="order-items">${orderItems}</div> `;
     }
 
-    /**
-     * Renders a single order item
-     *
-     * @param orderItem Order item to render
-     */
-    private renderOrderItem(orderItem: OrderItem): TemplateResult {
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="order-item">
@@ -1030,11 +1014,6 @@ export class Root extends LitElement {
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html`
-                <div class="cartimg">
-                    <button class="cartbutton">
-                        <img src="/assets/img/cartimg.png" alt="cartimg" />
-                    </button>
-                </div>
                 <button
                     class="cartbuttondesign"
                     @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
@@ -1153,32 +1132,6 @@ export class Root extends LitElement {
     }
 
     private renderEmail(): TemplateResult {
-        return html`<div>
-            <label for="email">E-mail</label>
-            <input
-                type="text"
-                name="email"
-                placeholder="test@test.nl"
-                value=${this._email}
-                @change=${this.onChangeEmail}
-            />
-        </div>`;
-    }
-
-    /**
-     * Renders the admin button in the navigation if user is logged in
-     */
-    private renderAdminButton(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``; // Render nothing if user is not logged in
-        }
-
-        return html`
-            <div @click=${(): void => {}}>
-                <button>Admin Page</button>
-            </div>
-        `;
-    }
         return html`
             <div>
                 <label for="email">E-mail</label>
