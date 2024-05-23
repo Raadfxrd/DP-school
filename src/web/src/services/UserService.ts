@@ -2,6 +2,7 @@ import { UserLoginFormModel } from "@shared/formModels/UserLoginFormModel";
 import { UserRegisterFormModel } from "@shared/formModels/UserRegisterFormModel";
 import { TokenService } from "./TokenService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { UserData } from "@shared/types/UserData";
 
 const headers: { "Content-Type": string } = {
     "Content-Type": "application/json",
@@ -190,6 +191,36 @@ export class UserService {
             return (await response.json()) as number;
         } catch (error) {
             console.error("Get items cart error", error);
+            return undefined;
+        }
+    }
+
+    /**
+     * Fetches the user's profile data. Requires a valid token.
+     *
+     * @returns User data when successful, otherwise `undefined`.
+     */
+    public async getUserProfile(): Promise<UserData | undefined> {
+        const token: string | undefined = this._tokenService.getToken();
+
+        if (!token) {
+            return undefined;
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/profile`, {
+                method: "get",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                console.error(`Responsebody: ${await response.text()}`);
+                return undefined;
+            }
+
+            return (await response.json()) as UserData;
+        } catch (error) {
+            console.error("Get user profile error", error);
             return undefined;
         }
     }

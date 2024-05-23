@@ -6,6 +6,7 @@ import { OrderItem } from "@shared/types/OrderItem";
 import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { UserData } from "@shared/types/UserData";
 import { ProductPage } from "./ProductPage";
 import { CartPage } from "./CartPage";
 import "./GamesPage";
@@ -511,6 +512,75 @@ export class Root extends LitElement {
                 opacity: 0;
             }
         }
+
+        .news-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .news-item {
+            border: 2px solid #5a4e7c;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+        }
+
+        .news-item:hover {
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-item h3 {
+            margin: 0 0 10px 0;
+            color: #5a4e7c;
+            font-size: 1.2em;
+        }
+
+        .news-item p {
+            margin: 0;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .news-item.empty {
+            background-color: #eee;
+            text-align: center;
+            color: #888;
+            border: 2px dashed #5a4e7c;
+        }
+
+        .news-content {
+            display: none;
+        }
+
+        .news-item.expanded .news-content {
+            display: block;
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container h2 {
+            color: #5a4e7c;
+            text-align: center;
+        }
+
+        .profile-item {
+            margin: 10px 0;
+        }
+
+        .profile-item span {
+            font-weight: bold;
+        }
     `;
 
     @state()
@@ -527,6 +597,12 @@ export class Root extends LitElement {
 
     @state()
     private _orderItems: OrderItem[] = [];
+
+    @state()
+    private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
+
+    @state()
+    private _userProfile?: UserData;
 
     @state()
     public _cartItemsCount: number = 0;
@@ -546,6 +622,14 @@ export class Root extends LitElement {
         super.connectedCallback();
         await this.getWelcome();
         await this.getOrderItems();
+        this._newsItems = [
+            {
+                title: "Breaking News",
+                content:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+                expanded: false,
+            },
+        ];
     }
 
     private async getWelcome(): Promise<void> {
@@ -565,6 +649,14 @@ export class Root extends LitElement {
         }
 
         this._orderItems = result;
+    }
+
+    private async getUserProfile(): Promise<void> {
+        const result: UserData | undefined = await this._userService.getUserProfile();
+
+        if (result) {
+            this._userProfile = result;
+        }
     }
 
     private async submitLoginForm(event: Event): Promise<void> {
@@ -640,6 +732,9 @@ export class Root extends LitElement {
         event.stopPropagation();
         this._currentPage = page;
         this._showProductsDropdown = false;
+        if (page === RouterPage.Account) {
+            void this.getUserProfile();
+        }
         this.requestUpdate();
     }
 
@@ -691,6 +786,12 @@ export class Root extends LitElement {
                 contentTemplate = this.renderCartPage();
                 break;
 
+            case RouterPage.News:
+                contentTemplate = this.renderNews();
+                break;
+            case RouterPage.Account:
+                contentTemplate = this.renderAccount();
+                break;
             default:
                 contentTemplate = this.renderHome();
         }
@@ -890,11 +991,7 @@ export class Root extends LitElement {
             return html``;
         }
 
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Account;
-            }}
-        >
+        return html`<div @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Account, e)}>
             <button>Account</button>
         </div>`;
     }
@@ -1093,6 +1190,100 @@ export class Root extends LitElement {
                 <input type="password" value=${this._password} @change=${this.onChangePassword} required />
             </div>
         `;
+    }
+
+    private renderNews(): TemplateResult {
+        return html`
+            <div class="news-container">
+                ${this._newsItems.map(
+                    (item, index) => html`
+                        <div
+                            class="news-item ${item.expanded ? "expanded" : ""}"
+                            @click=${(): void => this.toggleNewsItem(index)}
+                        >
+                            <h3>${item.title}</h3>
+                            <p>${item.expanded ? item.content : item.content.substring(0, 50) + "..."}</p>
+                        </div>
+                    `
+                )}
+                <div class="news-item empty">More news coming soon...</div>
+            </div>
+        `;
+    }
+
+    private renderAccount(): TemplateResult {
+        if (!this._userProfile) {
+            return html`<div>Loading...</div>`;
+        }
+
+        return html`
+            <div class="profile-container">
+                <h2>User Profile</h2>
+                <div class="profile-item"><span>Username:</span> ${this._userProfile.username || ""}</div>
+                <div class="profile-item"><span>Email:</span> ${this._userProfile.email || ""}</div>
+                <div class="profile-item"><span>Date:</span> ${this._userProfile.date || ""}</div>
+                <div class="profile-item"><span>Gender:</span> ${this._userProfile.gender || ""}</div>
+                <div class="profile-item"><span>Street:</span> ${this._userProfile.street || ""}</div>
+                <div class="profile-item">
+                    <span>House Number:</span> ${this._userProfile.houseNumber || ""}
+                </div>
+                <div class="profile-item"><span>Country:</span> ${this._userProfile.country || ""}</div>
+            </div>
+        `;
+    }
+
+    private toggleNewsItem(index: number): void {
+        this._newsItems = this._newsItems.map((item, i) =>
+            i === index ? { ...item, expanded: !item.expanded } : item
+        );
+        this.requestUpdate();
+    }
+
+    private renderNews(): TemplateResult {
+        return html`
+            <div class="news-container">
+                ${this._newsItems.map(
+                    (item, index) => html`
+                        <div
+                            class="news-item ${item.expanded ? "expanded" : ""}"
+                            @click=${(): void => this.toggleNewsItem(index)}
+                        >
+                            <h3>${item.title}</h3>
+                            <p>${item.expanded ? item.content : item.content.substring(0, 50) + "..."}</p>
+                        </div>
+                    `
+                )}
+                <div class="news-item empty">More news coming soon...</div>
+            </div>
+        `;
+    }
+
+    private renderAccount(): TemplateResult {
+        if (!this._userProfile) {
+            return html`<div>Loading...</div>`;
+        }
+
+        return html`
+            <div class="profile-container">
+                <h2>User Profile</h2>
+                <div class="profile-item"><span>Username:</span> ${this._userProfile.username || ""}</div>
+                <div class="profile-item"><span>Email:</span> ${this._userProfile.email || ""}</div>
+                <div class="profile-item"><span>Date:</span> ${this._userProfile.date || ""}</div>
+                <div class="profile-item"><span>Gender:</span> ${this._userProfile.gender || ""}</div>
+                <div class="profile-item"><span>Street:</span> ${this._userProfile.street || ""}</div>
+                <div class="profile-item">
+                    <span>House Number:</span> ${this._userProfile.houseNumber || ""}
+                </div>
+                <div class="profile-item"><span>Country:</span> ${this._userProfile.country || ""}</div>
+            </div>
+        `;
+    }
+
+    private toggleNewsItem(index: number): void {
+        this._newsItems = this._newsItems.map((item, i) =>
+            i === index ? { ...item, expanded: !item.expanded } : item
+        );
+        this.requestUpdate();
     }
 
 

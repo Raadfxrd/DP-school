@@ -163,14 +163,37 @@ export class UserController {
         res.json(userData.cart?.length || 0);
     }
 
-    // /**
-    //  * Generate an id for a user
-    //  *
-    //  * @note Do not use this method in production, it exists purely for our fake database!
-    //  *
-    //  * @returns Generated id
-    //  */
-    // private generateFakeId(): number {
-    //     return users.length + 1;
-    // }
+    /**
+     * Get the profile of the logged-in user
+     *
+     * @param req Request object
+     * @param res Response object
+     */
+    public async getProfile(req: Request, res: Response): Promise<void> {
+        if (!req.user) {
+            res.status(401).send("Unauthorized");
+            return;
+        }
+
+        const userId: number = req.user.id;
+
+        try {
+            const userProfile: UserData[] = await queryDatabase<UserData[]>(
+                "SELECT username, email, date, gender, street, houseNumber, country FROM user WHERE id = ?",
+                [userId]
+            );
+
+            if (userProfile.length === 0) {
+                res.status(404).send("User not found");
+                return;
+            }
+
+            console.log("User Profile:", userProfile[0]);
+
+            res.json(userProfile[0]);
+        } catch (error) {
+            console.error("Database Error:", error);
+            res.status(500).json({ message: "Database error", error: (error as Error).message });
+        }
+    }
 }

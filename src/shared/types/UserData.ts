@@ -13,6 +13,12 @@ export type UserData = {
     email: string;
     password: string;
     name: string;
+    username?: string; // Voeg username toe
+    date?: string; // Voeg date toe
+    gender?: string; // Voeg gender toe
+    street?: string; // Voeg street toe
+    houseNumber?: string; // Voeg houseNumber toe
+    country?: string; // Voeg country toe
 
     firstName?: string;
     lastName?: string;
