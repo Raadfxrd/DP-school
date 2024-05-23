@@ -18,6 +18,7 @@ router.post(
     "/users/register",
     asyncHandler((req: Request, res: Response) => userController.register(req, res))
 );
+
 router.post(
     "/users/login",
     asyncHandler((req: Request, res: Response) => userController.login(req, res))

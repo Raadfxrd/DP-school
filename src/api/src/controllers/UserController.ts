@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mysql from "mysql2/promise";
-import { CartItem, UserData } from "@shared/types";
+import { CartItem, OrderItem, UserData } from "@shared/types";
 import { UserLoginFormModel, UserRegisterFormModel } from "@shared/formModels";
 import { CustomJwtPayload } from "../types/jwt";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
@@ -99,13 +99,26 @@ export class UserController {
         res.json({ message: "You are logged out." });
     }
 
-    // Return a greeting message along with the user's cart items
     public hello(req: Request, res: Response): void {
         const userData: UserData = req.user!;
 
-        const cartItemNames: string[] | undefined = userData.cart?.map(
-            (e: any) => orderItems.find((f: any) => f.id === e.id)!.title
-        );
+        let cartItems: CartItem[] = [];
+
+        // Parse the cart string if it exists
+        if (userData.cart) {
+            try {
+                cartItems = JSON.parse(userData.cart);
+            } catch (error) {
+                console.error("Error parsing cart:", error);
+                res.status(500).json({ message: "Error processing cart data" });
+                return;
+            }
+        }
+
+        // Get the titles of the items in the cart
+        const cartItemNames: string[] | undefined = cartItems
+            .map((e: CartItem) => orderItems.find((f: OrderItem) => f.id === e.id)?.title)
+            .filter((title): title is string => title !== undefined);
 
         const response: UserHelloResponse = {
             email: userData.email,
@@ -134,7 +147,7 @@ export class UserController {
         }
 
         // Add the new item to the cart
-        cart.push({ id: id, amount: 1 });
+        cart.push({ id, amount: 1 });
 
         // Stringify the cart array to store it back in the database
         const cartString: string = JSON.stringify(cart);
