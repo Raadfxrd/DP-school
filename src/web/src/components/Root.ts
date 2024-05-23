@@ -926,9 +926,9 @@ export class Root extends LitElement {
                           Add to cart
                       </button>`
                     : nothing}
-            </div>
         `;
-    }
+    }  
+                
 
 
     private navigateToProductPage(orderItem: OrderItem): void {
@@ -1190,53 +1190,6 @@ export class Root extends LitElement {
                 <input type="password" value=${this._password} @change=${this.onChangePassword} required />
             </div>
         `;
-    }
-
-    private renderNews(): TemplateResult {
-        return html`
-            <div class="news-container">
-                ${this._newsItems.map(
-                    (item, index) => html`
-                        <div
-                            class="news-item ${item.expanded ? "expanded" : ""}"
-                            @click=${(): void => this.toggleNewsItem(index)}
-                        >
-                            <h3>${item.title}</h3>
-                            <p>${item.expanded ? item.content : item.content.substring(0, 50) + "..."}</p>
-                        </div>
-                    `
-                )}
-                <div class="news-item empty">More news coming soon...</div>
-            </div>
-        `;
-    }
-
-    private renderAccount(): TemplateResult {
-        if (!this._userProfile) {
-            return html`<div>Loading...</div>`;
-        }
-
-        return html`
-            <div class="profile-container">
-                <h2>User Profile</h2>
-                <div class="profile-item"><span>Username:</span> ${this._userProfile.username || ""}</div>
-                <div class="profile-item"><span>Email:</span> ${this._userProfile.email || ""}</div>
-                <div class="profile-item"><span>Date:</span> ${this._userProfile.date || ""}</div>
-                <div class="profile-item"><span>Gender:</span> ${this._userProfile.gender || ""}</div>
-                <div class="profile-item"><span>Street:</span> ${this._userProfile.street || ""}</div>
-                <div class="profile-item">
-                    <span>House Number:</span> ${this._userProfile.houseNumber || ""}
-                </div>
-                <div class="profile-item"><span>Country:</span> ${this._userProfile.country || ""}</div>
-            </div>
-        `;
-    }
-
-    private toggleNewsItem(index: number): void {
-        this._newsItems = this._newsItems.map((item, i) =>
-            i === index ? { ...item, expanded: !item.expanded } : item
-        );
-        this.requestUpdate();
     }
 
     private renderNews(): TemplateResult {

@@ -9,3 +9,10 @@ Originele design aangepast, het was eerst wat school ons gegeven had. Na meerder
 ![alt text](../img/currentdesign.JPG)
 
 Na deze was ingevoerd zijn we begonnen met Guerilla tests doen om te zien of het geoptimaliseerd kon worden. Of als er problemen mee waren, we hebben eruit gekregen om een paar dingen aantepassen die net fout waren zoals: Logo niet goed geknipt, navbalk was assymetrisch etc.. En hebben we dat aangepast. 
+
+
+
+## Wireframes<br>
+Wij hebben een wireframe uitgewerkt zodat we efficienter guerilla tests kunnen doen.<br>
+
+![alt text](../img/wireframe.JPG)
