@@ -9,9 +9,9 @@ import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
 import { ProductPage } from "./ProductPage";
 import { CartPage } from "./CartPage";
+import { AdminPage } from "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
-import { AdminPage } from "./AdminPage";
 
 enum RouterPage {
     Home = "orderItems",
@@ -22,7 +22,7 @@ enum RouterPage {
     News = "news",
     Account = "account",
     Admin = "admin",
-    Product = "product", // Nieuwste route voor de productpagina
+    Product = "product",
     Cart = "cart",
 }
 
@@ -146,35 +146,31 @@ export class Root extends LitElement {
         .search-login-container {
             display: flex;
             justify-content: space-between;
-            width: 140px; /* adjust as needed */
+            width: 140px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
         }
 
         .dropdown-content {
+            padding-top: 10px;
+            display: none;
             position: absolute;
-            width: 25%;
-            top: 60%;
-            left: 0;
-            display: flex;
-            justify-content: space-around;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
         }
 
-        .dropdown-content.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0px);
+        .dropdown:hover .dropdown-content {
+            display: block;
         }
 
         .dropdown-section {
-            flex-grow: 1;
             text-align: center;
-            padding: 15px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 12px 16px;
         }
 
         .dropdown-section button {
@@ -185,31 +181,6 @@ export class Root extends LitElement {
             cursor: pointer;
             text-align: center;
             outline: none;
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-section button span {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-section button span::after {
-            content: "";
-            display: block;
-            width: 0;
-            height: 2px;
-            background: #c4aad0;
-            transition: width 0.3s ease;
-            position: absolute;
-            left: 0;
-            right: 0;
-            margin: auto;
-            bottom: -5px;
-        }
-
-        .dropdown-section button:hover span::after {
-            width: 100%;
         }
 
         .searchbar {
@@ -245,7 +216,6 @@ export class Root extends LitElement {
 
         .order-items {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
             grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
             gap: 50px;
             margin-top: 50px;
@@ -354,7 +324,7 @@ export class Root extends LitElement {
         }
 
         .login-container {
-            max-width: 360px; /* Iets breder voor betere leesbaarheid */
+            max-width: 360px;
             margin: auto;
             margin-top: 150px;
             padding: 20px;
@@ -364,7 +334,7 @@ export class Root extends LitElement {
         }
 
         .login-form h1 {
-            color: #5a4e7c; /* Donkere paarse kleur voor de kop */
+            color: #5a4e7c;
             text-align: center;
             margin-bottom: 20px;
         }
@@ -372,7 +342,7 @@ export class Root extends LitElement {
         .login-form label {
             display: block;
             margin-bottom: 10px;
-            color: #5a4e7c; /* Tekstkleur */
+            color: #5a4e7c;
         }
 
         .login-form input {
@@ -381,7 +351,7 @@ export class Root extends LitElement {
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            box-sizing: border-box; /* Voorkomt problemen met padding en breedte */
+            box-sizing: border-box;
         }
 
         .login-form button {
@@ -389,14 +359,14 @@ export class Root extends LitElement {
             padding: 10px;
             border: none;
             border-radius: 8px;
-            background-color: #957dad; /* Zachtere paarse tint */
+            background-color: #957dad;
             color: white;
             font-size: 1.1em;
             cursor: pointer;
         }
 
         .login-form button:hover {
-            background-color: #5a4e7c; /* Donkerdere paars voor hover effect */
+            background-color: #5a4e7c;
         }
 
         .login-form .message {
@@ -405,7 +375,7 @@ export class Root extends LitElement {
         }
 
         .login-form .message a {
-            color: #957dad; /* Link kleur */
+            color: #957dad;
             text-decoration: none;
         }
 
@@ -503,24 +473,6 @@ export class Root extends LitElement {
             filter: brightness(0) invert(1);
         }
 
-        @keyframes showSearchBar {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes hideSearchBar {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-
         .news-container {
             display: flex;
             flex-direction: column;
@@ -589,34 +541,55 @@ export class Root extends LitElement {
         .profile-item span {
             font-weight: bold;
         }
+
+        @keyframes showSearchBar {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes hideSearchBar {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
     `;
 
     @state()
     private _currentPage: RouterPage = RouterPage.Home;
 
     @state()
-    private _showProductsDropdown: boolean = false;
+    private _showSearchBar: boolean = false;
 
     @state()
-    private _showSearchBar: boolean = false;
+    private _hideSearchBar: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
 
     @state()
-    private _orderItems: OrderItem[] = [];
+    private _OrderItem: OrderItem[] = [];
 
     @state()
-    private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
-
-    @state()
-    private _userProfile?: UserData;
+    private _loadingOrderItems: boolean = true;
 
     @state()
     public _cartItemsCount: number = 0;
 
     @state()
     public selectedProduct: OrderItem | undefined = undefined;
+
+    @state()
+    private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
+
+    @state()
+    private _userProfile?: UserData;
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -650,13 +623,12 @@ export class Root extends LitElement {
     }
 
     private async getOrderItems(): Promise<void> {
+        this._loadingOrderItems = true;
         const result: OrderItem[] | undefined = await this._orderItemService.getAll();
-
-        if (!result) {
-            return;
+        if (result) {
+            this._OrderItem = result;
         }
-
-        this._orderItems = result;
+        this._loadingOrderItems = false;
     }
 
     private async getUserProfile(): Promise<void> {
@@ -727,12 +699,6 @@ export class Root extends LitElement {
                 result.cartItems?.join("\r\n- ") || "None"
             }`
         );
-    }
-
-    private toggleProductsDropdown(e: MouseEvent): void {
-        e.preventDefault();
-        this._showProductsDropdown = !this._showProductsDropdown;
-        this.requestUpdate();
     }
 
     private navigateToPage(page: RouterPage, event: MouseEvent): void {
@@ -907,10 +873,14 @@ export class Root extends LitElement {
     }
 
     private renderHome(): TemplateResult {
-        const orderItems: TemplateResult[] = this._orderItems.map((e) => this.renderOrderItem(e));
+        if (this._loadingOrderItems) {
+            return html`<div class="order-items">Loading... Please wait a moment.</div>`;
+        }
+
+        const orderItems: TemplateResult[] = this._OrderItem.map((e) => this.renderOrderItem(e));
 
         if (orderItems.length === 0) {
-            return html`<div class="order-items">Loading... Please wait a moment.</div>`;
+            return html`<div class="order-items">No items found.</div>`;
         }
 
         return html` <div class="order-items">${orderItems}</div> `;
@@ -920,24 +890,29 @@ export class Root extends LitElement {
         return html`
             <div class="order-item">
                 <div class="text-content">
-                    <h2>${orderItem.name}</h2>
+                    <h2>${orderItem.title}</h2>
                     <p>${orderItem.description}</p>
                 </div>
-                <img src=" ${orderItem.imageURLs}" alt="${orderItem.name}" />
+                <img src="${orderItem.thumbnail}.jpg" alt="${orderItem.title}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
-                <button class="details" @click=${() => this.navigateToProductPage(orderItem)}>
+                <button class="details" @click=${(): void => this.handleDetailsClick(orderItem)}>
                     View details
                 </button>
                 ${this._isLoggedIn
                     ? html`<button
                           class="addItemToCart"
-                          @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}
+                          @click=${async (): Promise<void> => this.addItemToCart(orderItem)}
                       >
                           Add to cart
-                      </button> `
+                      </button>`
                     : nothing}
             </div>
         `;
+    }
+
+    // Event handler for the details button with an explicit return type
+    private handleDetailsClick(orderItem: OrderItem): void {
+        this.navigateToProductPage(orderItem);
     }
 
     private navigateToProductPage(orderItem: OrderItem): void {
@@ -945,11 +920,11 @@ export class Root extends LitElement {
         this.selectedProduct = orderItem;
         this.requestUpdate();
     }
+
     private renderProductPage(): TemplateResult {
-        if (!this.selectedProduct) {
-            return html``;
-        }
-        return html`<product-page .productData=${this.selectedProduct}></product-page>`;
+        return this.selectedProduct
+            ? html`<product-page .productData=${this.selectedProduct}></product-page>`
+            : html``;
     }
 
     private navigateToCartPage(): void {
@@ -963,9 +938,9 @@ export class Root extends LitElement {
 
     private renderProductsInNav(): TemplateResult {
         return html`
-            <div @click=${this.toggleProductsDropdown}>
+            <div class="dropdown">
                 <button>Products</button>
-                <div class=${this._showProductsDropdown ? "dropdown-content visible" : "dropdown-content"}>
+                <div class="dropdown-content">
                     <div class="dropdown-section">
                         <button @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Games, e)}>
                             Games
@@ -1003,17 +978,34 @@ export class Root extends LitElement {
         </div>`;
     }
 
-    /**
-     * Renders the search bar in the navigation
-     */
     private renderSearchInNav(): TemplateResult {
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Home;
-            }}
-        >
-            <button>Search</button>
-        </div>`;
+        if (this._showSearchBar) {
+            return html` <div class="searchbar show">
+                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
+            </div>`;
+        } else if (this._hideSearchBar) {
+            return html` <div class="searchbar hide">
+                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
+            </div>`;
+        } else {
+            return html` <div @click=${this.showSearchBar}>
+                <button>Search</button>
+            </div>`;
+        }
+    }
+
+    private showSearchBar(): void {
+        this._showSearchBar = true;
+        this._hideSearchBar = false;
+    }
+
+    private startHideSearchBar(): void {
+        this._showSearchBar = false;
+        this._hideSearchBar = true;
+        setTimeout(() => {
+            this._hideSearchBar = false;
+            this.requestUpdate();
+        }, 300);
     }
 
     /**

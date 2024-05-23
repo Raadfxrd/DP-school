@@ -2,7 +2,6 @@ import { LitElement, html, css } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { OrderItem } from "@shared/types/OrderItem";
 import { UserService } from "../services/UserService";
-// import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { TemplateResult } from "lit";
 
@@ -13,7 +12,6 @@ export class CartPage extends LitElement {
 
     @state() private _cartItemsArray: OrderItem[] = [];
     private userService: UserService = new UserService();
-    // private _tokenService: TokenService = new TokenService();
     private orderItemService: OrderItemService = new OrderItemService();
 
     public static styles = css`
@@ -206,11 +204,6 @@ export class CartPage extends LitElement {
         }
     }
 
-    // public setLoggedInStatus(isLoggedIn: boolean): void {
-    // }
-
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="product-box">
@@ -221,7 +214,7 @@ export class CartPage extends LitElement {
                             <img src="" />
                         </div>
                         <div class="game-description-text">
-                            <p class="game-title">${orderItem.name}</p>
+                            <p class="game-title">${orderItem.title}</p>
                             <p class="game-description">${orderItem.description}</p>
                         </div>
                     </div>

@@ -1,7 +1,6 @@
-// pnpm i --filter=api mysql2
-
 import type { Pool } from "mysql2/promise";
 import { createPool } from "mysql2/promise";
+import { UserData } from "@shared/types/UserData";
 
 let connectionPool: Pool;
 
@@ -20,7 +19,20 @@ export function getConnection(): Pool {
     return connectionPool;
 }
 
-export async function queryDatabase<T = any>(query: string, values: any[]): Promise<T> {
-    const [rows] = await getConnection().execute(query, values);
-    return rows as T;
+export async function queryDatabase<T = any>(query: string, ...values: any[]): Promise<T> {
+    const [results] = await getConnection().execute(query, values);
+    return results as T;
+}
+
+export async function getUserById(userId: number): Promise<UserData | null> {
+    const results: UserData[] = await queryDatabase<UserData[]>(
+        "SELECT id, email, name, password FROM users WHERE id = ?",
+        userId
+    );
+
+    if (results.length > 0) {
+        return results[0];
+    }
+
+    return null;
 }

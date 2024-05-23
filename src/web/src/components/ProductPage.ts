@@ -151,11 +151,11 @@ export class ProductPage extends LitElement {
             <div class="product-card">
                 <div class="badge">New</div>
                 <div class="product-tumb">
-                    <img src="${this.productData.imageURLs}" alt="${this.productData.name}" />
+                    <img src="${this.productData.thumbnail}" alt="${this.productData.title}" />
                 </div>
                 <div class="product-details">
                     <div class="title-price">
-                        <h4 class="title">${this.productData.name}</h4>
+                        <h4 class="title">${this.productData.title}</h4>
                         <div class="price">Price: €${this.productData.price}</div>
                     </div>
                     <div class="product-links">
