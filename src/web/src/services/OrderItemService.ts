@@ -13,6 +13,4 @@ export class OrderItemService {
 
         return (await response.json()) as OrderItem[];
     }
-
-    
 }

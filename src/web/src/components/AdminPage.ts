@@ -3,7 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 
 @customElement("admin-page")
 export class AdminPage extends LitElement {
-    static styles: CSSResult = css`
+    public static styles: CSSResult = css`
         :host {
             display: block;
             padding: 16px;
@@ -17,7 +17,8 @@ export class AdminPage extends LitElement {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        input, textarea {
+        input,
+        textarea {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -65,16 +66,33 @@ export class AdminPage extends LitElement {
             <h2>Upload New Game</h2>
             <form @submit=${this.handleSubmit}>
                 <label for="gameName">Game Name:</label>
-                <input id="gameName" type="text" .value=${this.gameName} @input=${this.updateGameName} placeholder="Enter game name">
+                <input
+                    id="gameName"
+                    type="text"
+                    .value=${this.gameName}
+                    @input=${this.updateGameName}
+                    placeholder="Enter game name"
+                />
 
                 <label for="description">Description:</label>
-                <textarea id="description" .value=${this.gameDescription} @input=${this.updateGameDescription} placeholder="Enter game description"></textarea>
+                <textarea
+                    id="description"
+                    .value=${this.gameDescription}
+                    @input=${this.updateGameDescription}
+                    placeholder="Enter game description"
+                ></textarea>
 
                 <label for="price">Price:</label>
-                <input id="price" type="text" .value=${this.gamePrice} @input=${this.updateGamePrice} placeholder="Enter price">
+                <input
+                    id="price"
+                    type="text"
+                    .value=${this.gamePrice}
+                    @input=${this.updateGamePrice}
+                    placeholder="Enter price"
+                />
 
                 <label for="gameFile">Game Image:</label>
-                <input id="gameFile" type="file" @change=${this.updateGameFile}>
+                <input id="gameFile" type="file" @change=${this.updateGameFile} />
 
                 <button type="submit">Upload Game</button>
             </form>
@@ -82,22 +100,22 @@ export class AdminPage extends LitElement {
     }
 
     private updateGameName(e: InputEvent): void {
-        const input = e.target as HTMLInputElement;
+        const input: HTMLInputElement = e.target as HTMLInputElement;
         this.gameName = input.value;
     }
 
     private updateGameDescription(e: InputEvent): void {
-        const textarea = e.target as HTMLTextAreaElement;
+        const textarea: HTMLTextAreaElement = e.target as HTMLTextAreaElement;
         this.gameDescription = textarea.value;
     }
 
     private updateGamePrice(e: InputEvent): void {
-        const input = e.target as HTMLInputElement;
+        const input: HTMLInputElement = e.target as HTMLInputElement;
         this.gamePrice = input.value;
     }
 
     private updateGameFile(e: InputEvent): void {
-        const input = e.target as HTMLInputElement;
+        const input: HTMLInputElement = e.target as HTMLInputElement;
         this.gameFile = input.files ? input.files[0] : null;
     }
 
@@ -106,7 +124,7 @@ export class AdminPage extends LitElement {
         console.log("Uploading game:", this.gameName, this.gameDescription, this.gamePrice, this.gameFile);
 
         // Implement the logic to send the data to your server
-        const formData = new FormData();
+        const formData: FormData = new FormData();
         formData.append("name", this.gameName);
         formData.append("description", this.gameDescription);
         formData.append("price", this.gamePrice);

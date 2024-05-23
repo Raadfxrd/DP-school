@@ -7,7 +7,7 @@ import { orderItems } from "../fakeDatabase";
 export class OrderItemController {
     /**
      * Get all order items
-     * 
+     *
      * @param _ Request object (unused)
      * @param res Response object
      */

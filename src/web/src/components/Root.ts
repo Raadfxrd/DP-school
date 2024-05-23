@@ -41,7 +41,6 @@ declare global {
     }
 }
 
-
 /**
  * Custom element based on Lit for the header of the webshop.
  *
@@ -84,9 +83,8 @@ export class Root extends LitElement {
             height: 100px;
             cursor: pointer;
         }
-        
 
-        .cartimg{
+        .cartimg {
             width: 75px;
             height: 75px;
             padding: none;
@@ -103,7 +101,7 @@ export class Root extends LitElement {
             align-items: center;
         }
 
-        .cartbuttondesign{
+        .cartbuttondesign {
             cursor: pointer;
             padding: none;
             border: none;
@@ -298,7 +296,7 @@ export class Root extends LitElement {
             margin-top: 10px;
         }
 
-        .cartcount{
+        .cartcount {
             color: white;
             height: 20px;
             width: 20px;
@@ -599,8 +597,8 @@ export class Root extends LitElement {
     @state()
     private _showProductsDropdown: boolean = false;
 
-    // @state()
-    // private _showSearchBar: boolean = false;
+    @state()
+    private _showSearchBar: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
@@ -737,7 +735,6 @@ export class Root extends LitElement {
         this.requestUpdate();
     }
 
-
     private navigateToPage(page: RouterPage, event: MouseEvent): void {
         event.stopPropagation();
         this._currentPage = page;
@@ -777,35 +774,33 @@ export class Root extends LitElement {
                 break;
 
             case RouterPage.Product:
-                contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
+                contentTemplate = this.renderProductPage();
                 break;
 
             case RouterPage.Games:
-                contentTemplate = html`<games-page></games-page>`; // Add this line
+                contentTemplate = html`<games-page></games-page>`;
                 break;
 
             case RouterPage.Merchandise:
-                contentTemplate = html`<merchandise-page></merchandise-page>`; // Add this line
+                contentTemplate = html`<merchandise-page></merchandise-page>`;
                 break;
 
             case RouterPage.Cart:
                 contentTemplate = this.renderCartPage();
                 break;
 
-            case RouterPage.Cart:
-                contentTemplate = this.renderCartPage();
-                break;
-
-             case RouterPage.Admin:
-                 contentTemplate = html`<admin-page></admin-page>`; // Use the custom admin-page element
+            case RouterPage.Admin:
+                contentTemplate = html`<admin-page></admin-page>`;
                 break;
 
             case RouterPage.News:
                 contentTemplate = this.renderNews();
                 break;
+
             case RouterPage.Account:
                 contentTemplate = this.renderAccount();
                 break;
+
             default:
                 contentTemplate = this.renderHome();
         }
@@ -934,25 +929,21 @@ export class Root extends LitElement {
                     View details
                 </button>
                 ${this._isLoggedIn
-                
                     ? html`<button
                           class="addItemToCart"
                           @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}
                       >
                           Add to cart
-                      </button>
-            `
+                      </button> `
                     : nothing}
-                    </div>
+            </div>
         `;
-    }  
-                
-
+    }
 
     private navigateToProductPage(orderItem: OrderItem): void {
-        this._currentPage = RouterPage.Product; // Navigeer naar de productpagina
-        this.selectedProduct = orderItem; // Stel het geselecteerde product in
-        this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
+        this._currentPage = RouterPage.Product;
+        this.selectedProduct = orderItem;
+        this.requestUpdate();
     }
     private renderProductPage(): TemplateResult {
         if (!this.selectedProduct) {
@@ -960,17 +951,13 @@ export class Root extends LitElement {
         }
         return html`<product-page .productData=${this.selectedProduct}></product-page>`;
     }
-    
-
-    
 
     private navigateToCartPage(): void {
-        this._currentPage = RouterPage.Cart; // Navigeer naar de productpagina
-        this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
+        this._currentPage = RouterPage.Cart;
+        this.requestUpdate();
     }
 
     private renderCartPage(): TemplateResult {
-
         return html`<cart-page></cart-page>`;
     }
 
@@ -1035,17 +1022,22 @@ export class Root extends LitElement {
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html`
-                    <button class="cartbuttondesign"
-                    @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}>
-                        <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
-                    </button>
+                <button
+                    class="cartbuttondesign"
+                    @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
+                >
+                    <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+                </button>
             `;
         }
 
         return html`<div @click=${this.clickCartButton}>
-            <button  class="cartbuttondesign" @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}>
-                    <div class="cartcount">${this._cartItemsCount}</div>
-                    <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+            <button
+                class="cartbuttondesign"
+                @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
+            >
+                <div class="cartcount">${this._cartItemsCount}</div>
+                <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
             </button>
         </div>`;
     }
@@ -1063,8 +1055,6 @@ export class Root extends LitElement {
             <button>Login</button>
         </div>`;
     }
-
-    
 
     private renderLogoutInNav(): TemplateResult {
         if (!this._isLoggedIn) {
@@ -1165,9 +1155,6 @@ export class Root extends LitElement {
         `;
     }
 
-   
-
-
     private renderPassword(): TemplateResult {
         return html`
             <div>
@@ -1224,7 +1211,6 @@ export class Root extends LitElement {
         this.requestUpdate();
     }
 
-
     /**
      * Handles changes to the e-mail input field
      */
@@ -1251,7 +1237,6 @@ export class Root extends LitElement {
                 </div>
             `;
         }
-        return html``; // Render nothing if not logged in
+        return html``;
     }
-    
 }

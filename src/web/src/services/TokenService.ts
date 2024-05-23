@@ -19,7 +19,6 @@ export class TokenService {
     public getToken(): string | undefined {
         return localStorage.getItem("token") || undefined;
     }
-    
 
     /**
      * Remove the JWT token from local storage
