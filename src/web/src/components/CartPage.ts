@@ -2,19 +2,18 @@ import { LitElement, html, css } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { OrderItem } from "@shared/types/OrderItem";
 import { UserService } from "../services/UserService";
-import { TokenService } from "../services/TokenService";
+// import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { TemplateResult } from "lit";
 
 @customElement("cart-page")
 export class CartPage extends LitElement {
     @property({ type: Object }) public productData!: OrderItem;
-    @property({ type: Boolean }) private _isLoggedIn: boolean = false;
     @property({ type: Number }) public cartItemsCount: number = 0;
 
     @state() private _cartItemsArray: OrderItem[] = [];
     private userService: UserService = new UserService();
-    private _tokenService: TokenService = new TokenService();
+    // private _tokenService: TokenService = new TokenService();
     private orderItemService: OrderItemService = new OrderItemService();
 
     
@@ -218,9 +217,8 @@ private async loadCartItems(): Promise<void> {
 
 
 
-    public setLoggedInStatus(isLoggedIn: boolean): void {
-        this._isLoggedIn = isLoggedIn;
-    }
+    // public setLoggedInStatus(isLoggedIn: boolean): void {
+    // }
 
 
     
