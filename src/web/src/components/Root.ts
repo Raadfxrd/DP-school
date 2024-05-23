@@ -599,8 +599,8 @@ export class Root extends LitElement {
     @state()
     private _showProductsDropdown: boolean = false;
 
-    @state()
-    private _showSearchBar: boolean = false;
+    // @state()
+    // private _showSearchBar: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
