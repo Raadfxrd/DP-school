@@ -42,7 +42,7 @@ https://gitlab.fdmci.hva.nl/propedeuse-hbo-ict/onderwijs/2023-2024/out-a-se-ti/b
 
 ## Link naar website
 
-Site deployen is niet gelukt. Pascal heeft meneer Bolier en Bookelman (beoordelaars van sprint review) een bericht over gestuurd.
+Site deployen is niet gelukt. Pascal heeft meneer Veltmeijer(beoordelaar van sprint review) een bericht over gestuurd.
 
 ## Test users om de site te testen
 
