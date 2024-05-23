@@ -162,4 +162,15 @@ export class UserController {
 
         res.json(userData.cart?.length || 0);
     }
+
+    // /**
+    //  * Generate an id for a user
+    //  *
+    //  * @note Do not use this method in production, it exists purely for our fake database!
+    //  *
+    //  * @returns Generated id
+    //  */
+    // private generateFakeId(): number {
+    //     return users.length + 1;
+    // }
 }
