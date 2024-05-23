@@ -27,6 +27,7 @@ export const orderItems: OrderItem[] = [
         description: "Description 1",
         price: 10,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 2,
@@ -34,6 +35,7 @@ export const orderItems: OrderItem[] = [
         description: "Description 2",
         price: 20,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 3,
@@ -41,6 +43,7 @@ export const orderItems: OrderItem[] = [
         description: "Description 3",
         price: 30,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 4,
@@ -48,6 +51,7 @@ export const orderItems: OrderItem[] = [
         description: "Description 4",
         price: 40,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 5,
@@ -55,6 +59,7 @@ export const orderItems: OrderItem[] = [
         description: "Description 5",
         price: 50,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 6,
@@ -62,6 +67,7 @@ export const orderItems: OrderItem[] = [
         description: "Description 6",
         price: 60,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
 ];
 
@@ -75,6 +81,7 @@ export const merchandise: OrderItem[] = [
         description: "Description 1",
         price: 10,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 2,
@@ -82,6 +89,7 @@ export const merchandise: OrderItem[] = [
         description: "Description 2",
         price: 20,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 3,
@@ -89,6 +97,7 @@ export const merchandise: OrderItem[] = [
         description: "Description 3",
         price: 30,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 4,
@@ -96,6 +105,7 @@ export const merchandise: OrderItem[] = [
         description: "Description 4",
         price: 40,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 5,
@@ -103,6 +113,7 @@ export const merchandise: OrderItem[] = [
         description: "Description 5",
         price: 50,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 6,
@@ -110,6 +121,7 @@ export const merchandise: OrderItem[] = [
         description: "Description 6",
         price: 60,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
 ];
 
@@ -123,6 +135,7 @@ export const games: OrderItem[] = [
         description: "Description 1",
         price: 10,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 2,
@@ -130,6 +143,7 @@ export const games: OrderItem[] = [
         description: "Description 2",
         price: 20,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 3,
@@ -137,6 +151,7 @@ export const games: OrderItem[] = [
         description: "Description 3",
         price: 30,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 4,
@@ -144,6 +159,7 @@ export const games: OrderItem[] = [
         description: "Description 4",
         price: 40,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 5,
@@ -151,6 +167,7 @@ export const games: OrderItem[] = [
         description: "Description 5",
         price: 50,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
     {
         id: 6,
@@ -158,6 +175,7 @@ export const games: OrderItem[] = [
         description: "Description 6",
         price: 60,
         imageURLs: ["https://via.placeholder.com/450"],
+quantity:1
     },
 ];
 
