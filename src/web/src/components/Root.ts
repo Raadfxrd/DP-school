@@ -591,7 +591,7 @@ export class Root extends LitElement {
 
     private async addItemToCart(orderItem: OrderItem): Promise<void> {
         const result: number | undefined = await this._userService.addOrderItemToCart(orderItem.id);
-
+        console.log(result);
         if (!result) {
             return;
         }
