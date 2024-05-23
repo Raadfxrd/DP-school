@@ -10,6 +10,8 @@ import { ProductPage } from "./ProductPage";
 import { CartPage } from "./CartPage";
 import "./GamesPage";
 import "./MerchandisePage";
+import { AdminPage } from "./AdminPage";
+
 enum RouterPage {
     Home = "orderItems",
     Login = "login",
@@ -18,6 +20,7 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
+    Admin = "admin",
     Product = "product", // Nieuwste route voor de productpagina
     Cart = "cart",
 }
@@ -30,6 +33,13 @@ declare global {
         "cart-page": CartPage;
     }
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "admin-page": AdminPage;
+    }
+}
+
 
 /**
  * Custom element based on Lit for the header of the webshop.
@@ -691,6 +701,10 @@ export class Root extends LitElement {
                 contentTemplate = this.renderCartPage();
                 break;
 
+             case RouterPage.Admin:
+                 contentTemplate = html`<admin-page></admin-page>`; // Use the custom admin-page element
+                break;
+
             default:
                 contentTemplate = this.renderHome();
         }
@@ -727,6 +741,7 @@ export class Root extends LitElement {
                         <li><a href="#">News</a></li>
                         <li><a href="#">Account</a></li>
                         <li><a href="#">Cart</a></li>
+                        <li><a href="#">Admin</a></li>
                         <li><a href="#">Login</a></li>
                     </ul>
                 </div>
@@ -1115,14 +1130,14 @@ export class Root extends LitElement {
      * Renders the admin button in the navigation if user is logged in
      */
     private renderAdminButton(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``; // Render nothing if user is not logged in
+        if (this._isLoggedIn) {
+            return html`
+                <div @click=${(e: MouseEvent) => this.navigateToPage(RouterPage.Admin, e)}>
+                    <button>Admin</button>
+                </div>
+            `;
         }
-
-        return html`
-            <div @click=${(): void => {}}>
-                <button>Admin Page</button>
-            </div>
-        `;
+        return html``; // Render nothing if not logged in
     }
+    
 }
