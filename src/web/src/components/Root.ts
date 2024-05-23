@@ -6,9 +6,13 @@ import { OrderItem } from "@shared/types/OrderItem";
 import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { UserData } from "@shared/types/UserData";
 import { ProductPage } from "./ProductPage";
+import { CartPage } from "./CartPage";
+import { AdminPage } from "./AdminPage";
+import "./GamesPage";
+import "./MerchandisePage";
 
-/** Enumeration to keep track of all the different pages */
 enum RouterPage {
     Home = "orderItems",
     Login = "login",
@@ -17,12 +21,21 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-    Product = "product", // Nieuwe route voor de productpagina
+    Product = "product", // Nieuwse route voor de productpagina
 }
 
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
+    }
+    interface HTMLElementTagNameMap {
+        "cart-page": CartPage;
+    }
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "admin-page": AdminPage;
     }
 }
 
@@ -39,7 +52,7 @@ export class Root extends LitElement {
             display: flex;
             flex-direction: column;
             flex: 1;
-            min-height: 100vh; /* This ensures that the root element takes at least the height of the viewport */
+            min-height: 100vh;
         }
 
         header {
@@ -51,7 +64,7 @@ export class Root extends LitElement {
             padding: 10px;
             margin-left: 30px;
             margin-right: 30px;
-            flex: 1 0 auto; /* Expand main content area to push the footer down */
+            flex: 1 0 auto;
         }
 
         nav {
@@ -68,6 +81,24 @@ export class Root extends LitElement {
             height: 100px;
             cursor: pointer;
         }
+        .cartimg img {
+            width: auto;
+            height: 75px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .cartbutton {
+            background-color: transparent;
+            position: fixed;
+            width: auto;
+            height: 75px;
+            border-radius: 50%;
+            bottom: 5%;
+            right: 4%;
+            padding: none;
+            border: none;
+        }
 
         nav button {
             text-decoration: none;
@@ -77,7 +108,6 @@ export class Root extends LitElement {
             font-size: 1.5rem;
             cursor: pointer;
             font-family: "Rubik Mono One", monospace;
-            letter-spacing: -1px;
             position: relative;
             overflow: hidden;
         }
@@ -104,32 +134,34 @@ export class Root extends LitElement {
             width: 45%;
         }
 
-        .dropdown-content {
-            position: absolute;
-            width: 25%;
-            top: 80%;
-            left: 0;
+        .search-login-container {
             display: flex;
-            justify-content: space-around;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            justify-content: space-between;
+            width: 140px;
         }
 
-        .dropdown-content.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0px);
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            padding-top: 10px;
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
         }
 
         .dropdown-section {
-            flex-grow: 1;
             text-align: center;
-            padding: 15px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 12px 16px;
         }
 
         .dropdown-section button {
@@ -140,31 +172,37 @@ export class Root extends LitElement {
             cursor: pointer;
             text-align: center;
             outline: none;
-            position: relative;
-            display: inline-block;
         }
 
-        .dropdown-section button span {
-            position: relative;
-            display: inline-block;
+        .searchbar {
+            opacity: 0;
+            width: 150px;
         }
 
-        .dropdown-section button span::after {
-            content: "";
-            display: block;
-            width: 0;
-            height: 2px;
-            background: #c4aad0;
-            transition: width 0.3s ease;
-            position: absolute;
-            left: 0;
-            right: 0;
-            margin: auto;
-            bottom: -5px;
+        .searchbar.show {
+            animation: showSearchBar 0.3s forwards;
         }
 
-        .dropdown-section button:hover span::after {
+        .searchbar.hide {
+            animation: hideSearchBar 0.3s forwards;
+        }
+
+        .searchbar input {
+            font-family: "Rubik Mono One", monospace;
+            font-size: 1.5rem;
+            border: none;
+            outline: none;
             width: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .searchbar input::placeholder {
+            color: #000000;
+        }
+
+        .searchbar input:focus {
+            border-bottom: 3px solid #c4aad0;
         }
 
         .order-items {
@@ -217,6 +255,20 @@ export class Root extends LitElement {
             cursor: pointer;
             transition: background-color 0.3s;
             margin-top: 10px;
+        }
+
+        .cartcount {
+            color: white;
+            height: 20px;
+            width: 20px;
+            background-color: red;
+            border-radius: 50%;
+            display: flex;
+            margin-bottom: 10px;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            position: absolute;
         }
 
         .addItemToCart:hover {
@@ -282,7 +334,7 @@ export class Root extends LitElement {
         }
 
         .login-container {
-            max-width: 360px; /* Iets breder voor betere leesbaarheid */
+            max-width: 360px;
             margin: auto;
             margin-top: 150px;
             padding: 20px;
@@ -292,7 +344,7 @@ export class Root extends LitElement {
         }
 
         .login-form h1 {
-            color: #5a4e7c; /* Donkere paarse kleur voor de kop */
+            color: #5a4e7c;
             text-align: center;
             margin-bottom: 20px;
         }
@@ -300,7 +352,7 @@ export class Root extends LitElement {
         .login-form label {
             display: block;
             margin-bottom: 10px;
-            color: #5a4e7c; /* Tekstkleur */
+            color: #5a4e7c;
         }
 
         .login-form input {
@@ -309,7 +361,7 @@ export class Root extends LitElement {
             margin-bottom: 20px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            box-sizing: border-box; /* Voorkomt problemen met padding en breedte */
+            box-sizing: border-box;
         }
 
         .login-form button {
@@ -317,14 +369,14 @@ export class Root extends LitElement {
             padding: 10px;
             border: none;
             border-radius: 8px;
-            background-color: #957dad; /* Zachtere paarse tint */
+            background-color: #957dad;
             color: white;
             font-size: 1.1em;
             cursor: pointer;
         }
 
         .login-form button:hover {
-            background-color: #5a4e7c; /* Donkerdere paars voor hover effect */
+            background-color: #5a4e7c;
         }
 
         .login-form .message {
@@ -333,7 +385,7 @@ export class Root extends LitElement {
         }
 
         .login-form .message a {
-            color: #957dad; /* Link kleur */
+            color: #957dad;
             text-decoration: none;
         }
 
@@ -347,7 +399,7 @@ export class Root extends LitElement {
             background-color: #c4aad0;
             padding: 20px;
             font-family: "Rubik", sans-serif;
-            flex-shrink: 0; /* Keep the footer from shrinking */
+            flex-shrink: 0;
         }
 
         .sitemap,
@@ -377,7 +429,7 @@ export class Root extends LitElement {
 
         .sitemap ul li {
             list-style: none;
-            flex: 1 0 50%; /* This will make each list item take up 50% of the width of the ul */
+            flex: 1 0 50%;
             width: 80%;
             margin: 0 auto;
             text-align: center;
@@ -430,25 +482,124 @@ export class Root extends LitElement {
         .icon:hover {
             filter: brightness(0) invert(1);
         }
+
+        .news-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .news-item {
+            border: 2px solid #5a4e7c;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+        }
+
+        .news-item:hover {
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-item h3 {
+            margin: 0 0 10px 0;
+            color: #5a4e7c;
+            font-size: 1.2em;
+        }
+
+        .news-item p {
+            margin: 0;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .news-item.empty {
+            background-color: #eee;
+            text-align: center;
+            color: #888;
+            border: 2px dashed #5a4e7c;
+        }
+
+        .news-content {
+            display: none;
+        }
+
+        .news-item.expanded .news-content {
+            display: block;
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container h2 {
+            color: #5a4e7c;
+            text-align: center;
+        }
+
+        .profile-item {
+            margin: 10px 0;
+        }
+
+        .profile-item span {
+            font-weight: bold;
+        }
+
+        @keyframes showSearchBar {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes hideSearchBar {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
     `;
 
     @state()
     private _currentPage: RouterPage = RouterPage.Home;
 
     @state()
-    private _showProductsDropdown: boolean = false;
+    private _showSearchBar: boolean = false;
+
+    @state()
+    private _hideSearchBar: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
 
     @state()
-    private _orderItems: OrderItem[] = [];
+    private _OrderItem: OrderItem[] = [];
+
+    @state()
+    private _loadingOrderItems: boolean = true;
 
     @state()
     public _cartItemsCount: number = 0;
 
     @state()
     public selectedProduct: OrderItem | undefined = undefined;
+
+    @state()
+    private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
+
+    @state()
+    private _userProfile?: UserData;
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -460,14 +611,18 @@ export class Root extends LitElement {
 
     public async connectedCallback(): Promise<void> {
         super.connectedCallback();
-
         await this.getWelcome();
         await this.getOrderItems();
+        this._newsItems = [
+            {
+                title: "Breaking News",
+                content:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+                expanded: false,
+            },
+        ];
     }
 
-    /**
-     * Check if the current token is valid and update the cart item total
-     */
     private async getWelcome(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
 
@@ -477,24 +632,30 @@ export class Root extends LitElement {
         }
     }
 
-    /**
-     * Get all available order items
-     */
     private async getOrderItems(): Promise<void> {
+        this._loadingOrderItems = true;
         const result: OrderItem[] | undefined = await this._orderItemService.getAll();
-
-        if (!result) {
-            return;
+        if (result) {
+            this._OrderItem = result;
         }
-
-        this._orderItems = result;
+        this._loadingOrderItems = false;
     }
 
-    /**
-     * Handler for the login form
-     */
-    private async submitLoginForm(): Promise<void> {
-        // TODO: Validation
+    private async getUserProfile(): Promise<void> {
+        const result: UserData | undefined = await this._userService.getUserProfile();
+
+        if (result) {
+            this._userProfile = result;
+        }
+    }
+
+    private async submitLoginForm(event: Event): Promise<void> {
+        event.preventDefault();
+
+        if (!this._email || !this._password) {
+            alert("Please fill out all fields.");
+            return;
+        }
 
         const result: boolean = await this._userService.login({
             email: this._email,
@@ -502,24 +663,19 @@ export class Root extends LitElement {
         });
 
         if (result) {
-            alert("Succesfully logged in!");
-
+            alert("Successfully logged in!");
             await this.getWelcome();
-
             this._currentPage = RouterPage.Home;
         } else {
             alert("Failed to login!");
         }
     }
 
-    /**
-     * Handler for the register form
-     */
-    private async submitRegisterForm(): Promise<void> {
+    private async submitRegisterForm(event: Event): Promise<void> {
+        event.preventDefault();
         console.log("Submitting registration form...");
         console.log(`Name: ${this._name}, Email: ${this._email}, Password: ${this._password}`);
 
-        // Voeg extra validatie toe als nodig
         if (!this._name || !this._email || !this._password) {
             alert("Please fill out all fields.");
             return;
@@ -533,19 +689,15 @@ export class Root extends LitElement {
 
         if (result) {
             alert("Successfully registered!");
-
             this._currentPage = RouterPage.Login;
         } else {
             alert("Failed to register!");
         }
     }
 
-    /**
-     * Handler for the cart button
-     */
     private async clickCartButton(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
-
+        this.navigateToCartPage();
         if (!result) {
             return;
         }
@@ -559,45 +711,25 @@ export class Root extends LitElement {
         );
     }
 
-    /**
-     * Toggle the products dropdown in the navigation
-     */
-    private toggleProductsDropdown(e: MouseEvent): void {
-        e.preventDefault();
-        this._showProductsDropdown = !this._showProductsDropdown;
+    private navigateToPage(page: RouterPage, event: MouseEvent): void {
+        event.stopPropagation();
+        this._currentPage = page;
+        this._showProductsDropdown = false;
+        if (page === RouterPage.Account) {
+            void this.getUserProfile();
+        }
         this.requestUpdate();
     }
-    /**
-     * Navigate to a specific page
-     *
-     * @param page Page to navigate to
-     */
-    private navigateToPage(page: RouterPage, event: MouseEvent): void {
-        event.stopPropagation(); // Prevents the click from being registered on underlying or parent elements
-        this._currentPage = page;
-        this._showProductsDropdown = false; // Close dropdown after selection
-        this.requestUpdate(); // Ensure the component re-renders
-    }
 
-    /**
-     * Handler for the logout button
-     */
     private async clickLogoutButton(): Promise<void> {
         await this._userService.logout();
-
         this._tokenService.removeToken();
-
         this._isLoggedIn = false;
     }
 
-    /**
-     * Handler for the "Add to cart"-button
-     *
-     * @param orderItem Order item to add to the cart
-     */
     private async addItemToCart(orderItem: OrderItem): Promise<void> {
         const result: number | undefined = await this._userService.addOrderItemToCart(orderItem.id);
-
+        console.log(result);
         if (!result) {
             return;
         }
@@ -605,9 +737,6 @@ export class Root extends LitElement {
         this._cartItemsCount = result;
     }
 
-    /**
-     * Renders the components
-     */
     protected render(): TemplateResult {
         let contentTemplate: TemplateResult;
 
@@ -615,12 +744,37 @@ export class Root extends LitElement {
             case RouterPage.Login:
                 contentTemplate = this.renderLogin();
                 break;
+
             case RouterPage.Register:
                 contentTemplate = this.renderRegister();
                 break;
 
             case RouterPage.Product:
-                contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
+                contentTemplate = this.renderProductPage();
+                break;
+
+            case RouterPage.Games:
+                contentTemplate = html`<games-page></games-page>`;
+                break;
+
+            case RouterPage.Merchandise:
+                contentTemplate = html`<merchandise-page></merchandise-page>`;
+                break;
+
+            case RouterPage.Cart:
+                contentTemplate = this.renderCartPage();
+                break;
+
+            case RouterPage.Admin:
+                contentTemplate = html`<admin-page></admin-page>`;
+                break;
+
+            case RouterPage.News:
+                contentTemplate = this.renderNews();
+                break;
+
+            case RouterPage.Account:
+                contentTemplate = this.renderAccount();
                 break;
 
             default:
@@ -642,8 +796,8 @@ export class Root extends LitElement {
                         <img src="/assets/img/logo.png" alt="Logo" />
                     </div>
                     <div class="nav-right">
-                        ${this.renderSearchInNav()} ${this.renderLoginInNav()} ${this.renderCartInNav()}
-                        ${this.renderLogoutInNav()} ${this.renderAdminButton()}
+                        <div class="search-login-container">${this.renderSearchInNav()}</div>
+                        ${this.renderLoginInNav()} ${this.renderLogoutInNav()} ${this.renderAdminButton()}
                     </div>
                 </nav>
                 <div class="cartbutton">${this.renderCartInNav()}</div>
@@ -659,6 +813,7 @@ export class Root extends LitElement {
                         <li><a href="#">News</a></li>
                         <li><a href="#">Account</a></li>
                         <li><a href="#">Cart</a></li>
+                        <li><a href="#">Admin</a></li>
                         <li><a href="#">Login</a></li>
                     </ul>
                 </div>
@@ -727,14 +882,15 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the home page, which contains a list of all order items.
-     */
     private renderHome(): TemplateResult {
-        const orderItems: TemplateResult[] = this._orderItems.map((e) => this.renderOrderItem(e));
+        if (this._loadingOrderItems) {
+            return html`<div class="order-items">Loading... Please wait a moment.</div>`;
+        }
+
+        const orderItems: TemplateResult[] = this._OrderItem.map((e) => this.renderOrderItem(e));
 
         if (orderItems.length === 0) {
-            return html`<div class="order-items">Loading... Please wait a moment.</div> `;
+            return html`<div class="order-items">No items found.</div>`;
         }
 
         return html` <div class="order-items">${orderItems}</div> `;
@@ -746,21 +902,22 @@ export class Root extends LitElement {
      * @param orderItem Order item to render
      */
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
+    private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="order-item">
                 <div class="text-content">
-                    <h2>${orderItem.name}</h2>
+                    <h2>${orderItem.title}</h2>
                     <p>${orderItem.description}</p>
                 </div>
-                <img src=" ${orderItem.imageURLs}" alt="${orderItem.name}" />
+                <img src="${orderItem.thumbnail}.jpg" alt="${orderItem.title}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
-                <button class="details" @click=${() => this.navigateToProductPage(orderItem)}>
+                <button class="details" @click=${(): void => this.handleDetailsClick(orderItem)}>
                     View details
                 </button>
                 ${this._isLoggedIn
                     ? html`<button
                           class="addItemToCart"
-                          @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}
+                          @click=${async (): Promise<void> => this.addItemToCart(orderItem)}
                       >
                           Add to cart
                       </button>`
@@ -769,26 +926,37 @@ export class Root extends LitElement {
         `;
     }
 
-    private navigateToProductPage(orderItem: OrderItem): void {
-        this._currentPage = RouterPage.Product; // Navigeer naar de productpagina
-        this.selectedProduct = orderItem; // Stel het geselecteerde product in
-        this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
-    }
-    private renderProductPage(): TemplateResult {
-        if (!this.selectedProduct) {
-            return html``;
-        }
-        return html`<product-page .productData=${this.selectedProduct}></product-page>`;
+    // Event handler for the details button with an explicit return type
+    private handleDetailsClick(orderItem: OrderItem): void {
+        this.navigateToProductPage(orderItem);
     }
 
-    /**
-     * Renders the products button in the navigation
-     */
+    private navigateToProductPage(orderItem: OrderItem): void {
+        this._currentPage = RouterPage.Product;
+        this.selectedProduct = orderItem;
+        this.requestUpdate();
+    }
+
+    private renderProductPage(): TemplateResult {
+        return this.selectedProduct
+            ? html`<product-page .productData=${this.selectedProduct}></product-page>`
+            : html``;
+    }
+
+    private navigateToCartPage(): void {
+        this._currentPage = RouterPage.Cart;
+        this.requestUpdate();
+    }
+
+    private renderCartPage(): TemplateResult {
+        return html`<cart-page></cart-page>`;
+    }
+
     private renderProductsInNav(): TemplateResult {
         return html`
-            <div @click=${this.toggleProductsDropdown}>
+            <div class="dropdown">
                 <button>Products</button>
-                <div class=${this._showProductsDropdown ? "dropdown-content visible" : "dropdown-content"}>
+                <div class="dropdown-content">
                     <div class="dropdown-section">
                         <button @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Games, e)}>
                             Games
@@ -806,47 +974,54 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the news button in the navigation
-     */
     private renderNewsInNav(): TemplateResult {
         return html`<div
             @click=${(): void => {
-                this._currentPage = RouterPage.Home;
+                this._currentPage = RouterPage.News;
             }}
         >
             <button>News</button>
         </div>`;
     }
 
-    /**
-     * Renders the account button in the navigation
-     */
     private renderAccountInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html``;
         }
 
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Home;
-            }}
-        >
+        return html`<div @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Account, e)}>
             <button>Account</button>
         </div>`;
     }
 
-    /**
-     * Renders the search button in the navigation
-     */
     private renderSearchInNav(): TemplateResult {
-        return html`<div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Home;
-            }}
-        >
-            <button>Search</button>
-        </div>`;
+        if (this._showSearchBar) {
+            return html` <div class="searchbar show">
+                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
+            </div>`;
+        } else if (this._hideSearchBar) {
+            return html` <div class="searchbar hide">
+                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
+            </div>`;
+        } else {
+            return html` <div @click=${this.showSearchBar}>
+                <button>Search</button>
+            </div>`;
+        }
+    }
+
+    private showSearchBar(): void {
+        this._showSearchBar = true;
+        this._hideSearchBar = false;
+    }
+
+    private startHideSearchBar(): void {
+        this._showSearchBar = false;
+        this._hideSearchBar = true;
+        setTimeout(() => {
+            this._hideSearchBar = false;
+            this.requestUpdate();
+        }, 300);
     }
 
     /**
@@ -860,17 +1035,26 @@ export class Root extends LitElement {
                         <img src="/assets/img/cartimg.png" alt="cartimg" />
                     </button>
                 </div>
+                <button
+                    class="cartbuttondesign"
+                    @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
+                >
+                    <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+                </button>
             `;
         }
 
         return html`<div @click=${this.clickCartButton}>
-            <button>Cart (${this._cartItemsCount} products)</button>
+            <button
+                class="cartbuttondesign"
+                @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
+            >
+                <div class="cartcount">${this._cartItemsCount}</div>
+                <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+            </button>
         </div>`;
     }
 
-    /**
-     * Renders the login button in the navigation
-     */
     private renderLoginInNav(): TemplateResult {
         if (this._isLoggedIn) {
             return html``;
@@ -885,9 +1069,6 @@ export class Root extends LitElement {
         </div>`;
     }
 
-    /**
-     * Renders the logout button in the navigation
-     */
     private renderLogoutInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html``;
@@ -900,11 +1081,6 @@ export class Root extends LitElement {
         `;
     }
 
-    /** Here will all the functionalities for the login and register pages follow **/
-
-    /**
-     * Renders the login page
-     */
     private renderLogin(): TemplateResult {
         return html`
             <div class="login-container">
@@ -929,9 +1105,6 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the register page
-     */
     private renderRegister(): TemplateResult {
         return html`
             <div class="login-container">
@@ -979,9 +1152,6 @@ export class Root extends LitElement {
         `;
     }
 
-    /**
-     * Renders the e-mail input field with change-tracking
-     */
     private renderEmail(): TemplateResult {
         return html`<div>
             <label for="email">E-mail</label>
@@ -1009,15 +1179,75 @@ export class Root extends LitElement {
             </div>
         `;
     }
+        return html`
+            <div>
+                <label for="email">E-mail</label>
+                <input
+                    type="text"
+                    name="email"
+                    placeholder="test@test.nl"
+                    value=${this._email}
+                    @change=${this.onChangeEmail}
+                    required
+                />
+            </div>
+        `;
+    }
 
-    /**
-     * Renders the password input field with change-tracking
-     */
     private renderPassword(): TemplateResult {
-        return html`<div>
-            <label for="password">Password</label>
-            <input type="password" value=${this._password} @change=${this.onChangePassword} />
-        </div>`;
+        return html`
+            <div>
+                <label for="password">Password</label>
+                <input type="password" value=${this._password} @change=${this.onChangePassword} required />
+            </div>
+        `;
+    }
+
+    private renderNews(): TemplateResult {
+        return html`
+            <div class="news-container">
+                ${this._newsItems.map(
+                    (item, index) => html`
+                        <div
+                            class="news-item ${item.expanded ? "expanded" : ""}"
+                            @click=${(): void => this.toggleNewsItem(index)}
+                        >
+                            <h3>${item.title}</h3>
+                            <p>${item.expanded ? item.content : item.content.substring(0, 50) + "..."}</p>
+                        </div>
+                    `
+                )}
+                <div class="news-item empty">More news coming soon...</div>
+            </div>
+        `;
+    }
+
+    private renderAccount(): TemplateResult {
+        if (!this._userProfile) {
+            return html`<div>Loading...</div>`;
+        }
+
+        return html`
+            <div class="profile-container">
+                <h2>User Profile</h2>
+                <div class="profile-item"><span>Username:</span> ${this._userProfile.username || ""}</div>
+                <div class="profile-item"><span>Email:</span> ${this._userProfile.email || ""}</div>
+                <div class="profile-item"><span>Date:</span> ${this._userProfile.date || ""}</div>
+                <div class="profile-item"><span>Gender:</span> ${this._userProfile.gender || ""}</div>
+                <div class="profile-item"><span>Street:</span> ${this._userProfile.street || ""}</div>
+                <div class="profile-item">
+                    <span>House Number:</span> ${this._userProfile.houseNumber || ""}
+                </div>
+                <div class="profile-item"><span>Country:</span> ${this._userProfile.country || ""}</div>
+            </div>
+        `;
+    }
+
+    private toggleNewsItem(index: number): void {
+        this._newsItems = this._newsItems.map((item, i) =>
+            i === index ? { ...item, expanded: !item.expanded } : item
+        );
+        this.requestUpdate();
     }
 
     /**
@@ -1027,17 +1257,25 @@ export class Root extends LitElement {
         this._email = (event.target as HTMLInputElement).value;
     }
 
-    /**
-     * Handles changes to the password input field
-     */
     private onChangePassword(event: InputEvent): void {
         this._password = (event.target as HTMLInputElement).value;
     }
 
-    /**
-     * Handles changes to the name input field
-     */
     private onChangeName(event: InputEvent): void {
         this._name = (event.target as HTMLInputElement).value;
+    }
+
+    /**
+     * Renders the admin button in the navigation if user is logged in
+     */
+    private renderAdminButton(): TemplateResult {
+        if (this._isLoggedIn) {
+            return html`
+                <div @click=${(e: MouseEvent) => this.navigateToPage(RouterPage.Admin, e)}>
+                    <button>Admin</button>
+                </div>
+            `;
+        }
+        return html``;
     }
 }

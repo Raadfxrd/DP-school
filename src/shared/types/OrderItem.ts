@@ -1,7 +1,11 @@
 export type OrderItem = {
     id: number;
-    name: string;
+    title: string;
+    thumbnail: string;
+    images: string[];
     description?: string;
+    authors: string[];
+    tags: string[];
     price: number;
-    imageURLs?: string[];
+    quantity: number;
 };

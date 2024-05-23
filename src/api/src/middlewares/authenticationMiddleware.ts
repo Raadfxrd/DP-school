@@ -1,52 +1,52 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { CustomJwtToken } from "../types/jwt";
-import { users } from "../fakeDatabase";
+import { getUserById } from "../../database/database";
+import { UserData } from "@shared/types";
 
-/**
- * Handles token-based authentication. If the token is valid, the user object is added to the request object.
- * If the token is invalid, a 401 error is returned.
- *
- * @param req - Request object
- * @param res - Response object
- *
- * @returns NextFunction | Status 401
- */
-export function handleTokenBasedAuthentication(
+export async function handleTokenBasedAuthentication(
     req: Request,
     res: Response,
     next: NextFunction
-): NextFunction | void {
-    const authenticationToken: string | undefined = req.headers["authorization"];
+): Promise<void> {
+    console.log("Authentication Middleware Triggered");
 
-    // Check if there is a token
-    if (!authenticationToken) {
+    const authHeader: string | undefined = req.headers["authorization"];
+
+    if (!authHeader) {
+        console.log("No token provided");
         res.status(401).send("Unauthorized");
-
         return;
     }
 
-    // Check if the token is valid
-    let jwtToken: CustomJwtToken | undefined;
+    const token: string = authHeader.split(" ")[1]; // Extract the token part
+
+    if (!token) {
+        console.log("Token format is invalid");
+        res.status(401).send("Unauthorized");
+        return;
+    }
+
+    let jwtToken: CustomJwtToken;
 
     try {
-        jwtToken = jwt.verify(
-            authenticationToken,
-            process.env.JWT_SECRET_KEY
-        ) as CustomJwtToken;
-    }
-    catch {
-        // Do nothing
-    }
-
-    if (!jwtToken) {
+        jwtToken = jwt.verify(token, process.env.JWT_SECRET_KEY) as CustomJwtToken;
+        console.log("Token is valid");
+    } catch (error) {
+        console.log("Invalid token", error);
         res.status(401).send("Unauthorized");
-
         return;
     }
 
-    // Retrieve user from the fake database
-    req.user = users.find((e) => e.id === jwtToken!.userId);
+    // Retrieve user from the real database
+    const user: UserData | null = await getUserById(jwtToken.userId);
 
-    return next();
+    if (!user) {
+        console.log("User not found");
+        res.status(401).send("Unauthorized");
+        return;
+    }
+
+    req.user = user;
+    next();
 }
