@@ -51,11 +51,12 @@ Site deployen is niet gelukt. Pascal heeft meneer Bolier en Bookelman (beoordela
 
 ## Git commit tag en wanneer deze gedeployed is (met link naar commit)
 
-Link naar onze commits (https://gitlab.fdmci.hva.nl/propedeuse-hbo-ict/onderwijs/2023-2024/out-a-se-ti/blok-4/laawaalaaguu12/-/commits/8d0d61e5b564b85a7c8728ed51d7179f008ebd79).
+Link naar onze commits (https://gitlab.fdmci.hva.nl/propedeuse-hbo-ict/onderwijs/2023-2024/out-a-se-ti/blok-4/laawaalaaguu12/-/commits/development?ref_type=heads).
+
+Dit zijn niet alle commits. We hebben voor elke feature een aparte branche gemaakt waarin we werkten.
 
 We hebben onze website niet kunnen deployen.
 
 ## Nieuwe bugs
 
-1. Login/Registratie form is geplakt aan de bovenkant van de sitemap.
-2. Bij onze navbar heb je een optie genaamd 'products'. Als je hierop klikt krijg je 2 opties te zien (Games, Merchandise). Om dit te sluiten moet je op product, games of merchandise klikken. niet ergens anders buiten deze opties.
+1. Site niet kunnen deployen
