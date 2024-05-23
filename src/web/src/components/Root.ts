@@ -7,7 +7,7 @@ import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { ProductPage } from "./ProductPage";
-// import { CartPage } from "./CartPage";
+import { CartPage } from "./CartPage";
 import "./GamesPage";
 import "./MerchandisePage";
 enum RouterPage {
