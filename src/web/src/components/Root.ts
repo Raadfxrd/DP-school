@@ -11,6 +11,8 @@ import { ProductPage } from "./ProductPage";
 import { CartPage } from "./CartPage";
 import "./GamesPage";
 import "./MerchandisePage";
+import { AdminPage } from "./AdminPage";
+
 enum RouterPage {
     Home = "orderItems",
     Login = "login",
@@ -19,6 +21,7 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
+    Admin = "admin",
     Product = "product", // Nieuwste route voor de productpagina
     Cart = "cart",
 }
@@ -31,6 +34,13 @@ declare global {
         "cart-page": CartPage;
     }
 }
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "admin-page": AdminPage;
+    }
+}
+
 
 /**
  * Custom element based on Lit for the header of the webshop.
@@ -767,7 +777,7 @@ export class Root extends LitElement {
                 break;
 
             case RouterPage.Product:
-                contentTemplate = this.renderProductPage(); // Use renderProductPage
+                contentTemplate = this.renderProductPage(); // Gebruik renderProductPage
                 break;
 
             case RouterPage.Games:
@@ -784,6 +794,10 @@ export class Root extends LitElement {
 
             case RouterPage.Cart:
                 contentTemplate = this.renderCartPage();
+                break;
+
+             case RouterPage.Admin:
+                 contentTemplate = html`<admin-page></admin-page>`; // Use the custom admin-page element
                 break;
 
             case RouterPage.News:
@@ -828,6 +842,7 @@ export class Root extends LitElement {
                         <li><a href="#">News</a></li>
                         <li><a href="#">Account</a></li>
                         <li><a href="#">Cart</a></li>
+                        <li><a href="#">Admin</a></li>
                         <li><a href="#">Login</a></li>
                     </ul>
                 </div>
@@ -944,6 +959,8 @@ export class Root extends LitElement {
     }
     
 
+    
+
     private navigateToCartPage(): void {
         this._currentPage = RouterPage.Cart; // Navigeer naar de productpagina
         this.requestUpdate(); // Zorg ervoor dat de component opnieuw gerenderd wordt
@@ -1000,33 +1017,13 @@ export class Root extends LitElement {
      * Renders the search bar in the navigation
      */
     private renderSearchInNav(): TemplateResult {
-        if (this._showSearchBar) {
-            return html` <div class="searchbar show">
-                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
-            </div>`;
-        } else if (this._hideSearchBar) {
-            return html` <div class="searchbar hide">
-                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
-            </div>`;
-        } else {
-            return html` <div @click=${this.showSearchBar}>
-                <button>Search</button>
-            </div>`;
-        }
-    }
-
-    private showSearchBar(): void {
-        this._showSearchBar = true;
-        this._hideSearchBar = false;
-    }
-
-    private startHideSearchBar(): void {
-        this._showSearchBar = false;
-        this._hideSearchBar = true;
-        setTimeout(() => {
-            this._hideSearchBar = false;
-            this.requestUpdate();
-        }, 300);
+        return html`<div
+            @click=${(): void => {
+                this._currentPage = RouterPage.Home;
+            }}
+        >
+            <button>Search</button>
+        </div>`;
     }
 
     /**
@@ -1063,6 +1060,7 @@ export class Root extends LitElement {
             <button>Login</button>
         </div>`;
     }
+
     
 
     /**
@@ -1181,6 +1179,7 @@ export class Root extends LitElement {
         `;
     }
 
+   
 
 
     private renderPassword(): TemplateResult {
@@ -1259,14 +1258,14 @@ export class Root extends LitElement {
      * Renders the admin button in the navigation if user is logged in
      */
     private renderAdminButton(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``; // Render nothing if user is not logged in
+        if (this._isLoggedIn) {
+            return html`
+                <div @click=${(e: MouseEvent) => this.navigateToPage(RouterPage.Admin, e)}>
+                    <button>Admin</button>
+                </div>
+            `;
         }
-
-        return html`
-            <div @click=${(): void => {}}>
-                <button>Admin Page</button>
-            </div>
-        `;
+        return html``; // Render nothing if not logged in
     }
+    
 }
