@@ -8,24 +8,32 @@ export async function handleTokenBasedAuthentication(
     req: Request,
     res: Response,
     next: NextFunction
-): Promise<NextFunction | void> {
+): Promise<void> {
     console.log("Authentication Middleware Triggered");
 
-    const authenticationToken: string | undefined = req.headers["authorization"];
+    const authHeader: string | undefined = req.headers["authorization"];
 
-    if (!authenticationToken) {
+    if (!authHeader) {
         console.log("No token provided");
         res.status(401).send("Unauthorized");
         return;
     }
 
-    let jwtToken: CustomJwtToken | undefined;
+    const token: string = authHeader.split(" ")[1]; // Extract the token part
+
+    if (!token) {
+        console.log("Token format is invalid");
+        res.status(401).send("Unauthorized");
+        return;
+    }
+
+    let jwtToken: CustomJwtToken;
 
     try {
-        jwtToken = jwt.verify(authenticationToken, process.env.JWT_SECRET_KEY) as CustomJwtToken;
+        jwtToken = jwt.verify(token, process.env.JWT_SECRET_KEY) as CustomJwtToken;
         console.log("Token is valid");
-    } catch {
-        console.log("Invalid token");
+    } catch (error) {
+        console.log("Invalid token", error);
         res.status(401).send("Unauthorized");
         return;
     }
@@ -40,6 +48,5 @@ export async function handleTokenBasedAuthentication(
     }
 
     req.user = user;
-
-    return next();
+    next();
 }

@@ -115,17 +115,24 @@ export class UserService {
         const token: string | undefined = this._tokenService.getToken();
 
         if (!token) {
+            console.error("No token found in local storage.");
             return undefined;
         }
 
         try {
             const response: Response = await fetch(`${viteConfiguration.API_URL}users/hello`, {
-                method: "get",
-                headers: { ...headers, Authorization: `Bearer ${token}` },
+                method: "GET",
+                headers: {
+                    ...headers,
+                    Authorization: `Bearer ${token}`,
+                },
             });
 
             if (!response.ok) {
-                console.error(response);
+                const errorText: string = await response.text();
+                console.error(
+                    `Error fetching welcome message: ${response.status} ${response.statusText} - ${errorText}`
+                );
                 return undefined;
             }
 
@@ -201,21 +208,27 @@ export class UserService {
         const token: string | undefined = this._tokenService.getToken();
 
         if (!token) {
+            console.error("No token found in local storage.");
             return undefined;
         }
 
         try {
             const response: Response = await fetch(`${viteConfiguration.API_URL}users/profile`, {
-                method: "get",
+                method: "GET",
                 headers: { ...headers, Authorization: `Bearer ${token}` },
             });
 
             if (!response.ok) {
-                console.error(`Responsebody: ${await response.text()}`);
+                const errorText: string = await response.text();
+                console.error(
+                    `Error fetching user profile: ${response.status} ${response.statusText} - ${errorText}`
+                );
                 return undefined;
             }
 
-            return (await response.json()) as UserData;
+            const userData: UserData = await response.json();
+            console.log("User profile fetched successfully:", userData);
+            return userData;
         } catch (error) {
             console.error("Get user profile error", error);
             return undefined;

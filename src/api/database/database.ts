@@ -26,7 +26,7 @@ export async function queryDatabase<T = any>(query: string, ...values: any[]): P
 
 export async function getUserById(userId: number): Promise<UserData | null> {
     const results: UserData[] = await queryDatabase<UserData[]>(
-        "SELECT id, email, name, password FROM users WHERE id = ?",
+        "SELECT id, email, username, password FROM user WHERE id = ?",
         userId
     );
 

@@ -3,7 +3,6 @@ import { handleTokenBasedAuthentication } from "./middlewares/authenticationMidd
 import { UserController } from "./controllers/UserController";
 import { ProductController } from "./controllers/ProductController";
 import { asyncHandler } from "./middlewares/asyncHandler";
-import { asyncMiddleware } from "./middlewares/asyncMiddleware";
 
 export const router: Router = Router();
 
@@ -30,7 +29,7 @@ router.get(
 );
 
 // Apply authentication middleware to routes that require it
-router.use(asyncMiddleware(handleTokenBasedAuthentication));
+router.use(asyncHandler(handleTokenBasedAuthentication));
 
 router.get(
     "/users/logout",
@@ -49,7 +48,7 @@ router.post(
 
 router.get(
     "/users/profile",
-    asyncHandler((req: any, res: Response) => userController.getProfile(req, res))
+    asyncHandler((req: Request, res: Response) => userController.getProfile(req, res))
 );
 
 export default router;
