@@ -934,13 +934,16 @@ export class Root extends LitElement {
                     View details
                 </button>
                 ${this._isLoggedIn
+                
                     ? html`<button
                           class="addItemToCart"
                           @click=${async (): Promise<void> => await this.addItemToCart(orderItem)}
                       >
                           Add to cart
-                      </button>`
+                      </button>
+            `
                     : nothing}
+                    </div>
         `;
     }  
                 
@@ -1062,23 +1065,6 @@ export class Root extends LitElement {
     }
 
     
-
-    /**
-     * Renders the register button in the navigation
-     */
-    private renderRegisterInNav(): TemplateResult {
-        if (this._isLoggedIn) {
-            return html``;
-        }
-
-        return html` <div
-            @click=${(): void => {
-                this._currentPage = RouterPage.Register;
-            }}
-        >
-            <button>Register</button>
-        </div>`;
-    }
 
     private renderLogoutInNav(): TemplateResult {
         if (!this._isLoggedIn) {
