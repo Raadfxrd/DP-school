@@ -23,6 +23,6 @@ Ik heb de design van de newssectie veranderd:
 5. afgebroken streepjes rondom de border van 'More news coming soon'
 
 Dit ziet er veel beter uit.
-![Alt text]("../../../../assets/news.png")
+![alt text](../../img/news.png)
 
 De custom popup Ga ik nog bespreken met me teamgenoten en product manager.
