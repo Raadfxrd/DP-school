@@ -16,6 +16,7 @@ Ik zal regelmatig evalueren of mijn acties daadwerkelijk bijdragen aan mijn doel
 ### Transfer:
 Deze aanpak kan ook worden toegepast op andere projecten om een meer ethische bedrijfsvoering te bevorderen. Het is belangrijk om bewust te zijn van de impact van onze activiteiten en proactief stappen te zetten om positieve verandering teweeg te brengen.
 #
+.
 ### Onderzoekend probleemoplossen.
 
 ### Situatie:
