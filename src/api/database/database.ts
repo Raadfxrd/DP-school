@@ -8,11 +8,11 @@ export function getConnection(): Pool {
     if (!connectionPool) {
         connectionPool = createPool({
             host: process.env.DB_HOST,
-            port: Number(process.env.DB_PORT as string),
+            port: Number(process.env.DB_PORT),
             database: process.env.DB_DATABASE,
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
-            connectionLimit: Number(process.env.DB_CONNECTION_LIMIT as string),
+            connectionLimit: Number(process.env.DB_CONNECTION_LIMIT),
         });
     }
 
@@ -26,7 +26,7 @@ export async function queryDatabase<T = any>(query: string, ...values: any[]): P
 
 export async function getUserById(userId: number): Promise<UserData | null> {
     const results: UserData[] = await queryDatabase<UserData[]>(
-        "SELECT id, email, name, password FROM users WHERE id = ?",
+        "SELECT id, email, username, password FROM user WHERE id = ?",
         userId
     );
 

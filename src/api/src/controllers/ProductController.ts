@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { queryDatabase } from "../../database/database";
-import { product } from "@shared/types/OrderItem";
+import { OrderItem } from "@shared/types/OrderItem";
 
 export class ProductController {
     public async getAll(_req: Request, res: Response): Promise<void> {
         console.log("Fetching products");
         try {
-            const result: product[] = await queryDatabase<product[]>(
+            const result: OrderItem[] = await queryDatabase<OrderItem[]>(
                 "SELECT id, title, thumbnail, images, description, authors, tags, price FROM product"
             );
             res.json(result);

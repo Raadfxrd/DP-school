@@ -7,4 +7,5 @@ export type product = {
     authors: string[];
     tags: string[];
     price: number;
+    quantity: number;
 };

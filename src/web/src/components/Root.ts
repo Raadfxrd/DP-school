@@ -5,7 +5,10 @@ import { product } from "@shared/types/OrderItem";
 import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { UserData } from "@shared/types/UserData";
 import { ProductPage } from "./ProductPage";
+import { CartPage } from "./CartPage";
+import { AdminPage } from "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
 
@@ -17,12 +20,23 @@ enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
+    Admin = "admin",
     Product = "product",
+    Cart = "cart",
 }
 
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
+    }
+    interface HTMLElementTagNameMap {
+        "cart-page": CartPage;
+    }
+}
+
+declare global {
+    interface HTMLElementTagNameMap {
+        "admin-page": AdminPage;
     }
 }
 
@@ -63,23 +77,29 @@ export class Root extends LitElement {
             cursor: pointer;
         }
 
-        .cartimg img {
-            width: auto;
+        .cartimg {
+            width: 75px;
             height: 75px;
-            cursor: pointer;
-            border-radius: 50%;
+            padding: none;
+            border: none;
         }
 
         .cartbutton {
-            background-color: transparent;
             position: fixed;
             width: auto;
             height: 75px;
-            border-radius: 50%;
             bottom: 5%;
-            right: 4%;
+            right: 3%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cartbuttondesign {
+            cursor: pointer;
             padding: none;
             border: none;
+            border-radius: 50%;
+            background: transparent;
         }
 
         nav button {
@@ -237,6 +257,20 @@ export class Root extends LitElement {
             cursor: pointer;
             transition: background-color 0.3s;
             margin-top: 10px;
+        }
+
+        .cartcount {
+            color: white;
+            height: 20px;
+            width: 20px;
+            background-color: red;
+            border-radius: 50%;
+            display: flex;
+            margin-bottom: 10px;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            position: absolute;
         }
 
         .addItemToCart:hover {
@@ -432,6 +466,75 @@ export class Root extends LitElement {
             filter: brightness(0) invert(1);
         }
 
+        .news-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .news-item {
+            border: 2px solid #5a4e7c;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+        }
+
+        .news-item:hover {
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-item h3 {
+            margin: 0 0 10px 0;
+            color: #5a4e7c;
+            font-size: 1.2em;
+        }
+
+        .news-item p {
+            margin: 0;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .news-item.empty {
+            background-color: #eee;
+            text-align: center;
+            color: #888;
+            border: 2px dashed #5a4e7c;
+        }
+
+        .news-content {
+            display: none;
+        }
+
+        .news-item.expanded .news-content {
+            display: block;
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-container h2 {
+            color: #5a4e7c;
+            text-align: center;
+        }
+
+        .profile-item {
+            margin: 10px 0;
+        }
+
+        .profile-item span {
+            font-weight: bold;
+        }
+
         @keyframes showSearchBar {
             from {
                 opacity: 0;
@@ -464,7 +567,7 @@ export class Root extends LitElement {
     private _isLoggedIn: boolean = false;
 
     @state()
-    private _products: product[] = [];
+    private _OrderItem: OrderItem[] = [];
 
     @state()
     private _loadingOrderItems: boolean = true;
@@ -473,7 +576,13 @@ export class Root extends LitElement {
     public _cartItemsCount: number = 0;
 
     @state()
-    public selectedProduct: product | undefined = undefined;
+    public selectedProduct: OrderItem | undefined = undefined;
+
+    @state()
+    private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
+
+    @state()
+    private _userProfile?: UserData;
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -487,6 +596,14 @@ export class Root extends LitElement {
         super.connectedCallback();
         await this.getWelcome();
         await this.getOrderItems();
+        this._newsItems = [
+            {
+                title: "Breaking News",
+                content:
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+                expanded: false,
+            },
+        ];
     }
 
     private async getWelcome(): Promise<void> {
@@ -499,15 +616,29 @@ export class Root extends LitElement {
 
     private async getOrderItems(): Promise<void> {
         this._loadingOrderItems = true;
-        const result: product[] | undefined = await this._orderItemService.getAll();
+        const result: OrderItem[] | undefined = await this._orderItemService.getAll();
         if (result) {
-            this._products = result;
+            this._OrderItem = result;
         }
         this._loadingOrderItems = false;
     }
 
+    private async getUserProfile(): Promise<void> {
+        const result: UserData | undefined = await this._userService.getUserProfile();
+
+        if (result) {
+            this._userProfile = result;
+        }
+    }
+
     private async submitLoginForm(event: Event): Promise<void> {
         event.preventDefault();
+
+        if (!this._email || !this._password) {
+            alert("Please fill out all fields.");
+            return;
+        }
+
         const result: boolean = await this._userService.login({
             email: this._email,
             password: this._password,
@@ -523,6 +654,9 @@ export class Root extends LitElement {
 
     private async submitRegisterForm(event: Event): Promise<void> {
         event.preventDefault();
+        console.log("Submitting registration form...");
+        console.log(`Name: ${this._name}, Email: ${this._email}, Password: ${this._password}`);
+
         if (!this._name || !this._email || !this._password) {
             alert("Please fill out all fields.");
             return;
@@ -542,6 +676,7 @@ export class Root extends LitElement {
 
     private async clickCartButton(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
+        this.navigateToCartPage();
         if (!result) {
             return;
         }
@@ -565,8 +700,9 @@ export class Root extends LitElement {
         this._isLoggedIn = false;
     }
 
-    private async addItemToCart(orderItem: product): Promise<void> {
+    private async addItemToCart(orderItem: OrderItem): Promise<void> {
         const result: number | undefined = await this._userService.addOrderItemToCart(orderItem.id);
+        console.log(result);
         if (!result) {
             return;
         }
@@ -590,6 +726,22 @@ export class Root extends LitElement {
                 break;
             case RouterPage.Merchandise:
                 contentTemplate = html`<merchandise-page></merchandise-page>`;
+                break;
+
+            case RouterPage.Cart:
+                contentTemplate = this.renderCartPage();
+                break;
+
+            case RouterPage.Admin:
+                contentTemplate = html`<admin-page></admin-page>`;
+                break;
+
+            case RouterPage.News:
+                contentTemplate = this.renderNews();
+                break;
+
+            case RouterPage.Account:
+                contentTemplate = this.renderAccount();
                 break;
             default:
                 contentTemplate = this.renderHome();
@@ -626,6 +778,7 @@ export class Root extends LitElement {
                         <li><a href="#">News</a></li>
                         <li><a href="#">Account</a></li>
                         <li><a href="#">Cart</a></li>
+                        <li><a href="#">Admin</a></li>
                         <li><a href="#">Login</a></li>
                     </ul>
                 </div>
@@ -670,7 +823,7 @@ export class Root extends LitElement {
             return html`<div class="order-items">Loading... Please wait a moment.</div>`;
         }
 
-        const orderItems: TemplateResult[] = this._products.map((e) => this.renderOrderItem(e));
+        const orderItems: TemplateResult[] = this._OrderItem.map((e) => this.renderOrderItem(e));
 
         if (orderItems.length === 0) {
             return html`<div class="order-items">No items found.</div>`;
@@ -679,7 +832,7 @@ export class Root extends LitElement {
         return html` <div class="order-items">${orderItems}</div> `;
     }
 
-    private renderOrderItem(orderItem: product): TemplateResult {
+    private renderOrderItem(orderItem: OrderItem): TemplateResult {
         return html`
             <div class="order-item">
                 <div class="text-content">
@@ -704,11 +857,11 @@ export class Root extends LitElement {
     }
 
     // Event handler for the details button with an explicit return type
-    private handleDetailsClick(orderItem: product): void {
+    private handleDetailsClick(orderItem: OrderItem): void {
         this.navigateToProductPage(orderItem);
     }
 
-    private navigateToProductPage(orderItem: product): void {
+    private navigateToProductPage(orderItem: OrderItem): void {
         this._currentPage = RouterPage.Product;
         this.selectedProduct = orderItem;
         this.requestUpdate();
@@ -718,6 +871,15 @@ export class Root extends LitElement {
         return this.selectedProduct
             ? html`<product-page .productData=${this.selectedProduct}></product-page>`
             : html``;
+    }
+
+    private navigateToCartPage(): void {
+        this._currentPage = RouterPage.Cart;
+        this.requestUpdate();
+    }
+
+    private renderCartPage(): TemplateResult {
+        return html`<cart-page></cart-page>`;
     }
 
     private renderProductsInNav(): TemplateResult {
@@ -791,16 +953,23 @@ export class Root extends LitElement {
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html`
-                <div class="cartimg">
-                    <button class="cartbutton">
-                        <img src="/assets/img/cartimg.png" alt="cartimg" />
-                    </button>
-                </div>
+                <button
+                    class="cartbuttondesign"
+                    @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
+                >
+                    <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+                </button>
             `;
         }
 
         return html`<div @click=${this.clickCartButton}>
-            <button>Cart (${this._cartItemsCount} products)</button>
+            <button
+                class="cartbuttondesign"
+                @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
+            >
+                <div class="cartcount">${this._cartItemsCount}</div>
+                <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+            </button>
         </div>`;
     }
 
@@ -891,16 +1060,19 @@ export class Root extends LitElement {
     }
 
     private renderEmail(): TemplateResult {
-        return html`<div>
-            <label for="email">E-mail</label>
-            <input
-                type="text"
-                name="email"
-                placeholder="test@test.nl"
-                value=${this._email}
-                @change=${this.onChangeEmail}
-            />
-        </div>`;
+        return html`
+            <div>
+                <label for="email">E-mail</label>
+                <input
+                    type="text"
+                    name="email"
+                    placeholder="test@test.nl"
+                    value=${this._email}
+                    @change=${this.onChangeEmail}
+                    required
+                />
+            </div>
+        `;
     }
 
     private renderPassword(): TemplateResult {
@@ -910,6 +1082,56 @@ export class Root extends LitElement {
         </div>`;
     }
 
+    private renderNews(): TemplateResult {
+        return html`
+            <div class="news-container">
+                ${this._newsItems.map(
+                    (item, index) => html`
+                        <div
+                            class="news-item ${item.expanded ? "expanded" : ""}"
+                            @click=${(): void => this.toggleNewsItem(index)}
+                        >
+                            <h3>${item.title}</h3>
+                            <p>${item.expanded ? item.content : item.content.substring(0, 50) + "..."}</p>
+                        </div>
+                    `
+                )}
+                <div class="news-item empty">More news coming soon...</div>
+            </div>
+        `;
+    }
+
+    private renderAccount(): TemplateResult {
+        if (!this._userProfile) {
+            return html`<div>Loading...</div>`;
+        }
+
+        return html`
+            <div class="profile-container">
+                <h2>User Profile</h2>
+                <div class="profile-item"><span>Username:</span> ${this._userProfile.username || ""}</div>
+                <div class="profile-item"><span>Email:</span> ${this._userProfile.email || ""}</div>
+                <div class="profile-item"><span>Date:</span> ${this._userProfile.date || ""}</div>
+                <div class="profile-item"><span>Gender:</span> ${this._userProfile.gender || ""}</div>
+                <div class="profile-item"><span>Street:</span> ${this._userProfile.street || ""}</div>
+                <div class="profile-item">
+                    <span>House Number:</span> ${this._userProfile.houseNumber || ""}
+                </div>
+                <div class="profile-item"><span>Country:</span> ${this._userProfile.country || ""}</div>
+            </div>
+        `;
+    }
+
+    private toggleNewsItem(index: number): void {
+        this._newsItems = this._newsItems.map((item, i) =>
+            i === index ? { ...item, expanded: !item.expanded } : item
+        );
+        this.requestUpdate();
+    }
+
+    /**
+     * Handles changes to the e-mail input field
+     */
     private onChangeEmail(event: InputEvent): void {
         this._email = (event.target as HTMLInputElement).value;
     }
@@ -923,14 +1145,13 @@ export class Root extends LitElement {
     }
 
     private renderAdminButton(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html``;
+        if (this._isLoggedIn) {
+            return html`
+                <div @click=${(e: MouseEvent) => this.navigateToPage(RouterPage.Admin, e)}>
+                    <button>Admin</button>
+                </div>
+            `;
         }
-
-        return html`
-            <div @click=${(): void => {}}>
-                <button>Admin Page</button>
-            </div>
-        `;
+        return html``;
     }
 }
