@@ -1,7 +1,7 @@
-import { product } from "@shared/types";
+import { OrderItem } from "@shared/types/OrderItem";
 
 export class ItemDetailService {
-    public async getAll(): Promise<product[] | undefined> {
+    public async getAll(): Promise<OrderItem[] | undefined> {
         const apiUrl: string = viteConfiguration.API_URL;
         const url: string = `${apiUrl}itemDetails`;
         console.log(`Fetching URL: ${url}`);
@@ -16,14 +16,14 @@ export class ItemDetailService {
                 return undefined;
             }
 
-            return (await response.json()) as product[];
+            return (await response.json()) as OrderItem[];
         } catch (error) {
             console.error("Error during fetch:", error);
         }
         return undefined;
     }
 
-    public async getById(id: string): Promise<product | undefined> {
+    public async getById(id: string): Promise<OrderItem | undefined> {
         const apiUrl: string = viteConfiguration.API_URL;
         const url: string = `${apiUrl}itemDetails/${id}`;
         console.log(`Fetching URL: ${url}`);
@@ -38,7 +38,7 @@ export class ItemDetailService {
                 return undefined;
             }
 
-            return (await response.json()) as product;
+            return (await response.json()) as OrderItem;
         } catch (error) {
             console.error("Error during fetch:", error);
         }

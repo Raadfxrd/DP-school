@@ -1,25 +1,22 @@
-import { product } from "@shared/types/OrderItem";
-import { TokenService } from "./TokenService";
+import { OrderItem } from "@shared/types";
 
 export class OrderItemService {
-    private tokenService: TokenService = new TokenService();
-
-    public async getAll(): Promise<product[] | undefined> {
+    public async getAll(): Promise<OrderItem[] | undefined> {
         const apiUrl: string = viteConfiguration.API_URL;
         console.log("API_URL:", apiUrl);
         const url: string = `${apiUrl}products`;
         console.log(`Fetching URL: ${url}`);
 
         try {
-            const response: Response = await fetch(url, {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}orderItems`, {
                 method: "get",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${this.tokenService.getToken()}`, // Ensure the token is added
                 },
             });
+
             if (response.ok) {
-                return response.json() as Promise<product[]>;
+                return response.json() as Promise<OrderItem[]>;
             }
             console.error("Failed to fetch order items:", response.statusText);
         } catch (error) {

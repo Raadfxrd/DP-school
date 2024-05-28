@@ -1,4 +1,4 @@
-export type product = {
+export type OrderItem = {
     id: number;
     title: string;
     thumbnail: string;

@@ -1,11 +1,11 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { product } from "@shared/types/OrderItem";
+import { OrderItem } from "@shared/types/OrderItem";
 import { UserService } from "../services/UserService";
 
 @customElement("product-page")
 export class ProductPage extends LitElement {
-    @property({ type: Object }) public productData!: product;
+    @property({ type: Object }) public productData!: OrderItem;
     @property({ type: Boolean }) private _isLoggedIn: boolean = false;
     @property({ type: Number }) public cartItemsCount: number = 0;
 

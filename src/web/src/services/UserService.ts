@@ -22,14 +22,12 @@ export class UserService {
      * @returns `true` when successful, otherwise `false`.
      */
     public async login(formData: UserLoginFormModel): Promise<boolean> {
-        const url: string = `${viteConfiguration.API_URL}users/login`;
-        console.log(`Login URL: ${url}`);
-
-        const response: Response = await fetch(url, {
-            method: "post",
-            headers: headers,
-            body: JSON.stringify(formData),
-        });
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/login`, {
+                method: "post",
+                headers: headers,
+                body: JSON.stringify(formData),
+            });
 
             if (!response.ok) {
                 console.error(response);
@@ -58,14 +56,12 @@ export class UserService {
      * @returns `true` when successful, otherwise `false`.
      */
     public async register(formData: UserRegisterFormModel): Promise<boolean> {
-        const url: string = `${viteConfiguration.API_URL}users/register`;
-        console.log(`Register URL: ${url}`);
-
-        const response: Response = await fetch(url, {
-            method: "post",
-            headers: headers,
-            body: JSON.stringify(formData),
-        });
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/register`, {
+                method: "post",
+                headers: headers,
+                body: JSON.stringify(formData),
+            });
 
             if (!response.ok) {
                 console.error(response);
@@ -91,13 +87,11 @@ export class UserService {
             return false;
         }
 
-        const url: string = `${viteConfiguration.API_URL}users/logout`;
-        console.log(`Logout URL: ${url}`);
-
-        const response: Response = await fetch(url, {
-            method: "get",
-            headers: { ...headers, authorization: token },
-        });
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/logout`, {
+                method: "get",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+            });
 
             if (!response.ok) {
                 console.error(response);
@@ -125,13 +119,6 @@ export class UserService {
             return undefined;
         }
 
-        const url: string = `${viteConfiguration.API_URL}users/hello`;
-        console.log(`GetWelcome URL: ${url}`);
-
-        const response: Response = await fetch(url, {
-            method: "get",
-            headers: { ...headers, authorization: token },
-        });
         try {
             const response: Response = await fetch(`${viteConfiguration.API_URL}users/hello`, {
                 method: "GET",
@@ -168,13 +155,11 @@ export class UserService {
             return undefined;
         }
 
-        const url: string = `${viteConfiguration.API_URL}users/cart/${id}`;
-        console.log(`AddOrderItemToCart URL: ${url}`);
-
-        const response: Response = await fetch(url, {
-            method: "post",
-            headers: { ...headers, authorization: token },
-        });
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/${id}`, {
+                method: "post",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+            });
 
             if (!response.ok) {
                 console.error(response);

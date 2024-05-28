@@ -3,7 +3,6 @@ import { handleTokenBasedAuthentication } from "./middlewares/authenticationMidd
 import { UserController } from "./controllers/UserController";
 import { ProductController } from "./controllers/ProductController";
 import { asyncHandler } from "./middlewares/asyncHandler";
-import { asyncMiddleware } from "./middlewares/asyncMiddleware";
 
 export const router: Router = Router();
 
