@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { LitElement, TemplateResult, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { UserService } from "../services/UserService";
@@ -24,31 +23,19 @@ enum RouterPage {
     Admin = "admin",
     Product = "product",
     Cart = "cart",
+    SearchResults = "searchResults",
 }
 
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
-    }
-    interface HTMLElementTagNameMap {
         "cart-page": CartPage;
-    }
-}
-
-declare global {
-    interface HTMLElementTagNameMap {
         "admin-page": AdminPage;
     }
 }
 
-/**
- * Custom element based on Lit for the header of the webshop.
- *
- * @todo Most of the logic in this component is over-simplified. You will have to replace most of if with actual implementions.
- */
 @customElement("webshop-root")
 export class Root extends LitElement {
-    [x: string]: unknown;
     public static styles = css`
         :host {
             display: flex;
@@ -183,16 +170,29 @@ export class Root extends LitElement {
             outline: none;
         }
 
+        .search-container {
+            position: relative;
+        }
+
         .searchbar {
             opacity: 0;
-            width: 150px;
+            width: 0;
+            transition: width 0.3s;
+            font-family: "Rubik Mono One", monospace;
+            font-size: 1.5rem;
+            border: none;
+            outline: none;
         }
 
         .searchbar.show {
+            opacity: 1;
+            width: 150px;
             animation: showSearchBar 0.3s forwards;
         }
 
         .searchbar.hide {
+            opacity: 0;
+            width: 0;
             animation: hideSearchBar 0.3s forwards;
         }
 
@@ -545,18 +545,22 @@ export class Root extends LitElement {
         @keyframes showSearchBar {
             from {
                 opacity: 0;
+                width: 0;
             }
             to {
                 opacity: 1;
+                width: 150px;
             }
         }
 
         @keyframes hideSearchBar {
             from {
                 opacity: 1;
+                width: 150px;
             }
             to {
                 opacity: 0;
+                width: 0;
             }
         }
     `;
@@ -565,10 +569,13 @@ export class Root extends LitElement {
     private _currentPage: RouterPage = RouterPage.Home;
 
     @state()
-    private _showSearchBar: boolean = false;
+    private _searchQuery: string = "";
 
     @state()
-    private _hideSearchBar: boolean = false;
+    private _searchResults: OrderItem[] = [];
+
+    @state()
+    private _showSearchBar: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
@@ -580,10 +587,10 @@ export class Root extends LitElement {
     private _loadingOrderItems: boolean = true;
 
     @state()
-    public _cartItemsCount: number = 0;
+    private _cartItemsCount: number = 0;
 
     @state()
-    public selectedProduct: OrderItem | undefined = undefined;
+    private selectedProduct: OrderItem | undefined = undefined;
 
     @state()
     private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
@@ -687,7 +694,7 @@ export class Root extends LitElement {
 
     private async clickCartButton(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
-        this.navigateToCartPage();
+        this.navigateToPage(RouterPage.Cart);
         if (!result) {
             return;
         }
@@ -701,10 +708,14 @@ export class Root extends LitElement {
         );
     }
 
-    private navigateToPage(page: RouterPage, event: MouseEvent): void {
-        event.stopPropagation();
+    private navigateToPage(page: RouterPage, query?: string, searchResults?: OrderItem[]): void {
         this._currentPage = page;
-        this._showProductsDropdown = false;
+        if (query) {
+            this._searchQuery = query;
+        }
+        if (searchResults) {
+            this._searchResults = searchResults;
+        }
         if (page === RouterPage.Account) {
             void this.getUserProfile();
         }
@@ -765,6 +776,12 @@ export class Root extends LitElement {
 
             case RouterPage.Account:
                 contentTemplate = this.renderAccount();
+                break;
+
+            case RouterPage.SearchResults:
+                contentTemplate = html`<search-results-page
+                    .query=${this._searchQuery}
+                ></search-results-page>`;
                 break;
 
             default:
@@ -910,7 +927,6 @@ export class Root extends LitElement {
         `;
     }
 
-    // Event handler for the details button with an explicit return type
     private handleDetailsClick(orderItem: OrderItem): void {
         this.navigateToProductPage(orderItem);
     }
@@ -925,11 +941,6 @@ export class Root extends LitElement {
         return this.selectedProduct
             ? html`<product-page .productData=${this.selectedProduct}></product-page>`
             : html``;
-    }
-
-    private navigateToCartPage(): void {
-        this._currentPage = RouterPage.Cart;
-        this.requestUpdate();
     }
 
     private renderCartPage(): TemplateResult {
@@ -979,59 +990,77 @@ export class Root extends LitElement {
     }
 
     private renderSearchInNav(): TemplateResult {
-        if (this._showSearchBar) {
-            return html` <div class="searchbar show">
-                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
-            </div>`;
-        } else if (this._hideSearchBar) {
-            return html` <div class="searchbar hide">
-                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
-            </div>`;
-        } else {
-            return html` <div @click=${this.showSearchBar}>
-                <button>Search</button>
-            </div>`;
-        }
+        return html`
+            <div class="search-container">
+                ${this._showSearchBar
+                    ? html`
+                          <form @submit=${this.handleSearchSubmit}>
+                              <input
+                                  type="text"
+                                  class="searchbar show"
+                                  placeholder="Search..."
+                                  @blur=${this.startHideSearchBar}
+                              />
+                          </form>
+                      `
+                    : html` <button @click=${this.showSearchBar}>Search</button> `}
+            </div>
+        `;
     }
 
     private showSearchBar(): void {
         this._showSearchBar = true;
-        this._hideSearchBar = false;
+        this.requestUpdate();
     }
 
     private startHideSearchBar(): void {
         this._showSearchBar = false;
-        this._hideSearchBar = true;
         setTimeout(() => {
-            this._hideSearchBar = false;
             this.requestUpdate();
         }, 300);
     }
 
-    /**
-     * Renders the cart button in the navigation
-     */
+    private async handleSearchSubmit(event: Event): Promise<void> {
+        event.preventDefault();
+        const input: HTMLInputElement = (event.target as HTMLFormElement).querySelector(
+            "input"
+        ) as HTMLInputElement;
+        const query: string = input.value;
+        console.log("Search query:", query);
+        if (query) {
+            try {
+                const searchResults: OrderItem[] | undefined = await this._orderItemService.search(query);
+                console.log("Search results:", searchResults);
+                this.navigateToPage(RouterPage.SearchResults, query, searchResults);
+            } catch (error) {
+                console.error("Error during search:", error);
+            }
+        }
+    }
+
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html`
                 <button
                     class="cartbuttondesign"
-                    @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
+                    @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Cart)}
                 >
                     <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
                 </button>
             `;
         }
 
-        return html`<div @click=${this.clickCartButton}>
-            <button
-                class="cartbuttondesign"
-                @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
-            >
-                <div class="cartcount">${this._cartItemsCount}</div>
-                <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
-            </button>
-        </div>`;
+        return html`
+            <div @click=${this.clickCartButton}>
+                <button
+                    class="cartbuttondesign"
+                    @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Cart)}
+                >
+                    <div class="cartcount">${this._cartItemsCount}</div>
+                    <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+                </button>
+            </div>
+        `;
     }
 
     private renderLoginInNav(): TemplateResult {
@@ -1090,7 +1119,6 @@ export class Root extends LitElement {
                 <form id="registerForm" class="login-form" @submit=${this.submitRegisterForm}>
                     <h1>Register</h1>
 
-                    <!-- Name field -->
                     <div>
                         <label for="name">Name</label>
                         <input
@@ -1104,18 +1132,10 @@ export class Root extends LitElement {
                         />
                     </div>
 
-                    <!-- Email field -->
-                    ${this.renderEmail()}
-
-                    <!-- Password field -->
-                    ${this.renderPassword()}
-
-                    <!-- Register button -->
+                    ${this.renderEmail()} ${this.renderPassword()}
                     <div>
                         <button type="submit">Register</button>
                     </div>
-
-                    <!-- Link to login page -->
                     <p class="message">
                         Already have an account?
                         <a
@@ -1203,9 +1223,6 @@ export class Root extends LitElement {
         this.requestUpdate();
     }
 
-    /**
-     * Handles changes to the e-mail input field
-     */
     private onChangeEmail(event: InputEvent): void {
         this._email = (event.target as HTMLInputElement).value;
     }
@@ -1218,13 +1235,10 @@ export class Root extends LitElement {
         this._name = (event.target as HTMLInputElement).value;
     }
 
-    /**
-     * Renders the admin button in the navigation if user is logged in
-     */
     private renderAdminButton(): TemplateResult {
         if (this._isLoggedIn) {
             return html`
-                <div @click=${(e: MouseEvent) => this.navigateToPage(RouterPage.Admin, e)}>
+                <div @click=${(): void => this.navigateToPage(RouterPage.Admin)}>
                     <button>Admin</button>
                 </div>
             `;

@@ -29,6 +29,11 @@ router.get(
     asyncHandler((req: Request, res: Response) => productController.getAll(req, res))
 );
 
+router.get(
+    "/orderItems/search",
+    asyncHandler((req: Request, res: Response) => productController.search(req, res))
+);
+
 // Apply authentication middleware to routes that require it
 router.use(asyncHandler(handleTokenBasedAuthentication));
 
