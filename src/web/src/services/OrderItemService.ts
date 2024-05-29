@@ -5,7 +5,6 @@ export class OrderItemService {
 
     public async getAll(): Promise<OrderItem[] | undefined> {
         const url: string = `${this.apiUrl}orderItems`;
-        console.log(`Fetching URL: ${url}`);
 
         try {
             const response: Response = await fetch(url, {
@@ -27,7 +26,6 @@ export class OrderItemService {
 
     public async search(query: string): Promise<OrderItem[] | undefined> {
         const url: string = `${this.apiUrl}orderItems/search?query=${encodeURIComponent(query)}`;
-        console.log(`Searching URL: ${url}`);
 
         try {
             const response: Response = await fetch(url, {
@@ -39,8 +37,7 @@ export class OrderItemService {
 
             if (response.ok) {
                 const data: string = await response.json();
-                console.log("Search response data:", data);
-                return data as OrderItem[];
+                return data as unknown as OrderItem[];
             }
             console.error("Failed to search order items:", response.statusText);
         } catch (error) {

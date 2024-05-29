@@ -12,7 +12,7 @@ import { AdminPage } from "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
 
-enum RouterPage {
+export enum RouterPage {
     Home = "orderItems",
     Login = "login",
     Register = "register",
@@ -1026,11 +1026,9 @@ export class Root extends LitElement {
             "input"
         ) as HTMLInputElement;
         const query: string = input.value;
-        console.log("Search query:", query);
         if (query) {
             try {
                 const searchResults: OrderItem[] | undefined = await this._orderItemService.search(query);
-                console.log("Search results:", searchResults);
                 this.navigateToPage(RouterPage.SearchResults, query, searchResults);
             } catch (error) {
                 console.error("Error during search:", error);

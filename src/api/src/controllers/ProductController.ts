@@ -18,13 +18,10 @@ export class ProductController {
 
     public async search(req: Request, res: Response): Promise<void> {
         const query: string = req.query.query as string;
-        console.log("Searching for products with query:", query);
         try {
             const sqlQuery: any =
                 "SELECT id, title, thumbnail, description, price FROM product WHERE (title LIKE ? OR description LIKE ?) AND price > ? ORDER BY title ASC";
             const sqlParams: (string | number)[] = [`%${query}%`, `%${query}%`, 0];
-            console.log("Executing SQL:", sqlQuery);
-            console.log("With parameters:", sqlParams);
             const result: OrderItem[] = await queryDatabase<OrderItem[]>(sqlQuery, ...sqlParams);
             console.log("Search results from database:", result);
             res.json(result);

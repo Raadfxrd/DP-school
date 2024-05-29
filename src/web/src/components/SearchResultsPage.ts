@@ -1,18 +1,11 @@
 import { LitElement, TemplateResult, css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { OrderItemService } from "../services/OrderItemService";
 import { OrderItem } from "@shared/types/OrderItem";
+import { RouterPage } from "./Root";
 
 @customElement("search-results-page")
 export class SearchResultsPage extends LitElement {
-    @property({ type: String })
-    public query: string = "";
-
-    @property({ type: Array })
-    public searchResults: OrderItem[] = [];
-
-    private orderItemService: OrderItemService = new OrderItemService();
-
     public static styles = css`
         .search-container {
             position: relative;
@@ -54,36 +47,63 @@ export class SearchResultsPage extends LitElement {
         }
     `;
 
+    @property({ type: String })
+    public query: string = "";
+
+    @property({ type: Array })
+    public searchResults: OrderItem[] = [];
+
+    @state()
+    private _currentPage: RouterPage = RouterPage.SearchResults;
+
+    @state()
+    private selectedProduct: OrderItem | undefined = undefined;
+
+    private orderItemService: OrderItemService = new OrderItemService();
+
+    public async connectedCallback(): Promise<void> {
+        super.connectedCallback();
+        await this.firstUpdated();
+        this.requestUpdate();
+    }
+
+    private handleDetailsClick(orderItem: OrderItem): void {
+        this.navigateToProductPage(orderItem);
+    }
+
+    private navigateToProductPage(orderItem: OrderItem): void {
+        this._currentPage = RouterPage.SearchResults;
+        this.selectedProduct = orderItem;
+        this.requestUpdate();
+    }
+
     public async firstUpdated(): Promise<void> {
-        console.log(`Fetching search results for query: ${this.query}`);
         if (this.query) {
             try {
                 const results: OrderItem[] | undefined = await this.orderItemService.search(this.query);
                 if (results) {
                     this.searchResults = results.map((item) => {
-                        console.log("Processing item:", item);
                         return {
-                            ...item,
-                            thumbnail: `data:image/png;base64,${Buffer.from(item.thumbnail).toString(
-                                "base64"
-                            )}`,
-                            images: item.images.map(
-                                (image) => `data:image/png;base64,${Buffer.from(image).toString("base64")}`
-                            ),
+                            id: item.id,
+                            title: item.title,
+                            thumbnail: item.thumbnail,
+                            images: item.images,
+                            description: item.description,
+                            authors: item.authors,
+                            tags: item.tags,
+                            price: item.price,
+                            quantity: item.quantity,
                         };
                     });
-                    console.log("Processed search results:", this.searchResults);
                 } else {
                     this.searchResults = [];
                 }
-            } catch (error) {
-                console.error("Error fetching search results:", error);
-            }
+            } catch (error) {}
         }
     }
 
-    public render(): TemplateResult {
-        console.log("Rendering search results:", this.searchResults);
+    public render(): TemplateResult<1> {
+        const orderItem: OrderItem = this.selectedProduct as OrderItem;
         return html`
             <div>
                 <h2>Search Results for "${this.query}"</h2>
@@ -91,13 +111,16 @@ export class SearchResultsPage extends LitElement {
                     ? html`<ul>
                           ${this.searchResults.map(
                               (item) => html`
-                                  <li class="search-result-item">
+                                  <li
+                                      class="search-result-item"
+                                      @click=${(): void => this.handleDetailsClick(orderItem)}
+                                  >
                                       <img src="${item.thumbnail}" alt="${item.title}" />
                                       <div class="search-result-info">
                                           <h4>${item.title}</h4>
                                           <p>${item.description}</p>
-                                          <p>Authors: ${item.authors.join(", ")}</p>
-                                          <p>Tags: ${item.tags.join(", ")}</p>
+                                          <p>Authors: ${item.authors ? item.authors.join(", ") : ""}</p>
+                                          <p>Tags: ${item.tags ? item.tags.join(", ") : ""}</p>
                                           <p>Price: €${item.price}</p>
                                           <p>Quantity: ${item.quantity}</p>
                                       </div>

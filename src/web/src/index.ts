@@ -4,3 +4,4 @@ export * from "./components/ProductPage";
 export * from "./components/CartPage";
 export * from "./components/GamesPage";
 export * from "./components/MerchandisePage";
+export * from "./components/SearchResultsPage";
