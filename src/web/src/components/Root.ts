@@ -1030,17 +1030,24 @@ export class Root extends LitElement {
 
     private async handleSearchSubmit(event: Event): Promise<void> {
         event.preventDefault();
-        const input: HTMLInputElement = (event.target as HTMLFormElement).querySelector(
-            "input"
-        ) as HTMLInputElement;
-        const query: string = input.value;
-        if (query) {
+        const input: HTMLInputElement | null = (event.target as HTMLFormElement).querySelector("input");
+        const query: string = (input?.value || "").trim();
+
+        if (query && query !== this._searchQuery) {
             try {
                 const searchResults: OrderItem[] | undefined = await this._orderItemService.search(query);
-                this.navigateToPage(RouterPage.SearchResults, query, searchResults);
+                if (searchResults) {
+                    this._searchQuery = query;
+                    this._searchResults = searchResults;
+                    this.navigateToPage(RouterPage.SearchResults, query, searchResults);
+                } else {
+                    console.error("No results found for the query:", query);
+                }
             } catch (error) {
                 console.error("Error during search:", error);
             }
+        } else if (query) {
+            this.navigateToPage(RouterPage.SearchResults, query, this._searchResults);
         }
     }
 
