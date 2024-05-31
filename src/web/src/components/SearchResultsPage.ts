@@ -54,7 +54,7 @@ export class SearchResultsPage extends LitElement {
     public searchResults: OrderItem[] = [];
 
     @state()
-    private _currentPage: RouterPage = RouterPage.SearchResults;
+    public _currentPage: RouterPage = RouterPage.SearchResults;
 
     @state()
     private selectedProduct: OrderItem | undefined = undefined;
@@ -68,13 +68,15 @@ export class SearchResultsPage extends LitElement {
     }
 
     private handleDetailsClick(orderItem: OrderItem): void {
-        this.navigateToProductPage(orderItem);
-    }
-
-    private navigateToProductPage(orderItem: OrderItem): void {
-        this._currentPage = RouterPage.SearchResults;
-        this.selectedProduct = orderItem;
-        this.requestUpdate();
+        console.log("Dispatching product details", orderItem);
+        const event: CustomEvent<{
+            orderItem: OrderItem;
+        }> = new CustomEvent("navigate-to-product", {
+            detail: { orderItem },
+            bubbles: true,
+            composed: true,
+        });
+        this.dispatchEvent(event);
     }
 
     public async firstUpdated(): Promise<void> {
@@ -102,8 +104,8 @@ export class SearchResultsPage extends LitElement {
         }
     }
 
-    public render(): TemplateResult<1> {
-        const orderItem: OrderItem = this.selectedProduct as OrderItem;
+    // In SearchResultsPage
+    public render(): TemplateResult {
         return html`
             <div>
                 <h2>Search Results for "${this.query}"</h2>
@@ -113,7 +115,7 @@ export class SearchResultsPage extends LitElement {
                               (item) => html`
                                   <li
                                       class="search-result-item"
-                                      @click=${(): void => this.handleDetailsClick(orderItem)}
+                                      @click=${(): void => this.handleDetailsClick(item)}
                                   >
                                       <img src="${item.thumbnail}" alt="${item.title}" />
                                       <div class="search-result-info">

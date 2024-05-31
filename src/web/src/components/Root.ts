@@ -710,7 +710,8 @@ export class Root extends LitElement {
 
     private navigateToPage(page: RouterPage, query?: string, searchResults?: OrderItem[]): void {
         this._currentPage = page;
-        if (query) {
+        if (page === RouterPage.Product && this.selectedProduct) {
+        } else if (query) {
             this._searchQuery = query;
         }
         if (searchResults) {
@@ -751,7 +752,9 @@ export class Root extends LitElement {
                 break;
 
             case RouterPage.Product:
-                contentTemplate = this.renderProductPage();
+                contentTemplate = this.selectedProduct
+                    ? html`<product-page .productData=${this.selectedProduct}></product-page>`
+                    : html`<p>Product not found</p>`;
                 break;
 
             case RouterPage.Games:
@@ -937,10 +940,15 @@ export class Root extends LitElement {
         this.requestUpdate();
     }
 
-    private renderProductPage(): TemplateResult {
-        return this.selectedProduct
-            ? html`<product-page .productData=${this.selectedProduct}></product-page>`
-            : html``;
+    private constructor() {
+        super();
+        this.addEventListener("navigate-to-product", this.onNavigateToProduct as EventListener);
+    }
+
+    private onNavigateToProduct(event: CustomEvent): void {
+        console.log("Event received", event.detail);
+        this.selectedProduct = event.detail.orderItem;
+        this.navigateToPage(RouterPage.Product);
     }
 
     private renderCartPage(): TemplateResult {

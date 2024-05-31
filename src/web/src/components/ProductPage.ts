@@ -144,6 +144,7 @@ export class ProductPage extends LitElement {
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     public render() {
+        console.log("Rendering with productData", this.productData);
         if (!this.productData) {
             return html`<div>No product data available</div>`;
         }
