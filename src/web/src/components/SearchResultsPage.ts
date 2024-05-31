@@ -9,6 +9,7 @@ export class SearchResultsPage extends LitElement {
         .search-container {
             position: relative;
         }
+
         .search-results {
             position: absolute;
             top: 100%;
@@ -18,25 +19,42 @@ export class SearchResultsPage extends LitElement {
             border: 1px solid #ccc;
             z-index: 10;
         }
+
         .search-result-item {
             display: flex;
             padding: 10px;
             cursor: pointer;
+            animation: fadeIn 0.3s ease-out;
         }
+
         .search-result-item:hover {
             background-color: #f0f0f0;
         }
+
         .search-result-item img {
             width: 50px;
             height: auto;
             margin-right: 10px;
         }
+
         .search-result-info h4 {
             margin: 0;
         }
+
         .search-result-info p {
             margin: 5px 0 0 0;
             color: #555;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     `;
 
