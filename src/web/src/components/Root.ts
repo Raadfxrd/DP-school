@@ -229,7 +229,9 @@ export class Root extends LitElement {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: space-around;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            height: 700px;
         }
 
         .order-item .text-content {
@@ -246,7 +248,7 @@ export class Root extends LitElement {
 
         .order-item img {
             width: 450px;
-            height: auto;
+            height: 450px;
             max-width: 100%;
         }
 
@@ -907,13 +909,18 @@ export class Root extends LitElement {
     }
 
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
+        const truncatedDescription: string | undefined =
+            orderItem.description && orderItem.description.length > 200
+                ? orderItem.description.substring(0, 200) + "..."
+                : orderItem.description;
+
         return html`
             <div class="order-item">
                 <div class="text-content">
                     <h2>${orderItem.title}</h2>
-                    <p>${orderItem.description}</p>
+                    <p>${truncatedDescription}</p>
                 </div>
-                <img src="${orderItem.thumbnail}.jpg" alt="${orderItem.title}" />
+                <img src="${orderItem.thumbnail}" alt="${orderItem.title}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
                 <button class="details" @click=${(): void => this.handleDetailsClick(orderItem)}>
                     View details
