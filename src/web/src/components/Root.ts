@@ -76,6 +76,7 @@ export class Root extends LitElement {
             height: 75px;
             padding: none;
             border: none;
+            z-index: 100;
         }
 
         .cartbutton {
@@ -268,6 +269,18 @@ export class Root extends LitElement {
             margin-top: 10px;
         }
 
+        .addItemToCart:hover {
+            background-color: #8e7996;
+        }
+
+        .addItemToCart:focus {
+            outline: none;
+        }
+
+        .addItemToCart:active {
+            transform: translateY(1px);
+        }
+
         .cartcount {
             color: white;
             height: 20px;
@@ -280,18 +293,6 @@ export class Root extends LitElement {
             align-items: center;
             font-weight: bold;
             position: absolute;
-        }
-
-        .addItemToCart:hover {
-            background-color: #0f0e0e;
-        }
-
-        .addItemToCart:focus {
-            outline: none;
-        }
-
-        .addItemToCart:active {
-            transform: translateY(1px);
         }
 
         .details {
