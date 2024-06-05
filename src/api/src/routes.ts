@@ -3,11 +3,16 @@ import { handleTokenBasedAuthentication } from "./middlewares/authenticationMidd
 import { UserController } from "./controllers/UserController";
 import { ProductController } from "./controllers/ProductController";
 import { asyncHandler } from "./middlewares/asyncHandler";
+import { asyncMiddleware } from "./middlewares/asyncMiddleware";
+import { MerchandiseController } from "./controllers/MerchandiseController";
+import { GamesController } from "./controllers/GamesController";
 
 export const router: Router = Router();
 
 const userController: UserController = new UserController();
 const productController: ProductController = new ProductController();
+const merchandiseController: MerchandiseController = new MerchandiseController();
+const gamesController: GamesController = new GamesController();
 
 router.get("/", (_, res: Response) => {
     res.send("Hello, this is a simple webshop API.");
@@ -31,11 +36,17 @@ router.get(
 );
 
 router.get(
-    "/orderItems/search",
-    asyncHandler((req: Request, res: Response) => productController.search(req, res))
+    "/Merchandise",
+    asyncHandler((req: Request, res: Response) => merchandiseController.getMerchandise(req, res))
+);
+router.get(
+    "/Games",
+    asyncHandler((req: Request, res: Response) => gamesController.getGames(req, res))
+
 );
 
-router.use(asyncHandler(handleTokenBasedAuthentication));
+// Apply authentication middleware to routes that require it
+router.use(asyncMiddleware(handleTokenBasedAuthentication));
 
 router.get(
     "/users/logout",
