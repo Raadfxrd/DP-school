@@ -587,7 +587,7 @@ export class Root extends LitElement {
                 contentTemplate = this.renderProductPage();
                 break;
             case RouterPage.Games:
-                contentTemplate = html`<games-page></games-page>`;
+                contentTemplate = html`<game-page></game-page>`;
                 break;
             case RouterPage.Merchandise:
                 contentTemplate = html`<merchandise-page></merchandise-page>`;
