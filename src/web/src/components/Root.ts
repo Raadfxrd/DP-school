@@ -40,7 +40,6 @@ declare global {
         "admin-page": AdminPage;
     }
 }
-
 /**
  * Custom element based on Lit for the header of the webshop.
  *
@@ -576,6 +575,7 @@ export class Root extends LitElement {
     @state()
     private _OrderItem: OrderItem[] = [];
 
+
     @state()
     private _loadingOrderItems: boolean = true;
 
@@ -718,8 +718,9 @@ export class Root extends LitElement {
     }
 
     private async addItemToCart(orderItem: OrderItem): Promise<void> {
-        const result: number | undefined = await this._userService.addOrderItemToCart(orderItem.id);
-        console.log(result);
+        const result: number | undefined = await this._userService.addOrderItemToCart();
+        console.log(orderItem.id);
+        this._userService.addOrderItemToCart;
         if (!result) {
             return;
         }
@@ -876,7 +877,6 @@ export class Root extends LitElement {
         if (this._loadingOrderItems) {
             return html`<div class="order-items">Loading... Please wait a moment.</div>`;
         }
-
         const orderItems: TemplateResult[] = this._OrderItem.map((e) => this.renderOrderItem(e));
 
         if (orderItems.length === 0) {

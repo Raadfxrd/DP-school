@@ -43,7 +43,7 @@ router.get(
 );
 
 router.post(
-    "/users/cart/:id",
+    "/users/cart/cartinfo",
     asyncHandler((req: Request, res: Response) => userController.addOrderItemToCart(req, res))
 );
 

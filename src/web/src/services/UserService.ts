@@ -82,7 +82,6 @@ export class UserService {
      */
     public async logout(): Promise<boolean> {
         const token: string | undefined = this._tokenService.getToken();
-
         if (!token) {
             return false;
         }
@@ -148,15 +147,15 @@ export class UserService {
      *
      * @returns Current number of order items in the cart when successful, otherwise `false`.
      */
-    public async addOrderItemToCart(id: number): Promise<number | undefined> {
+    public async addOrderItemToCart(): Promise<number | undefined> {
         const token: string | undefined = this._tokenService.getToken();
-
+        // const tokenValue: number = id;
+        // console.log(tokenValue);
         if (!token) {
             return undefined;
         }
-
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/${id}`, {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/cartinfo}`, {
                 method: "post",
                 headers: { ...headers, Authorization: `Bearer ${token}` },
             });
@@ -175,15 +174,13 @@ export class UserService {
 
     public async getItemFromCart(): Promise<number | undefined> {
         const token: string | undefined = this._tokenService.getToken();
-
         if (!token) {
             return undefined;
         }
 
         try {
             const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/id}`, {});
-
-            if (response.ok) {
+            if (response) {
                 console.log(response);
             }
 
@@ -206,18 +203,17 @@ export class UserService {
      */
     public async getUserProfile(): Promise<UserData | undefined> {
         const token: string | undefined = this._tokenService.getToken();
-
         if (!token) {
             console.error("No token found in local storage.");
             return undefined;
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/profile`, {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/profile`,  {
                 method: "GET",
-                headers: { ...headers, Authorization: `Bearer ${token}` },
+                headers: { ...headers, Authorization: `Bearer ${token}` },                
             });
-
+          
             if (!response.ok) {
                 const errorText: string = await response.text();
                 console.error(
