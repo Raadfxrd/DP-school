@@ -1,14 +1,14 @@
-import { product } from "@shared/types/OrderItem";
+import { merch } from "@shared/types/merch";
 import { TokenService } from "./TokenService";
 
-export class OrderItemService {
+export class MerchandiseService {
     private tokenService: TokenService = new TokenService();
 
-    public async getAllMerchandise(): Promise<product[] | undefined> {
+    public async getAllMerchandise(): Promise<merch[] | undefined> {
         const apiUrl: string = viteConfiguration.API_URL; // Assuming you have this configuration available
         console.log("API_URL:", apiUrl);
         const url: string = `${apiUrl}merchandise`; // Assuming the endpoint for merchandise items is different
-        console.log(`Fetching Merchandise URL: ${url}`);
+        console.log(`Fetching URL: ${url}`);
 
         try {
             const response: Response = await fetch(url, {
@@ -19,7 +19,7 @@ export class OrderItemService {
                 },
             });
             if (response.ok) {
-                return response.json() as Promise<product[]>;
+                return response.json() as Promise<merch[]>;
             }
             console.error("Failed to fetch merchandise items:", response.statusText);
         } catch (error) {
