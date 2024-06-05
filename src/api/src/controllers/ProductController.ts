@@ -20,7 +20,7 @@ export class ProductController {
         const query: string = req.query.query as string;
         try {
             const sqlQuery: any =
-                "SELECT id, title, thumbnail, description, price FROM product WHERE (title LIKE ? OR description LIKE ?) AND price > ? ORDER BY title ASC";
+                "SELECT id, title, thumbnail, images, description, price, authors, tags FROM product WHERE (title LIKE ? OR description LIKE ?) AND price > ? ORDER BY title ASC";
             const sqlParams: (string | number)[] = [`%${query}%`, `%${query}%`, 0];
             const result: OrderItem[] = await queryDatabase<OrderItem[]>(sqlQuery, ...sqlParams);
             console.log("Search results from database:", result);
