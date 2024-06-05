@@ -9,7 +9,7 @@ declare global {
 
     namespace Express {
         export interface Request {
-            user?: UserData;
+            user: UserData;
         }
     }
 }

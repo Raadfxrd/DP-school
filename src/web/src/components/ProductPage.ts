@@ -188,7 +188,8 @@ export class ProductPage extends LitElement {
 
     public async addToCart(): Promise<void> {
         if (this._isLoggedIn) {
-            const result: number | undefined = await this.userService.addOrderItemToCart(this.productData.id);
+            // Roep de methode aan van de UserService om het product aan de winkelwagen toe te voegen
+            const result: number | undefined = await this.userService.addOrderItemToCart();
 
             if (result) {
                 this.cartItemsCount = result;

@@ -109,7 +109,7 @@ export class UserController {
 
         // Get the titles of the items in the cart
         const cartItemNames: string[] | undefined = cartItems
-            .map((e: CartItem) => orderItems.find((f: OrderItem) => f.id === e.id)?.title)
+            .map((e: CartItem) => orderItems.find((f: OrderItem) => f.id === e.product_id)?.title)
             .filter((title): title is string => title !== undefined);
 
         const response: UserHelloResponse = {
@@ -122,36 +122,37 @@ export class UserController {
 
     // Add an item to the user's cart
     public async addOrderItemToCart(req: Request, res: Response): Promise<void> {
-        const userData: UserData = req.user!;
-        const id: number = parseInt(req.params.id);
-
-        let cart: CartItem[] = [];
+        const userId: number = req.user.id;
+        const productId: number = parseInt(req.params.id);
+        console.log(userId);
+        const cart: CartItem[] = [];
 
         // Parse the cart string if it exists, otherwise use an empty array
-        if (userData.cart) {
+        if (1 === 1) {
             try {
-                cart = JSON.parse(userData.cart);
-            } catch (error) {
-                console.error("Error parsing cart:", error);
-                res.status(500).json({ message: "Error processing cart data" });
-                return;
-            }
+                    const result: CartItem[] = await queryDatabase<CartItem[]>(
+                        "INSERT INTO `cart`(`user_id`, `product_id`, `amount`) VALUES ('?','31','1')", userId);
+                    res.json(result);
+                } catch (error: any) {
+                    console.error("Database Error:", error);
+                    res.status(500).json({ message: "Database error", error: error.message });
+                }
         }
-
         // Add the new item to the cart
-        cart.push({ id, amount: 1 });
+        cart.push({ user_id: userId, product_id: productId, amount: 1 });
 
         // Stringify the cart array to store it back in the database
-        const cartString: string = JSON.stringify(cart);
+        // const cartString: string = JSON.stringify(cart);
 
-        try {
-            // Update the user's cart in the database
-            await queryDatabase("UPDATE user SET cart = ? WHERE id = ?", [cartString, userData.id]);
-            res.json(cart.length);
-        } catch (error) {
-            console.error("Database Error:", error);
-            res.status(500).json({ message: "Database error", error: (error as Error).message });
-        }
+        // try {
+        //     // Update the user's cart in the database
+            
+        //     await queryDatabase("UPDATE user SET cart = ? WHERE id = ?", [cartString, userId]);
+        //     res.json(cart.length);
+        // } catch (error) {
+        //     console.error("Database Error:", error);
+        //     res.status(500).json({ message: "Database error", error: (error as Error).message });
+        // }
     }
 
     // Get the user's profile
