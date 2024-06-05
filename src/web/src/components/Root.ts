@@ -1,4 +1,4 @@
-import { LitElement, TemplateResult, css, html, nothing } from "lit";
+import { LitElement, PropertyValues, TemplateResult, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { UserService } from "../services/UserService";
 import { OrderItem } from "@shared/types/OrderItem";
@@ -215,6 +215,116 @@ export class Root extends LitElement {
             border-bottom: 3px solid #c4aad0;
         }
 
+        .highlighted {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .highlighted-games-carousel {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin: 0;
+            height: 1000px;
+            width: auto;
+        }
+
+        .carousel-inner {
+            display: inline-block;
+            display: flex;
+            justify-content: center;
+            transition: opacity 0.5s ease-in-out;
+            scroll-behavior: smooth;
+            width: 200%;
+        }
+
+        .carousel-inner > * {
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .carousel-buttons {
+            flex-shrink: 0;
+        }
+
+        .highlighted-game {
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+            position: relative;
+            padding: 50px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            height: max-content;
+            width: 95%;
+            box-sizing: border-box;
+        }
+
+        .highlighted-game img {
+            width: 500px;
+            height: 500px;
+            object-fit: cover;
+        }
+
+        .highlighted-game .product-price {
+            margin-top: 20px;
+            align-self: flex-end;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .highlighted-game:hover {
+            transform: scale(1.05);
+        }
+
+        .game-details {
+            padding: 16px;
+        }
+
+        .game-details h2 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .game-details p {
+            font-size: 1.5rem;
+            color: #666;
+        }
+
+        .game-details .details,
+        .game-details .addItemToCart {
+            background-color: #c4aad0;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .game-details .details:hover,
+        .game-details .addItemToCart:hover {
+            background-color: #a883b8;
+        }
+
+        .badge {
+            position: absolute;
+            top: 10px;
+            left: 0px;
+            padding: 10px 30px;
+            background-color: #c4aad0;
+            color: #000;
+            font-weight: bold;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            transition: border 1s ease;
+        }
+
         .order-items {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
@@ -235,6 +345,12 @@ export class Root extends LitElement {
             height: 700px;
         }
 
+        .order-item img {
+            width: 450px;
+            height: 450px;
+            max-width: 100%;
+        }
+
         .order-item .text-content {
             align-self: stretch;
             text-align: center;
@@ -245,12 +361,6 @@ export class Root extends LitElement {
             align-self: flex-end;
             font-size: 1.5rem;
             font-weight: bold;
-        }
-
-        .order-item img {
-            width: 450px;
-            height: 450px;
-            max-width: 100%;
         }
 
         .addItemToCart {
@@ -601,6 +711,18 @@ export class Root extends LitElement {
     @state()
     private _userProfile?: UserData;
 
+    @state()
+    private autoSlideInterval: any;
+
+    @state()
+    private currentGameIndex: number = 0;
+
+    @state()
+    private isHovering: boolean = false;
+
+    @state()
+    private isAutoSlideStopped: boolean = false;
+
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
     private _tokenService: TokenService = new TokenService();
@@ -613,6 +735,7 @@ export class Root extends LitElement {
         super.connectedCallback();
         await this.getWelcome();
         await this.getOrderItems();
+        this.startAutoSlide();
         this._newsItems = [
             {
                 title: "Breaking News",
@@ -621,6 +744,10 @@ export class Root extends LitElement {
                 expanded: false,
             },
         ];
+    }
+
+    public disconnectedCallback(): void {
+        super.disconnectedCallback();
     }
 
     private async getWelcome(): Promise<void> {
@@ -906,7 +1033,12 @@ export class Root extends LitElement {
             return html`<div class="order-items">No items found.</div>`;
         }
 
-        return html` <div class="order-items">${orderItems}</div> `;
+        return html`
+            <div class="highlighted">
+                ${this.renderHighlightedGamesCarousel()}
+                <div class="order-items">${orderItems}</div>
+            </div>
+        `;
     }
 
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
@@ -942,6 +1074,84 @@ export class Root extends LitElement {
         this.navigateToProductPage(orderItem);
     }
 
+    private renderHighlightedGamesCarousel(): TemplateResult {
+        const highlightedGames: OrderItem[] = this._OrderItem.filter((e) => e.tags.includes("highlighted"));
+
+        if (highlightedGames.length === 0) {
+            return html`<div class="highlighted-games">No highlighted games found.</div>`;
+        }
+
+        const currentGame: OrderItem = highlightedGames[this.currentGameIndex % highlightedGames.length];
+
+        if (!currentGame) {
+            console.error("No current game found");
+            return html``;
+        }
+
+        return html`
+            <div class="highlighted-games-carousel">
+                <div class="carousel-inner">
+                    <div
+                        class="highlighted-game"
+                        @mouseover=${this.stopAutoSlide}
+                        @mouseout=${this.startAutoSlide}
+                    >
+                        <div class="badge">Featured!</div>
+                        <img src="${currentGame.thumbnail}" alt="${currentGame.title}" />
+                        <div class="game-details">
+                            <h2>${currentGame.title}</h2>
+                            <p>${currentGame.description}</p>
+                            <button
+                                class="details"
+                                @click=${(): void => this.handleDetailsClick(currentGame)}
+                            >
+                                View details
+                            </button>
+                            ${this._isLoggedIn
+                                ? html`<button
+                                      class="addItemToCart"
+                                      @click=${async (): Promise<void> => this.addItemToCart(currentGame)}
+                                  >
+                                      Add to cart
+                                  </button>`
+                                : nothing}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    public updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+        if (!this.autoSlideInterval && !this.isHovering && !this.isAutoSlideStopped) {
+            this.startAutoSlide();
+        }
+    }
+
+    private startAutoSlide(): void {
+        if (this.autoSlideInterval) {
+            clearInterval(this.autoSlideInterval);
+        }
+        this.isAutoSlideStopped = false;
+        this.autoSlideInterval = setInterval(() => {
+            this.moveCarouselRight();
+        }, 5000);
+    }
+
+    private stopAutoSlide(): void {
+        this.isAutoSlideStopped = true;
+        clearInterval(this.autoSlideInterval);
+    }
+
+    private moveCarouselRight(): void {
+        const previousGameIndex: number = this.currentGameIndex;
+        this.currentGameIndex = (this.currentGameIndex + 1) % this._OrderItem.length;
+        if (this.currentGameIndex !== previousGameIndex) {
+            this.requestUpdate();
+        }
+    }
+
     private navigateToProductPage(orderItem: OrderItem): void {
         this._currentPage = RouterPage.Product;
         this.selectedProduct = orderItem;
@@ -951,6 +1161,8 @@ export class Root extends LitElement {
     private constructor() {
         super();
         this.addEventListener("navigate-to-product", this.onNavigateToProduct as EventListener);
+        this.startAutoSlide = this.startAutoSlide.bind(this);
+        this.stopAutoSlide = this.stopAutoSlide.bind(this);
     }
 
     private onNavigateToProduct(event: CustomEvent): void {

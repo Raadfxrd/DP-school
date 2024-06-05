@@ -11,13 +11,14 @@ export class SearchResultsPage extends LitElement {
         }
 
         .search-results {
-            position: absolute;
             top: 100%;
             left: 0;
             right: 0;
-            background: white;
-            border: 1px solid #ccc;
             z-index: 10;
+            position: flex;
+            list-style: none;
+            justify-content: center;
+            width: 85%;
         }
 
         .search-result-item {
@@ -32,17 +33,18 @@ export class SearchResultsPage extends LitElement {
         }
 
         .search-result-item img {
-            width: 50px;
-            height: auto;
+            width: 150px;
+            height: 150px;
             margin-right: 10px;
         }
 
         .search-result-info h4 {
             margin: 0;
+            margin-bottom: 10px;
         }
 
         .search-result-info p {
-            margin: 5px 0 0 0;
+            margin-bottom: 10px;
             color: #555;
         }
 
@@ -107,25 +109,31 @@ export class SearchResultsPage extends LitElement {
                 <h2>Search Results for "${this.query}"</h2>
                 ${this.searchResults.length > 0
                     ? html`
-                          <ul>
-                              ${this.searchResults.map(
-                                  (item) => html`
+                          <ul class="search-results">
+                              ${this.searchResults.map((item) => {
+                                  console.log(item);
+                                  return html`
                                       <li
                                           class="search-result-item"
                                           @click=${(): void => this.handleDetailsClick(item)}
                                       >
-                                          <img src="${item.thumbnail}" alt="${item.title}" />
+                                          <img src="${item.thumbnail ?? ""}" alt="${item.title ?? ""}" />
                                           <div class="search-result-info">
-                                              <h4>${item.title}</h4>
-                                              <p>${item.description}</p>
-                                              <p>Authors: ${item.authors ? item.authors.join(", ") : ""}</p>
-                                              <p>Tags: ${item.tags ? item.tags.join(", ") : ""}</p>
-                                              <p>Price: €${item.price}</p>
-                                              <p>Quantity: ${item.quantity}</p>
+                                              <h4>${item.title ?? ""}</h4>
+                                              <p>${item.description ?? ""}</p>
+                                              ${item.authors
+                                                  ? html`<p>
+                                                        Authors: ${item.authors.split(", ").join(", ")}
+                                                    </p>`
+                                                  : null}
+                                              <p>
+                                                  Tags: ${item.tags ? item.tags.split(", ").join(", ") : ""}
+                                              </p>
+                                              <p>Price: €${item.price ?? ""}</p>
                                           </div>
                                       </li>
-                                  `
-                              )}
+                                  `;
+                              })}
                           </ul>
                       `
                     : html`<p>No results found.</p>`}
