@@ -915,7 +915,7 @@ export class Root extends LitElement {
                 break;
 
             case RouterPage.Games:
-                contentTemplate = html`<games-page></games-page>`;
+                contentTemplate = html`<game-page></game-page>`;
                 break;
 
             case RouterPage.Merchandise:
