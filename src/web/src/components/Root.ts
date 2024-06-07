@@ -225,8 +225,8 @@ export class Root extends LitElement {
             align-items: center;
             position: relative;
             margin: 0;
-            height: 1000px;
             width: auto;
+            height: 900px;
         }
 
         .carousel-inner {
@@ -953,7 +953,6 @@ export class Root extends LitElement {
                         <li><a href="#">News</a></li>
                         <li><a href="#">Account</a></li>
                         <li><a href="#">Cart</a></li>
-                        <li><a href="#">Admin</a></li>
                         <li><a href="#">Login</a></li>
                     </ul>
                 </div>
@@ -962,7 +961,7 @@ export class Root extends LitElement {
                     <ul>
                         <ul>
                             <li>
-                                <a href="#test">
+                                <a href="https://www.facebook.com/">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         class="icon"
@@ -975,7 +974,7 @@ export class Root extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="https://www.x.com/">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         class="icon"
@@ -988,7 +987,7 @@ export class Root extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="https://www.instagram.com/">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         class="icon"
