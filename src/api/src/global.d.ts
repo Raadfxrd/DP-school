@@ -1,3 +1,4 @@
+import { OrderItem } from "@shared/types";
 import { UserData } from "@shared/types/UserData";
 
 declare global {
@@ -10,6 +11,7 @@ declare global {
     namespace Express {
         export interface Request {
             user: UserData;
+            product: OrderItem;
         }
     }
 }

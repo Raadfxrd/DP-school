@@ -147,17 +147,16 @@ export class UserService {
      *
      * @returns Current number of order items in the cart when successful, otherwise `false`.
      */
-    public async addOrderItemToCart(): Promise<number | undefined> {
+    public async addOrderItemToCart(productId: number): Promise<number | undefined> {
         const token: string | undefined = this._tokenService.getToken();
-        // const tokenValue: number = id;
-        // console.log(tokenValue);
+        console.log(token);
         if (!token) {
             return undefined;
         }
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/cartinfo}`, {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/cartinfo/${productId}`, {
                 method: "post",
-                headers: { ...headers, Authorization: `Bearer ${token}` },
+                headers: { ...headers, authorization: `b ${token}`},
             });
 
             if (!response.ok) {
@@ -174,12 +173,16 @@ export class UserService {
 
     public async getItemFromCart(): Promise<number | undefined> {
         const token: string | undefined = this._tokenService.getToken();
+
+
         if (!token) {
             return undefined;
         }
-
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/id}`, {});
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/cartinfo`,  {
+                method: "get",
+                headers: { ...headers, Authorization: `Bearer ${token}` },                
+            });
             if (response) {
                 console.log(response);
             }
@@ -209,7 +212,7 @@ export class UserService {
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/profile`,  {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/cartinfo`,  {
                 method: "GET",
                 headers: { ...headers, Authorization: `Bearer ${token}` },                
             });

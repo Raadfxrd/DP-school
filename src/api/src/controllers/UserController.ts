@@ -92,7 +92,7 @@ export class UserController {
     }
 
     public hello(req: Request, res: Response): void {
-        const userData: UserData = req.user!;
+        const userData: UserData = req.user;
 
         let cartItems: CartItem[] = [];
 
@@ -124,15 +124,15 @@ export class UserController {
     public async addOrderItemToCart(req: Request, res: Response): Promise<void> {
         const userId: number = req.user.id;
         const productId: number = parseInt(req.params.id);
-        console.log(userId);
         const cart: CartItem[] = [];
 
         // Parse the cart string if it exists, otherwise use an empty array
         if (1 === 1) {
             try {
                     const result: CartItem[] = await queryDatabase<CartItem[]>(
-                        "INSERT INTO `cart`(`user_id`, `product_id`, `amount`) VALUES ('?','31','1')", userId);
+                        "INSERT INTO `cart`(`user_id`, `product_id`, `amount`) VALUES (?,?,'1')", userId, productId);
                     res.json(result);
+                    
                 } catch (error: any) {
                     console.error("Database Error:", error);
                     res.status(500).json({ message: "Database error", error: error.message });
@@ -141,18 +141,30 @@ export class UserController {
         // Add the new item to the cart
         cart.push({ user_id: userId, product_id: productId, amount: 1 });
 
-        // Stringify the cart array to store it back in the database
-        // const cartString: string = JSON.stringify(cart);
+    }
 
-        // try {
-        //     // Update the user's cart in the database
-            
-        //     await queryDatabase("UPDATE user SET cart = ? WHERE id = ?", [cartString, userId]);
-        //     res.json(cart.length);
-        // } catch (error) {
-        //     console.error("Database Error:", error);
-        //     res.status(500).json({ message: "Database error", error: (error as Error).message });
-        // }
+    public async getItemFromCart(req: Request, res: Response): Promise<void> {
+        const userId: number = req.user.id;
+
+        // Parse the cart string if it exists, otherwise use an empty array
+        if (1 === 1) {
+            try {
+                    const resultProductId: CartItem = await queryDatabase<CartItem>(
+                        "SELECT `product_id`, `amount` FROM `cart` WHERE user_id = ?",userId);
+                    res.json(resultProductId);
+
+                    const productIdFromProfile: number = resultProductId.product_id;
+                    const resultProduct: OrderItem[] = await queryDatabase<OrderItem[]>(
+                        "SELECT * FROM `product` WHERE id = ?",productIdFromProfile);
+                    res.json(resultProduct);
+
+                } catch (error: any) {
+                    console.error("Database Error:", error);
+                    res.status(500).json({ message: "Database error", error: error.message });
+                }
+        }
+        // Add the new item to the cart
+
     }
 
     // Get the user's profile
