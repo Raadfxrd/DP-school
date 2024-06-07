@@ -190,10 +190,9 @@ export class CartPage extends LitElement {
     }
 
     private async loadCartItems(): Promise<void> {
-        const orderItems: any = await this.orderItemService.getAll();
-        if (orderItems) {
-            this._cartItemsArray = orderItems;
-            this.cartItemsCount = orderItems.length;
+        const orderItem: OrderItem[] = await this.userService.getItemFromCart();
+        if (orderItem) {
+            console.log(orderItem);
         }
     }
 
