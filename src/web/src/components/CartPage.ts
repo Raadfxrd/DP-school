@@ -4,12 +4,11 @@ import { OrderItem } from "@shared/types/OrderItem";
 import { UserService } from "../services/UserService";
 import { OrderItemService } from "../services/OrderItemService";
 import { TemplateResult } from "lit";
-// import { CartController } from "../../../api/src/controllers/CartController"
 
 @customElement("cart-page")
 export class CartPage extends LitElement {
     @property({ type: Object }) public productData!: OrderItem;
-    @property({ type: Number }) public cartItemsCount: number = 0;
+    @property({ type: Number }) public cartItemsCount: number = 1;
 
     @state() private _cartItemsArray: OrderItem[] = [];
     private userService: UserService = new UserService();
@@ -246,6 +245,8 @@ export class CartPage extends LitElement {
             </div>
         `;
     }
+
+    
 
     private quantityCalculator(itemId: number, change: number): void {
         const updatedItems: OrderItem[] = this._cartItemsArray.map((item) => {

@@ -718,8 +718,9 @@ export class Root extends LitElement {
     }
 
     private async addItemToCart(orderItem: OrderItem): Promise<void> {
-        const result: number | undefined = await this._userService.addOrderItemToCart();
-        console.log(orderItem.id);
+        const productId: number = orderItem.id;
+        const result: number | undefined = await this._userService.addOrderItemToCart(productId);
+        // console.log(orderItem.id);
         this._userService.addOrderItemToCart;
         if (!result) {
             return;
