@@ -1,7 +1,3 @@
-import { Address } from "./Address";
-import { CartItem } from "./CartItem";
-import { Order } from "./Order";
-
 export enum AuthorizationLevel {
     USER = "user",
     EMPLOYEE = "employee",
@@ -13,11 +9,17 @@ export type UserData = {
     email: string;
     password: string;
     name: string;
+    username?: string;
+    date?: string;
+    gender?: string;
+    street?: string;
+    houseNumber?: string;
+    country?: string;
 
     firstName?: string;
     lastName?: string;
-    addresses?: Address[];
-    orders?: Order[];
+    addresses?: string;
+    orders?: string;
     authorizationLevel?: AuthorizationLevel;
-    cart?: CartItem[];
+    cart?: string;
 };

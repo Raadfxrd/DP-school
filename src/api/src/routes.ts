@@ -3,7 +3,6 @@ import { handleTokenBasedAuthentication } from "./middlewares/authenticationMidd
 import { UserController } from "./controllers/UserController";
 import { ProductController } from "./controllers/ProductController";
 import { asyncHandler } from "./middlewares/asyncHandler";
-import { asyncMiddleware } from "./middlewares/asyncMiddleware";
 import { MerchandiseController } from "./controllers/MerchandiseController";
 import { GamesController } from "./controllers/GamesController";
 
@@ -23,40 +22,38 @@ router.post(
     "/users/register",
     asyncHandler((req: Request, res: Response) => userController.register(req, res))
 );
+
 router.post(
     "/users/login",
     asyncHandler((req: Request, res: Response) => userController.login(req, res))
 );
 
 router.get(
-    "/products",
+    "/orderItems",
     asyncHandler((req: Request, res: Response) => productController.getAll(req, res))
 );
 
-router.get(
-    "/Merchandise",
-    asyncHandler((req: Request, res: Response) => merchandiseController.getMerchandise(req, res))
-);
-router.get(
-    "/Games",
-    asyncHandler((req: Request, res: Response) => gamesController.getGames(req, res))
-
-);
-
 // Apply authentication middleware to routes that require it
-router.use(asyncMiddleware(handleTokenBasedAuthentication));
+router.use(asyncHandler(handleTokenBasedAuthentication));
 
 router.get(
     "/users/logout",
     asyncHandler((req: Request, res: Response) => userController.logout(req, res))
 );
+
 router.get(
     "/users/hello",
     asyncHandler((req: Request, res: Response) => userController.hello(req, res))
 );
+
 router.post(
     "/users/cart/:id",
     asyncHandler((req: Request, res: Response) => userController.addOrderItemToCart(req, res))
+);
+
+router.get(
+    "/users/profile",
+    asyncHandler((req: Request, res: Response) => userController.getProfile(req, res))
 );
 
 export default router;

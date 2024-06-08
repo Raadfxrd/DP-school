@@ -14,4 +14,4 @@ The .png file is a screenshot of the wireframe.
 
 ## Preview
 
-![Wireframe priview](wireframe-concept.png)
+![Wireframe preview](wireframe-concept.png)

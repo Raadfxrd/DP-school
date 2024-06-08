@@ -2,6 +2,7 @@ import { UserLoginFormModel } from "@shared/formModels/UserLoginFormModel";
 import { UserRegisterFormModel } from "@shared/formModels/UserRegisterFormModel";
 import { TokenService } from "./TokenService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
+import { UserData } from "@shared/types/UserData";
 
 const headers: { "Content-Type": string } = {
     "Content-Type": "application/json",
@@ -21,28 +22,30 @@ export class UserService {
      * @returns `true` when successful, otherwise `false`.
      */
     public async login(formData: UserLoginFormModel): Promise<boolean> {
-        const url: string = `${viteConfiguration.API_URL}users/login`;
-        console.log(`Login URL: ${url}`);
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/login`, {
+                method: "post",
+                headers: headers,
+                body: JSON.stringify(formData),
+            });
 
-        const response: Response = await fetch(url, {
-            method: "post",
-            headers: headers,
-            body: JSON.stringify(formData),
-        });
+            if (!response.ok) {
+                console.error(response);
+                return false;
+            }
 
-        if (!response.ok) {
-            console.error(response);
+            const json: { token: string | undefined } = await response.json();
+
+            if (json.token) {
+                this._tokenService.setToken(json.token);
+                return true;
+            }
+
+            return false;
+        } catch (error) {
+            console.error("Login error", error);
             return false;
         }
-
-        const json: { token: string | undefined } = await response.json();
-
-        if (json.token) {
-            this._tokenService.setToken(json.token);
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -53,21 +56,23 @@ export class UserService {
      * @returns `true` when successful, otherwise `false`.
      */
     public async register(formData: UserRegisterFormModel): Promise<boolean> {
-        const url: string = `${viteConfiguration.API_URL}users/register`;
-        console.log(`Register URL: ${url}`);
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/register`, {
+                method: "post",
+                headers: headers,
+                body: JSON.stringify(formData),
+            });
 
-        const response: Response = await fetch(url, {
-            method: "post",
-            headers: headers,
-            body: JSON.stringify(formData),
-        });
+            if (!response.ok) {
+                console.error(response);
+                return false;
+            }
 
-        if (!response.ok) {
-            console.error(response);
+            return true;
+        } catch (error) {
+            console.error("Registration error", error);
             return false;
         }
-
-        return true;
     }
 
     /**
@@ -82,20 +87,23 @@ export class UserService {
             return false;
         }
 
-        const url: string = `${viteConfiguration.API_URL}users/logout`;
-        console.log(`Logout URL: ${url}`);
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/logout`, {
+                method: "get",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+            });
 
-        const response: Response = await fetch(url, {
-            method: "get",
-            headers: { ...headers, authorization: token },
-        });
+            if (!response.ok) {
+                console.error(response);
+                return false;
+            }
 
-        if (!response.ok) {
-            console.error(response);
+            this._tokenService.removeToken();
+            return true;
+        } catch (error) {
+            console.error("Logout error", error);
             return false;
         }
-
-        return true;
     }
 
     /**
@@ -107,23 +115,32 @@ export class UserService {
         const token: string | undefined = this._tokenService.getToken();
 
         if (!token) {
+            console.error("No token found in local storage.");
             return undefined;
         }
 
-        const url: string = `${viteConfiguration.API_URL}users/hello`;
-        console.log(`GetWelcome URL: ${url}`);
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/hello`, {
+                method: "GET",
+                headers: {
+                    ...headers,
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-        const response: Response = await fetch(url, {
-            method: "get",
-            headers: { ...headers, authorization: token },
-        });
+            if (!response.ok) {
+                const errorText: string = await response.text();
+                console.error(
+                    `Error fetching welcome message: ${response.status} ${response.statusText} - ${errorText}`
+                );
+                return undefined;
+            }
 
-        if (!response.ok) {
-            console.error(response);
+            return (await response.json()) as UserHelloResponse;
+        } catch (error) {
+            console.error("Get welcome error", error);
             return undefined;
         }
-
-        return (await response.json()) as UserHelloResponse;
     }
 
     /**
@@ -138,19 +155,83 @@ export class UserService {
             return undefined;
         }
 
-        const url: string = `${viteConfiguration.API_URL}users/cart/${id}`;
-        console.log(`AddOrderItemToCart URL: ${url}`);
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/${id}`, {
+                method: "post",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+            });
 
-        const response: Response = await fetch(url, {
-            method: "post",
-            headers: { ...headers, authorization: token },
-        });
+            if (!response.ok) {
+                console.error(response);
+                return undefined;
+            }
 
-        if (!response.ok) {
-            console.error(response);
+            return (await response.json()) as number;
+        } catch (error) {
+            console.error("Add to cart error", error);
+            return undefined;
+        }
+    }
+
+    public async getItemFromCart(): Promise<number | undefined> {
+        const token: string | undefined = this._tokenService.getToken();
+
+        if (!token) {
             return undefined;
         }
 
-        return (await response.json()) as number;
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/id}`, {});
+
+            if (response.ok) {
+                console.log(response);
+            }
+
+            if (!response.ok) {
+                console.error(response);
+                return undefined;
+            }
+
+            return (await response.json()) as number;
+        } catch (error) {
+            console.error("Get items cart error", error);
+            return undefined;
+        }
+    }
+
+    /**
+     * Fetches the user's profile data. Requires a valid token.
+     *
+     * @returns User data when successful, otherwise `undefined`.
+     */
+    public async getUserProfile(): Promise<UserData | undefined> {
+        const token: string | undefined = this._tokenService.getToken();
+
+        if (!token) {
+            console.error("No token found in local storage.");
+            return undefined;
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/profile`, {
+                method: "GET",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                const errorText: string = await response.text();
+                console.error(
+                    `Error fetching user profile: ${response.status} ${response.statusText} - ${errorText}`
+                );
+                return undefined;
+            }
+
+            const userData: UserData = await response.json();
+            console.log("User profile fetched successfully:", userData);
+            return userData;
+        } catch (error) {
+            console.error("Get user profile error", error);
+            return undefined;
+        }
     }
 }
