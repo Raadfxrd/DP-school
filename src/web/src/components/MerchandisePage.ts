@@ -1,11 +1,11 @@
 import { LitElement, html, css, } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { product } from "@shared/types/OrderItem";
+//import { product } from "@shared/types/OrderItem";
 import { MerchandiseService } from "../services/MerchService";
-
+import { merch } from "@shared/types";
 @customElement("merchandise-page")
 export class MerchandisePage extends LitElement {
-    @state() private merchandise: product[] = [];
+    @state() private merchandise: merch[] = [];
 
     private merchandiseService = new MerchandiseService();
 

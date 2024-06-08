@@ -1,11 +1,12 @@
 import { LitElement, html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { product } from "@shared/types/OrderItem";
+//import { product } from "@shared/types/OrderItem";
 import { GamesService } from "../services/GameService";
+import { merch } from "@shared/types";
 
 @customElement("game-page")
 export class GamePage extends LitElement {
-    @state() private games: product[] = [];
+    @state() private games: merch[] = [];
 
     private gameService = new GamesService();
 
@@ -46,6 +47,7 @@ export class GamePage extends LitElement {
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     public async fetchGames() {
+        
         try {
             // eslint-disable-next-line @typescript-eslint/typedef
             const data = await this.gameService.getAllGames();

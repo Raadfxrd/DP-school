@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { queryDatabase } from "../../database/database";
-import { product } from "@shared/types/OrderItem";
+import { merch } from "@shared/types/merch";
 
 export class MerchandiseController {
     public async getMerchandise(_req: Request, res: Response): Promise<void> {
         console.log("Fetching merchandise products");
         try {
-            const result: product[] = await queryDatabase<product[]>(
-                "SELECT * FROM product WHERE tags LIKE '%merch%'"
+            const result: merch[] = await queryDatabase<merch[]>(
+                "SELECT * FROM product WHERE tags = 'merch'"
 
             );
             res.json(result);
