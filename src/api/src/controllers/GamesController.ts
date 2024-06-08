@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import { queryDatabase } from "../../database/database";
-import { product } from "@shared/types/OrderItem";
+import { game } from "@shared/types/game";
 
 export class GamesController {
     public async getGames(_req: Request, res: Response): Promise<void> {
         console.log("Fetching games products");
         try {
-            const result: product[] = await queryDatabase<product[]>(
-                "SELECT * FROM product WHERE tags LIKE '%game%'"
+            const result: game[] = await queryDatabase<game[]>(
+                "SELECT * FROM product WHERE tags WHERE tags = 'game'"
 
             );
             res.json(result);
