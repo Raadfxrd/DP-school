@@ -30,6 +30,7 @@ export enum RouterPage {
     Checkout = "checkout",
     SearchResults = "searchResults",
     Admin = "Admin",
+    Favorites = "favorites",
 }
 
 declare global {
@@ -667,6 +668,77 @@ export class Root extends LitElement {
             font-weight: bold;
         }
 
+        .profile-container {
+            display: flex;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .vertical-nav {
+            flex: 0 0 200px;
+            display: flex;
+            flex-direction: column;
+            padding-right: 20px;
+            border-right: 1px solid #ddd;
+        }
+
+        .vertical-nav button {
+            background: none;
+            border: none;
+            padding: 10px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #5a4e7c;
+        }
+
+        .vertical-nav button:hover {
+            background-color: #ddd;
+        }
+
+        .profile-content {
+            flex: 1;
+            padding-left: 20px;
+        }
+
+        .profile-item {
+            margin: 10px 0;
+        }
+
+        .profile-item span {
+            font-weight: bold;
+        }
+
+        .favorites-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .favorites-list li {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .favorites-list li img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        .favorites-list li span {
+            font-size: 16px;
+        }
+
         @keyframes showSearchBar {
             from {
                 opacity: 0;
@@ -741,6 +813,12 @@ export class Root extends LitElement {
 
     @state()
     private isAutoSlideStopped: boolean = false;
+
+    @state()
+    private _favorites: any[] = [];
+
+    @state()
+    private _showingFavorites: boolean = false;
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -894,6 +972,30 @@ export class Root extends LitElement {
             return;
         }
 
+        this._cartItemsCount = result;
+    }
+
+    private async getFavorites(): Promise<void> {
+        try {
+            const favorites: any[] = await this._userService.getFavorites();
+            this._favorites = favorites;
+        } catch (error) {
+            console.error("Error fetching favorites:", error);
+        }
+    }
+
+    private async addFavorite(productId: number): Promise<void> {
+        try {
+            const result: any = await this._userService.addFavorite(productId);
+            if (result) {
+                alert("Added to favorites!");
+            } else {
+                alert("Failed to add to favorites.");
+            }
+        } catch (error) {
+            console.error("Error adding to favorites:", error);
+            alert("An error occurred while adding to favorites.");
+        }
     }
 
     protected render(): TemplateResult {
@@ -946,6 +1048,14 @@ export class Root extends LitElement {
                 contentTemplate = html`<search-results-page
                     .query=${this._searchQuery}
                 ></search-results-page>`;
+                break;
+
+            case RouterPage.Account:
+                contentTemplate = this.renderAccount();
+                break;
+
+            case RouterPage.Favorites:
+                contentTemplate = this.renderFavorites();
                 break;
 
             default:
@@ -1140,12 +1250,20 @@ export class Root extends LitElement {
                     View details
                 </button>
                 ${this._isLoggedIn
-                    ? html`<button
-                          class="addItemToCart"
-                          @click=${async (): Promise<void> => this.addItemToCart(orderItem)}
-                      >
-                          Add to cart
-                      </button>`
+                    ? html`
+                          <button
+                              class="addItemToCart"
+                              @click=${async (): Promise<void> => this.addItemToCart(orderItem)}
+                          >
+                              Add to cart
+                          </button>
+                          <button
+                              class="addFavorite"
+                              @click=${async (): Promise<void> => this.addFavorite(orderItem.id)}
+                          >
+                              Add to favorites
+                          </button>
+                      `
                     : nothing}
             </div>
         `;
@@ -1523,17 +1641,58 @@ export class Root extends LitElement {
 
         return html`
             <div class="profile-container">
-                <h2>User Profile</h2>
-                <div class="profile-item"><span>Username:</span> ${this._userProfile.username || ""}</div>
-                <div class="profile-item"><span>Email:</span> ${this._userProfile.email || ""}</div>
-                <div class="profile-item"><span>Date:</span> ${this._userProfile.date || ""}</div>
-                <div class="profile-item"><span>Gender:</span> ${this._userProfile.gender || ""}</div>
-                <div class="profile-item"><span>Street:</span> ${this._userProfile.street || ""}</div>
-                <div class="profile-item">
-                    <span>House Number:</span> ${this._userProfile.houseNumber || ""}
+                <div class="vertical-nav">
+                    <button @click=${this.showProfileDetails}>Profile Details</button>
+                    <button @click=${this.showFavorites}>Favorites</button>
                 </div>
-                <div class="profile-item"><span>Country:</span> ${this._userProfile.country || ""}</div>
+                <div class="profile-content">
+                    ${this._showingFavorites ? this.renderFavorites() : this.renderProfileDetails()}
+                </div>
             </div>
+        `;
+    }
+
+    private showProfileDetails(): void {
+        this._showingFavorites = false;
+        this.requestUpdate();
+    }
+
+    private renderProfileDetails(): TemplateResult {
+        return html`
+            <h2>User Profile</h2>
+            <div class="profile-item"><span>Username:</span> ${this._userProfile?.username || ""}</div>
+            <div class="profile-item"><span>Email:</span> ${this._userProfile?.email || ""}</div>
+            <div class="profile-item"><span>Date:</span> ${this._userProfile?.date || ""}</div>
+            <div class="profile-item"><span>Gender:</span> ${this._userProfile?.gender || ""}</div>
+            <div class="profile-item"><span>Street:</span> ${this._userProfile?.street || ""}</div>
+            <div class="profile-item"><span>House Number:</span> ${this._userProfile?.houseNumber || ""}</div>
+            <div class="profile-item"><span>Country:</span> ${this._userProfile?.country || ""}</div>
+        `;
+    }
+
+    private async showFavorites(): Promise<void> {
+        await this.getFavorites();
+        this._showingFavorites = true;
+        this.requestUpdate();
+    }
+
+    private renderFavorites(): TemplateResult {
+        return html`
+            <h2>My Favorites</h2>
+            ${this._favorites.length === 0
+                ? html`<p>No favorites yet.</p>`
+                : html`
+                      <ul>
+                          ${this._favorites.map(
+                              (favorite: any): TemplateResult => html`
+                                  <li @click=${(): void => this.navigateToProductPage(favorite)}>
+                                      <img src="${favorite.thumbnail}" alt="${favorite.title}" />
+                                      <span>${favorite.title}</span>
+                                  </li>
+                              `
+                          )}
+                      </ul>
+                  `}
         `;
     }
 

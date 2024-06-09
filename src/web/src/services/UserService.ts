@@ -335,4 +335,48 @@ public async deleteItem(productId: number): Promise<any>{
             return undefined;
         }
     }
+
+    public async addFavorite(productId: number): Promise<boolean> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/favorites`, {
+                method: "post",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ productId }),
+            });
+
+            return response.ok;
+        } catch (error) {
+            console.error("Add to favorites error", error);
+            return false;
+        }
+    }
+
+    public async getFavorites(): Promise<any[]> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return [];
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/favorites`, {
+                method: "get",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                console.error("Error fetching favorites", response.statusText);
+                return [];
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching favorites", error);
+            return [];
+        }
+    }
 }
