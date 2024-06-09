@@ -2,12 +2,14 @@ import { Router, Request, Response } from "express";
 import { handleTokenBasedAuthentication } from "./middlewares/authenticationMiddleware";
 import { UserController } from "./controllers/UserController";
 import { ProductController } from "./controllers/ProductController";
+import { FavoriteController } from "./controllers/FavoriteController";
 import { asyncHandler } from "./middlewares/asyncHandler";
 
 export const router: Router = Router();
 
 const userController: UserController = new UserController();
 const productController: ProductController = new ProductController();
+const favoriteController: FavoriteController = new FavoriteController();
 
 router.get("/", (_, res: Response) => {
     res.send("Hello, this is a simple webshop API.");
@@ -55,6 +57,16 @@ router.post(
 router.get(
     "/users/profile",
     asyncHandler((req: Request, res: Response) => userController.getProfile(req, res))
+);
+
+router.post(
+    "/users/favorites",
+    asyncHandler((req: Request, res: Response) => favoriteController.addFavorite(req, res))
+);
+
+router.get(
+    "/users/favorites",
+    asyncHandler((req: Request, res: Response) => favoriteController.getFavorites(req, res))
 );
 
 export default router;
