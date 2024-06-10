@@ -1,23 +1,22 @@
+/* eslint-disable @typescript-eslint/typedef */
 import { game } from "@shared/types/game";
 import { TokenService } from "./TokenService";
 
 export class GamesService {
     private tokenService: TokenService = new TokenService();
+    private apiUrl: string = viteConfiguration.API_URL; // Ensure viteConfiguration.API_URL is correctly set
 
     public async getAllGames(): Promise<game[] | undefined> {
-        const apiUrl: string = viteConfiguration.API_URL; // Ensure viteConfiguration.API_URL is correctly set
-        console.log("API_URL:", apiUrl);
-        const url: string = `${apiUrl}/games`; // Ensure the endpoint is correct
-        console.log(`Fetching URL: ${url}`);
-
-        // eslint-disable-next-line @typescript-eslint/typedef
-        const token = this.tokenService.getToken();
-        if (!token) {
-            console.error("No token found");
-            return undefined;
-        }
-
         try {
+            const token = this.tokenService.getToken();
+            if (!token) {
+                console.error("No token found");
+                return undefined;
+            }
+
+            const url: string = `${this.apiUrl}/Game`; // Ensure the endpoint is correct
+            console.log(`Fetching URL: ${url}`);
+
             const response: Response = await fetch(url, {
                 method: "GET",
                 headers: {
