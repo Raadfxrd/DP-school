@@ -29,17 +29,12 @@ export class FavoriteController {
             res.status(401).send("Unauthorized");
             return;
         }
-
+        console.log("------------------------------------------------------------------");
         const userId: number = req.user.id;
-
         try {
             // Eerst de product_ids ophalen uit de favorieten
-            const favoritesQuery: string = `
-                SELECT product_id 
-                FROM favorites 
-                WHERE user_id = ?
-            `;
-            const favorites: { product_id: number }[] = await queryDatabase(favoritesQuery, [userId]);
+            const favoritesQuery: string = "SELECT product_id FROM favorites WHERE user_id = ?";
+            const favorites: { product_id: number }[] = await queryDatabase(favoritesQuery, userId);
 
             // Als er geen favorieten zijn, return een lege lijst
             if (favorites.length === 0) {
@@ -51,11 +46,8 @@ export class FavoriteController {
             const productIds: number[] = favorites.map((favorite) => favorite.product_id);
 
             // Nu de producten ophalen die bij deze product_ids horen
-            const productsQuery: string = `
-                SELECT * 
-                FROM product 
-                WHERE id IN (${productIds.join(",")})
-            `;
+            console.log("product" + productIds.join(","));
+            const productsQuery: string = `SELECT * FROM product WHERE id IN (${productIds.join(",")})`;
             const products: any[] = await queryDatabase(productsQuery);
 
             res.status(200).json(products);

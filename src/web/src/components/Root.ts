@@ -705,6 +705,7 @@ export class Root extends LitElement {
         .favorites-list {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         .favorites-list li {
@@ -715,16 +716,38 @@ export class Root extends LitElement {
             border: 1px solid #ddd;
             padding: 10px;
             border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .favorites-list li:hover {
+            background-color: #f9f9f9;
         }
 
         .favorites-list li img {
             width: 50px;
             height: 50px;
+            object-fit: cover;
             margin-right: 10px;
+            border-radius: 5px;
         }
 
         .favorites-list li span {
             font-size: 16px;
+            flex-grow: 1;
+        }
+
+        .favorites-list li button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .favorites-list li button:hover {
+            background-color: #ff4c4c;
         }
 
         @keyframes showSearchBar {
@@ -1593,9 +1616,9 @@ export class Root extends LitElement {
             ${this._favorites.length === 0
                 ? html`<p>No favorites yet.</p>`
                 : html`
-                      <ul>
+                      <ul class="favorites-list">
                           ${this._favorites.map(
-                              (favorite: any): TemplateResult => html`
+                              (favorite) => html`
                                   <li @click=${(): void => this.navigateToProductPage(favorite)}>
                                       <img src="${favorite.thumbnail}" alt="${favorite.title}" />
                                       <span>${favorite.title}</span>
