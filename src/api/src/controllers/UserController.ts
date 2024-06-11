@@ -37,11 +37,12 @@ export class UserController {
             const hashedPassword: string = await bcrypt.hash(password, 10);
 
             // Insert the new user into the database
-            await queryDatabase("INSERT INTO user (username, email, password) VALUES (?, ?, ?)", [
+            await queryDatabase(
+                "INSERT INTO user (username, email, password) VALUES (?, ?, ?)",
                 username,
                 email,
-                hashedPassword,
-            ]);
+                hashedPassword
+            );
 
             res.status(201).json({ message: "Successfully registered user." });
         } catch (error) {

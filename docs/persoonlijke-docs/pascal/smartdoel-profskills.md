@@ -6,11 +6,11 @@ Inmiddels zitten we in 2024, en onze planeet is op een gezwind tempo aan het sme
 
 Leerdoel:
 
-#### Ik wil voor het einde van blok 4 weten wat voor impact mijn webshop heeft, zodat ik ervoor kan zorgen dat aanpassingen kan maken om het duurzamer te maken.
+#### Ik wil voor het de van blok 4 weten wat voor impact mijn webshop heeft, zodat ik ervoor kan zorgen dat aanpassingen kan maken om het duurzamer te maken.
 
 ## Onderzoekend probleemoplossen
 
-Het is een tijdje geweest sinds ik een onderzoek heb gedaan, dus moet ik weer veel vaardigheden herleren. Het is lastig om een specifieke vaardigheid te kiezen aangezien de meeste van ze essentieel zijn voor het proces van een "goeie" onderzoek creëren. Maar ik denk dat het vaardigheid dat ik het meeste moeite mee heb is het overzichtelijk/gestructureerd houden van de resultaten, conclusies etc.. Dus ga ik het meeste aandacht op zetten.
+Het is een tijdje geweest sinds ik een onderzoek heb gedaan, dus moet ik weer veel vaardigheden herleren. Het is lastig om een specifieke vaardigheid te kiezen aangezien de meeste van ze essentieel zijn voor het proces van een "goeie" onderzoek creëren. Maar ik denk dat het vaardigheid dat ik het meeste moeite mee heb is het overzichteinelijk/gestructureerd houden van de resultaten, conclusies etc.. Dus ga ik het meeste aandacht op zetten.
 
 Leerdoel:
 

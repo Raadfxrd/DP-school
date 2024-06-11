@@ -1,7 +1,7 @@
-import { OrderItem } from "./OrderItem";
+import { product } from "./OrderItem";
 
 export type Order = {
     id: number;
-    products: OrderItem[];
+    products: product[];
     status: string;
 };

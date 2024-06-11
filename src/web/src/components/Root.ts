@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { LitElement, TemplateResult, css, html, nothing } from "lit";
+import { LitElement, PropertyValues, TemplateResult, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { UserService } from "../services/UserService";
 import { OrderItem } from "@shared/types/OrderItem";
@@ -13,7 +12,7 @@ import { AdminPage } from "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
 
-enum RouterPage {
+export enum RouterPage {
     Home = "orderItems",
     Login = "login",
     Register = "register",
@@ -24,30 +23,19 @@ enum RouterPage {
     Admin = "admin",
     Product = "product",
     Cart = "cart",
+    SearchResults = "searchResults",
 }
 
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
-    }
-    interface HTMLElementTagNameMap {
         "cart-page": CartPage;
-    }
-}
-
-declare global {
-    interface HTMLElementTagNameMap {
         "admin-page": AdminPage;
     }
 }
-/**
- * Custom element based on Lit for the header of the webshop.
- *
- * @todo Most of the logic in this component is over-simplified. You will have to replace most of if with actual implementions.
- */
+
 @customElement("webshop-root")
 export class Root extends LitElement {
-    [x: string]: unknown;
     public static styles = css`
         :host {
             display: flex;
@@ -88,6 +76,7 @@ export class Root extends LitElement {
             height: 75px;
             padding: none;
             border: none;
+            z-index: 100;
         }
 
         .cartbutton {
@@ -182,16 +171,29 @@ export class Root extends LitElement {
             outline: none;
         }
 
+        .search-container {
+            position: relative;
+        }
+
         .searchbar {
             opacity: 0;
-            width: 150px;
+            width: 0;
+            transition: width 0.3s;
+            font-family: "Rubik Mono One", monospace;
+            font-size: 1.5rem;
+            border: none;
+            outline: none;
         }
 
         .searchbar.show {
+            opacity: 1;
+            width: 150px;
             animation: showSearchBar 0.3s forwards;
         }
 
         .searchbar.hide {
+            opacity: 0;
+            width: 0;
             animation: hideSearchBar 0.3s forwards;
         }
 
@@ -213,6 +215,116 @@ export class Root extends LitElement {
             border-bottom: 3px solid #c4aad0;
         }
 
+        .highlighted {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .highlighted-games-carousel {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin: 0;
+            width: auto;
+            height: 900px;
+        }
+
+        .carousel-inner {
+            display: inline-block;
+            display: flex;
+            justify-content: center;
+            transition: opacity 0.5s ease-in-out;
+            scroll-behavior: smooth;
+            width: 200%;
+        }
+
+        .carousel-inner > * {
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .carousel-buttons {
+            flex-shrink: 0;
+        }
+
+        .highlighted-game {
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+            position: relative;
+            padding: 50px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            height: max-content;
+            width: 95%;
+            box-sizing: border-box;
+        }
+
+        .highlighted-game img {
+            width: 500px;
+            height: 500px;
+            object-fit: cover;
+        }
+
+        .highlighted-game .product-price {
+            margin-top: 20px;
+            align-self: flex-end;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .highlighted-game:hover {
+            transform: scale(1.05);
+        }
+
+        .game-details {
+            padding: 16px;
+        }
+
+        .game-details h2 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .game-details p {
+            font-size: 1.5rem;
+            color: #666;
+        }
+
+        .game-details .details,
+        .game-details .addItemToCart {
+            background-color: #c4aad0;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .game-details .details:hover,
+        .game-details .addItemToCart:hover {
+            background-color: #a883b8;
+        }
+
+        .badge {
+            position: absolute;
+            top: 10px;
+            left: 0px;
+            padding: 10px 30px;
+            background-color: #c4aad0;
+            color: #000;
+            font-weight: bold;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            transition: border 1s ease;
+        }
+
         .order-items {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
@@ -228,7 +340,15 @@ export class Root extends LitElement {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: space-around;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            height: 700px;
+        }
+
+        .order-item img {
+            width: 450px;
+            height: 450px;
+            max-width: 100%;
         }
 
         .order-item .text-content {
@@ -241,12 +361,6 @@ export class Root extends LitElement {
             align-self: flex-end;
             font-size: 1.5rem;
             font-weight: bold;
-        }
-
-        .order-item img {
-            width: 450px;
-            height: auto;
-            max-width: 100%;
         }
 
         .addItemToCart {
@@ -265,6 +379,18 @@ export class Root extends LitElement {
             margin-top: 10px;
         }
 
+        .addItemToCart:hover {
+            background-color: #8e7996;
+        }
+
+        .addItemToCart:focus {
+            outline: none;
+        }
+
+        .addItemToCart:active {
+            transform: translateY(1px);
+        }
+
         .cartcount {
             color: white;
             height: 20px;
@@ -277,18 +403,6 @@ export class Root extends LitElement {
             align-items: center;
             font-weight: bold;
             position: absolute;
-        }
-
-        .addItemToCart:hover {
-            background-color: #0f0e0e;
-        }
-
-        .addItemToCart:focus {
-            outline: none;
-        }
-
-        .addItemToCart:active {
-            transform: translateY(1px);
         }
 
         .details {
@@ -544,18 +658,22 @@ export class Root extends LitElement {
         @keyframes showSearchBar {
             from {
                 opacity: 0;
+                width: 0;
             }
             to {
                 opacity: 1;
+                width: 150px;
             }
         }
 
         @keyframes hideSearchBar {
             from {
                 opacity: 1;
+                width: 150px;
             }
             to {
                 opacity: 0;
+                width: 0;
             }
         }
     `;
@@ -564,10 +682,13 @@ export class Root extends LitElement {
     private _currentPage: RouterPage = RouterPage.Home;
 
     @state()
-    private _showSearchBar: boolean = false;
+    private _searchQuery: string = "";
 
     @state()
-    private _hideSearchBar: boolean = false;
+    private _searchResults: OrderItem[] = [];
+
+    @state()
+    private _showSearchBar: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
@@ -580,16 +701,28 @@ export class Root extends LitElement {
     private _loadingOrderItems: boolean = true;
 
     @state()
-    public _cartItemsCount: number = 0;
+    private _cartItemsCount: number = 0;
 
     @state()
-    public selectedProduct: OrderItem | undefined = undefined;
+    private selectedProduct: OrderItem | undefined = undefined;
 
     @state()
     private _newsItems: { title: string; content: string; expanded: boolean }[] = [];
 
     @state()
     private _userProfile?: UserData;
+
+    @state()
+    private autoSlideInterval: any;
+
+    @state()
+    private currentGameIndex: number = 0;
+
+    @state()
+    private isHovering: boolean = false;
+
+    @state()
+    private isAutoSlideStopped: boolean = false;
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -603,6 +736,7 @@ export class Root extends LitElement {
         super.connectedCallback();
         await this.getWelcome();
         await this.getOrderItems();
+        this.startAutoSlide();
         this._newsItems = [
             {
                 title: "Breaking News",
@@ -611,6 +745,10 @@ export class Root extends LitElement {
                 expanded: false,
             },
         ];
+    }
+
+    public disconnectedCallback(): void {
+        super.disconnectedCallback();
     }
 
     private async getWelcome(): Promise<void> {
@@ -687,7 +825,7 @@ export class Root extends LitElement {
 
     private async clickCartButton(): Promise<void> {
         const result: UserHelloResponse | undefined = await this._userService.getWelcome();
-        this.navigateToCartPage();
+        this.navigateToPage(RouterPage.Cart);
         if (!result) {
             return;
         }
@@ -701,10 +839,15 @@ export class Root extends LitElement {
         );
     }
 
-    private navigateToPage(page: RouterPage, event: MouseEvent): void {
-        event.stopPropagation();
+    private navigateToPage(page: RouterPage, query?: string, searchResults?: OrderItem[]): void {
         this._currentPage = page;
-        this._showProductsDropdown = false;
+        if (page === RouterPage.Product && this.selectedProduct) {
+        } else if (query) {
+            this._searchQuery = query;
+        }
+        if (searchResults) {
+            this._searchResults = searchResults;
+        }
         if (page === RouterPage.Account) {
             void this.getUserProfile();
         }
@@ -742,7 +885,9 @@ export class Root extends LitElement {
                 break;
 
             case RouterPage.Product:
-                contentTemplate = this.renderProductPage();
+                contentTemplate = this.selectedProduct
+                    ? html`<product-page .productData=${this.selectedProduct}></product-page>`
+                    : html`<p>Product not found</p>`;
                 break;
 
             case RouterPage.Games:
@@ -767,6 +912,12 @@ export class Root extends LitElement {
 
             case RouterPage.Account:
                 contentTemplate = this.renderAccount();
+                break;
+
+            case RouterPage.SearchResults:
+                contentTemplate = html`<search-results-page
+                    .query=${this._searchQuery}
+                ></search-results-page>`;
                 break;
 
             default:
@@ -805,7 +956,6 @@ export class Root extends LitElement {
                         <li><a href="#">News</a></li>
                         <li><a href="#">Account</a></li>
                         <li><a href="#">Cart</a></li>
-                        <li><a href="#">Admin</a></li>
                         <li><a href="#">Login</a></li>
                     </ul>
                 </div>
@@ -814,7 +964,7 @@ export class Root extends LitElement {
                     <ul>
                         <ul>
                             <li>
-                                <a href="#test">
+                                <a href="https://www.facebook.com/">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         class="icon"
@@ -827,7 +977,7 @@ export class Root extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="https://www.x.com/">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         class="icon"
@@ -840,7 +990,7 @@ export class Root extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="https://www.instagram.com/">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         class="icon"
@@ -884,17 +1034,27 @@ export class Root extends LitElement {
             return html`<div class="order-items">No items found.</div>`;
         }
 
-        return html` <div class="order-items">${orderItems}</div> `;
+        return html`
+            <div class="highlighted">
+                ${this.renderHighlightedGamesCarousel()}
+                <div class="order-items">${orderItems}</div>
+            </div>
+        `;
     }
 
     private renderOrderItem(orderItem: OrderItem): TemplateResult {
+        const truncatedDescription: string | undefined =
+            orderItem.description && orderItem.description.length > 200
+                ? orderItem.description.substring(0, 200) + "..."
+                : orderItem.description;
+
         return html`
             <div class="order-item">
                 <div class="text-content">
                     <h2>${orderItem.title}</h2>
-                    <p>${orderItem.description}</p>
+                    <p>${truncatedDescription}</p>
                 </div>
-                <img src="${orderItem.thumbnail}.jpg" alt="${orderItem.title}" />
+                <img src="${orderItem.thumbnail}" alt="${orderItem.title}" />
                 <p class="product-price">Price: €${orderItem.price}</p>
                 <button class="details" @click=${(): void => this.handleDetailsClick(orderItem)}>
                     View details
@@ -911,9 +1071,86 @@ export class Root extends LitElement {
         `;
     }
 
-    // Event handler for the details button with an explicit return type
     private handleDetailsClick(orderItem: OrderItem): void {
         this.navigateToProductPage(orderItem);
+    }
+
+    private renderHighlightedGamesCarousel(): TemplateResult {
+        const highlightedGames: OrderItem[] = this._OrderItem.filter((e) => e.tags.includes("highlighted"));
+
+        if (highlightedGames.length === 0) {
+            return html`<div class="highlighted-games">No highlighted games found.</div>`;
+        }
+
+        const currentGame: OrderItem = highlightedGames[this.currentGameIndex % highlightedGames.length];
+
+        if (!currentGame) {
+            console.error("No current game found");
+            return html``;
+        }
+
+        return html`
+            <div class="highlighted-games-carousel">
+                <div class="carousel-inner">
+                    <div
+                        class="highlighted-game"
+                        @mouseover=${this.stopAutoSlide}
+                        @mouseout=${this.startAutoSlide}
+                    >
+                        <div class="badge">Featured!</div>
+                        <img src="${currentGame.thumbnail}" alt="${currentGame.title}" />
+                        <div class="game-details">
+                            <h2>${currentGame.title}</h2>
+                            <p>${currentGame.description}</p>
+                            <button
+                                class="details"
+                                @click=${(): void => this.handleDetailsClick(currentGame)}
+                            >
+                                View details
+                            </button>
+                            ${this._isLoggedIn
+                                ? html`<button
+                                      class="addItemToCart"
+                                      @click=${async (): Promise<void> => this.addItemToCart(currentGame)}
+                                  >
+                                      Add to cart
+                                  </button>`
+                                : nothing}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    public updated(changedProperties: PropertyValues): void {
+        super.updated(changedProperties);
+        if (!this.autoSlideInterval && !this.isHovering && !this.isAutoSlideStopped) {
+            this.startAutoSlide();
+        }
+    }
+
+    private startAutoSlide(): void {
+        if (this.autoSlideInterval) {
+            clearInterval(this.autoSlideInterval);
+        }
+        this.isAutoSlideStopped = false;
+        this.autoSlideInterval = setInterval(() => {
+            this.moveCarouselRight();
+        }, 5000);
+    }
+
+    private stopAutoSlide(): void {
+        this.isAutoSlideStopped = true;
+        clearInterval(this.autoSlideInterval);
+    }
+
+    private moveCarouselRight(): void {
+        const previousGameIndex: number = this.currentGameIndex;
+        this.currentGameIndex = (this.currentGameIndex + 1) % this._OrderItem.length;
+        if (this.currentGameIndex !== previousGameIndex) {
+            this.requestUpdate();
+        }
     }
 
     private navigateToProductPage(orderItem: OrderItem): void {
@@ -922,15 +1159,17 @@ export class Root extends LitElement {
         this.requestUpdate();
     }
 
-    private renderProductPage(): TemplateResult {
-        return this.selectedProduct
-            ? html`<product-page .productData=${this.selectedProduct}></product-page>`
-            : html``;
+    private constructor() {
+        super();
+        this.addEventListener("navigate-to-product", this.onNavigateToProduct as EventListener);
+        this.startAutoSlide = this.startAutoSlide.bind(this);
+        this.stopAutoSlide = this.stopAutoSlide.bind(this);
     }
 
-    private navigateToCartPage(): void {
-        this._currentPage = RouterPage.Cart;
-        this.requestUpdate();
+    private onNavigateToProduct(event: CustomEvent): void {
+        console.log("Event received", event.detail);
+        this.selectedProduct = event.detail.orderItem;
+        this.navigateToPage(RouterPage.Product);
     }
 
     private renderCartPage(): TemplateResult {
@@ -980,59 +1219,82 @@ export class Root extends LitElement {
     }
 
     private renderSearchInNav(): TemplateResult {
-        if (this._showSearchBar) {
-            return html` <div class="searchbar show">
-                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
-            </div>`;
-        } else if (this._hideSearchBar) {
-            return html` <div class="searchbar hide">
-                <input type="text" placeholder="Search..." @blur=${this.startHideSearchBar} />
-            </div>`;
-        } else {
-            return html` <div @click=${this.showSearchBar}>
-                <button>Search</button>
-            </div>`;
-        }
+        return html`
+            <div class="search-container">
+                ${this._showSearchBar
+                    ? html`
+                          <form @submit=${this.handleSearchSubmit}>
+                              <input
+                                  type="text"
+                                  class="searchbar show"
+                                  placeholder="Search..."
+                                  @blur=${this.startHideSearchBar}
+                              />
+                          </form>
+                      `
+                    : html` <button @click=${this.showSearchBar}>Search</button> `}
+            </div>
+        `;
     }
 
     private showSearchBar(): void {
         this._showSearchBar = true;
-        this._hideSearchBar = false;
+        this.requestUpdate();
     }
 
     private startHideSearchBar(): void {
         this._showSearchBar = false;
-        this._hideSearchBar = true;
         setTimeout(() => {
-            this._hideSearchBar = false;
             this.requestUpdate();
         }, 300);
     }
 
-    /**
-     * Renders the cart button in the navigation
-     */
+    private async handleSearchSubmit(event: Event): Promise<void> {
+        event.preventDefault();
+        const input: HTMLInputElement | null = (event.target as HTMLFormElement).querySelector("input");
+        const query: string = (input?.value || "").trim();
+
+        if (query && query !== this._searchQuery) {
+            try {
+                const searchResults: OrderItem[] | undefined = await this._orderItemService.search(query);
+                if (searchResults) {
+                    this._searchQuery = query;
+                    this._searchResults = searchResults;
+                    this.navigateToPage(RouterPage.SearchResults, query, searchResults);
+                } else {
+                    console.error("No results found for the query:", query);
+                }
+            } catch (error) {
+                console.error("Error during search:", error);
+            }
+        } else if (query) {
+            this.navigateToPage(RouterPage.SearchResults, query, this._searchResults);
+        }
+    }
+
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
             return html`
                 <button
                     class="cartbuttondesign"
-                    @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
+                    @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Cart)}
                 >
                     <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
                 </button>
             `;
         }
 
-        return html`<div @click=${this.clickCartButton}>
-            <button
-                class="cartbuttondesign"
-                @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Cart, e)}
-            >
-                <div class="cartcount">${this._cartItemsCount}</div>
-                <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
-            </button>
-        </div>`;
+        return html`
+            <div @click=${this.clickCartButton}>
+                <button
+                    class="cartbuttondesign"
+                    @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Cart)}
+                >
+                    <div class="cartcount">${this._cartItemsCount}</div>
+                    <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
+                </button>
+            </div>
+        `;
     }
 
     private renderLoginInNav(): TemplateResult {
@@ -1091,7 +1353,6 @@ export class Root extends LitElement {
                 <form id="registerForm" class="login-form" @submit=${this.submitRegisterForm}>
                     <h1>Register</h1>
 
-                    <!-- Name field -->
                     <div>
                         <label for="name">Name</label>
                         <input
@@ -1105,18 +1366,10 @@ export class Root extends LitElement {
                         />
                     </div>
 
-                    <!-- Email field -->
-                    ${this.renderEmail()}
-
-                    <!-- Password field -->
-                    ${this.renderPassword()}
-
-                    <!-- Register button -->
+                    ${this.renderEmail()} ${this.renderPassword()}
                     <div>
                         <button type="submit">Register</button>
                     </div>
-
-                    <!-- Link to login page -->
                     <p class="message">
                         Already have an account?
                         <a
@@ -1204,9 +1457,6 @@ export class Root extends LitElement {
         this.requestUpdate();
     }
 
-    /**
-     * Handles changes to the e-mail input field
-     */
     private onChangeEmail(event: InputEvent): void {
         this._email = (event.target as HTMLInputElement).value;
     }
@@ -1219,13 +1469,10 @@ export class Root extends LitElement {
         this._name = (event.target as HTMLInputElement).value;
     }
 
-    /**
-     * Renders the admin button in the navigation if user is logged in
-     */
     private renderAdminButton(): TemplateResult {
         if (this._isLoggedIn) {
             return html`
-                <div @click=${(e: MouseEvent) => this.navigateToPage(RouterPage.Admin, e)}>
+                <div @click=${(): void => this.navigateToPage(RouterPage.Admin)}>
                     <button>Admin</button>
                 </div>
             `;
