@@ -37,12 +37,11 @@ export class UserController {
             const hashedPassword: string = await bcrypt.hash(password, 10);
 
             // Insert the new user into the database
-            await queryDatabase(
-                "INSERT INTO user (username, email, password) VALUES (?, ?, ?)",
+            await queryDatabase("INSERT INTO user (username, email, password) VALUES (?, ?, ?)", [
                 username,
                 email,
-                hashedPassword
-            );
+                hashedPassword,
+            ]);
 
             res.status(201).json({ message: "Successfully registered user." });
         } catch (error) {
@@ -129,6 +128,16 @@ export class UserController {
         res.json(response);
     }
 
+
+
+        public async addOneToCart (req: Request): Promise<void> {
+            const userId: number = req.user.id;
+            const productId: number = parseInt(req.params.id);
+
+             await queryDatabase<CartItem[]>(
+                "UPDATE `cart`(`amount`) VALUES (+ 1) WHERE product_id, user_id", productId, userId);
+        }
+
     // Add an item to the user's cart
     public async addOrderItemToCart(req: Request, res: Response): Promise<void> {
         const userId: number = req.user.id;
@@ -148,7 +157,7 @@ export class UserController {
                 }
         }
         // Add the new item to the cart
-        cart.push({ user_id: userId, product_id: productId, amount: 1 });
+        cart.push({ user_id: userId, product_id: productId, amount: 1, price: 5});
 
     }
 

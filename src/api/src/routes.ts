@@ -20,6 +20,12 @@ router.post(
 );
 
 router.post(
+"/cart/plusone",
+asyncHandler((req: Request) => userController.addOneToCart(req))
+);
+
+
+router.post(
     "/users/login",
     asyncHandler((req: Request, res: Response) => userController.login(req, res))
 );

@@ -1,20 +1,20 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { OrderItem } from "@shared/types/OrderItem";
 import { UserService } from "../services/UserService";
 import { TemplateResult } from "lit";
+import { CartItem } from "@shared/types";
 
 @customElement("cart-page")
 export class CartPage extends LitElement {
-    @property({ type: Object }) public productData!: OrderItem;
+    @property({ type: Object }) public productData!: CartItem;
     private _userService: UserService = new UserService();
     @property({ type: Number }) public cartItemsCount: number = 1;
 
-    @state() private _cartItemsArray: OrderItem[] = [];
+    @state() private _cartItemsArray: CartItem[] = [];
     private userService: UserService = new UserService();
 
     @state()
-    private _OrderItem: OrderItem[] = [];
+    private _cartItem: CartItem[] | undefined = [];
 
     
     public static styles = css`
@@ -60,7 +60,8 @@ export class CartPage extends LitElement {
             margin-bottom: 10px;
             border-radius: 5px;
             box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-            min-width: 700px;
+            width: 70vw;
+
         }
 
         .game-badge {
@@ -195,32 +196,27 @@ export class CartPage extends LitElement {
 
 
     private async getCartItems(): Promise<void> {
-        const result: OrderItem[] | undefined = await this._userService.getItemFromCart();
+        const result: CartItem[] | undefined = await this._userService.getItemFromCart();
         if (result) {
-            this._OrderItem = result;
+            this._cartItem = result;
             this._cartItemsArray = result;
         }
         console.log(result);
     }
 
     private async loadCartItems(): Promise<void> {
-        const orderItems: Array<OrderItem> | undefined = await this.userService.getItemFromCart();
-         const orderItem: TemplateResult[] = this._OrderItem.map((e) => this.renderOrderItem(e));
-         console.log(orderItems);
-         console.log(orderItem);
-
+        this._cartItem = await this.userService.getItemFromCart();
         }
     
 
     public load(): any {
-
         if (this._cartItemsArray === null) {
             console.log(this._cartItemsArray);
             return this.render();
         }
     }
 
-    private renderOrderItem(orderItem: OrderItem): TemplateResult {
+    private renderOrderItem(cartItem: CartItem): TemplateResult {
         return html`
             <div class="product-box">
                 <div class="game-cart-item">
@@ -230,8 +226,8 @@ export class CartPage extends LitElement {
                             <img src="" />
                         </div>
                         <div class="game-description-text">
-                            <p class="game-title">${orderItem.title}</p>
-                            <p class="game-description">${orderItem.description}</p>
+                            <p class="game-title">${cartItem.title}</p>
+                            <p class="game-description">${cartItem.description}</p>
                         </div>
                     </div>
                     <div class="game-amount">
@@ -242,20 +238,20 @@ export class CartPage extends LitElement {
                                 </button>
                                 <button
                                     class="quantity-btn minus"
-                                    @click=${(): void => this.quantityCalculator(orderItem.quantity, -1)}
+                                    @click=${(): void => this.quantityCalculator(cartItem.amount +1 )}
                                 >
                                     -
                                 </button>
-                                <span class="quantity">${orderItem.quantity}</span>
+                                <span class="quantity">${cartItem.amount}</span>
                                 <button
                                     class="quantity-btn plus"
-                                    @click=${(): void => this.quantityCalculator(orderItem.quantity, 1)}
+                                    @click=${(): void => this.quantityCalculator(cartItem.amount -1)}
                                 >
                                     +
                                 </button>
                             </div>
                         </div>
-                        <span class="game-price">${orderItem.price}</span>
+                        <span class="game-price">${cartItem.price}</span>
                     </div>
                 </div>
             </div>
@@ -264,20 +260,22 @@ export class CartPage extends LitElement {
 
     
 
-    private quantityCalculator(itemId: number, change: number): void {
-        const updatedItems: OrderItem[] = this._cartItemsArray.map((OrderItem) => {
-            if (OrderItem.quantity === itemId) {
-                const newQuantity: number = Math.max(OrderItem.quantity + change, 1);
-                return { ...OrderItem, quantity: newQuantity };
+    private quantityCalculator( change: number): void {
+        if (this._cartItem){
+        const updatedItems: CartItem[] = this._cartItem.map((cartItem) => {
+            if (cartItem.amount) {
+                const newQuantity: number = Math.max(cartItem.amount + change, 1);
+                return { ...cartItem, quantity: newQuantity };
             }
-            return OrderItem;
+            return cartItem;
         });
 
         this._cartItemsArray = updatedItems;
     }
+}
 
     private calculateTotalPrice(): number {
-        return this._cartItemsArray.reduce((total, item) => total + item.price * item.quantity, 1);
+        return this._cartItemsArray.reduce((total, item) => total + item.price * item.amount, 0);
     }
 
     public renderMyCartText(): TemplateResult {
@@ -287,19 +285,20 @@ export class CartPage extends LitElement {
     public renderCheckout(): TemplateResult {
         return html` <div class="checkout-box">
             <button class="checkout-button">Checkout</button>
-            <div class="total-price">Total:> €${this.calculateTotalPrice()}</div>
+            <div class="total-price">Total: €${this.calculateTotalPrice()}</div>
         </div>`;
     }
 
     public render(): TemplateResult{
+        console.log(this._cartItem);
+        
         return html`
             <div class="cart-body">
-                <p>Hallo</p>
-                ${this._cartItemsArray.length
+                ${this._cartItemsArray.length 
                     ? html`<div>Loading... Please wait a moment.</div>`
                     : html`
                           ${this.renderMyCartText()}
-                          ${this._OrderItem.map((orderItem) => this.renderOrderItem(orderItem))}
+                         ${this._cartItem?.map((e) => this.renderOrderItem(e))}
                           ${this.renderCheckout()}
                       `}
             </div>
