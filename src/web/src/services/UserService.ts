@@ -3,6 +3,7 @@ import { UserRegisterFormModel } from "@shared/formModels/UserRegisterFormModel"
 import { TokenService } from "./TokenService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
+import { OrderItem } from "@shared/types";
 
 const headers: { "Content-Type": string } = {
     "Content-Type": "application/json",
@@ -171,15 +172,13 @@ export class UserService {
         }
     }
 
-    public async getItemFromCart(): Promise<number | undefined> {
+    public async getItemFromCart(): Promise<Array<OrderItem> | undefined> {
         const token: string | undefined = this._tokenService.getToken();
-
-
         if (!token) {
             return undefined;
         }
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/cartinfo`,  {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}cart/cartinfo`,  {
                 method: "get",
                 headers: { ...headers, Authorization: `Bearer ${token}` },                
             });
@@ -192,7 +191,7 @@ export class UserService {
                 return undefined;
             }
 
-            return (await response.json()) as number;
+            return (await response.json()) as OrderItem[];
         } catch (error) {
             console.error("Get items cart error", error);
             return undefined;
@@ -212,7 +211,7 @@ export class UserService {
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/cartinfo`,  {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/user/userinfo`,  {
                 method: "GET",
                 headers: { ...headers, Authorization: `Bearer ${token}` },                
             });

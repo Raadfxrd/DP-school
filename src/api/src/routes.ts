@@ -52,7 +52,7 @@ router.post(
 );
 
 router.get(
-    "/users/cart/cartinfo",
+    "/cart/cartinfo",
     asyncHandler((req: Request, res: Response) => userController.getItemFromCart(req, res))
 );
 

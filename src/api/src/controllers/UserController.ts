@@ -150,13 +150,8 @@ export class UserController {
         if (1 === 1) {
             try {
                     const resultProductId: CartItem = await queryDatabase<CartItem>(
-                        "SELECT `product_id`, `amount` FROM `cart` WHERE user_id = ?",userId);
+                        "SELECT p.*, c.amount FROM product p JOIN cart c ON p.id = c.product_id WHERE c.user_id = ?",userId);
                     res.json(resultProductId);
-
-                    const productIdFromProfile: number = resultProductId.product_id;
-                    const resultProduct: OrderItem[] = await queryDatabase<OrderItem[]>(
-                        "SELECT * FROM `product` WHERE id = ?",productIdFromProfile);
-                    res.json(resultProduct);
 
                 } catch (error: any) {
                     console.error("Database Error:", error);
