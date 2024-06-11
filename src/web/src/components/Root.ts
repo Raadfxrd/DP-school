@@ -8,9 +8,10 @@ import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
 import { ProductPage } from "./ProductPage";
 import { CartPage } from "./CartPage";
-import { AdminPage } from "./AdminPage";
+import "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
+
 
 export enum RouterPage {
     Home = "orderItems",
@@ -20,17 +21,20 @@ export enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-    Admin = "admin",
+    AdminOverviewPage = "admin-overview",
+    AdminCreateProductPage = "admin-create-product",
+    AdminEditProductPage = "admin-edit-product",
     Product = "product",
     Cart = "cart",
     SearchResults = "searchResults",
+    Admin = "Admin"
 }
 
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
         "cart-page": CartPage;
-        "admin-page": AdminPage;
+
     }
 }
 
@@ -1455,6 +1459,17 @@ export class Root extends LitElement {
         this.requestUpdate();
     }
 
+    private renderAdminButton(): TemplateResult {
+        if (this._isLoggedIn) {
+            return html`
+                <div @click=${(e: MouseEvent) => this.navigateToPage(RouterPage.Admin, e)}>
+                    <button>Admin</button>
+                </div>
+            `;
+        }
+        return html``;
+    }
+
     private onChangeEmail(event: InputEvent): void {
         this._email = (event.target as HTMLInputElement).value;
     }
@@ -1467,14 +1482,4 @@ export class Root extends LitElement {
         this._name = (event.target as HTMLInputElement).value;
     }
 
-    private renderAdminButton(): TemplateResult {
-        if (this._isLoggedIn) {
-            return html`
-                <div @click=${(): void => this.navigateToPage(RouterPage.Admin)}>
-                    <button>Admin</button>
-                </div>
-            `;
-        }
-        return html``;
-    }
 }
