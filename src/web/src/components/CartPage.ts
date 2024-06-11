@@ -2,18 +2,21 @@ import { LitElement, html, css } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { OrderItem } from "@shared/types/OrderItem";
 import { UserService } from "../services/UserService";
-import { OrderItemService } from "../services/OrderItemService";
 import { TemplateResult } from "lit";
 
 @customElement("cart-page")
 export class CartPage extends LitElement {
     @property({ type: Object }) public productData!: OrderItem;
+    private _userService: UserService = new UserService();
     @property({ type: Number }) public cartItemsCount: number = 1;
 
     @state() private _cartItemsArray: OrderItem[] = [];
     private userService: UserService = new UserService();
-    private orderItemService: OrderItemService = new OrderItemService();
 
+    @state()
+    private _OrderItem: OrderItem[] = [];
+
+    
     public static styles = css`
         .cart-body {
             display: flex;
@@ -187,19 +190,33 @@ export class CartPage extends LitElement {
 
     public async firstUpdated(): Promise<void> {
         await this.loadCartItems();
+        console.log(this.getCartItems);
+    }
+
+
+    private async getCartItems(): Promise<void> {
+        const result: OrderItem[] | undefined = await this._userService.getItemFromCart();
+        if (result) {
+            this._OrderItem = result;
+            this._cartItemsArray = result;
+        }
+        console.log(result);
     }
 
     private async loadCartItems(): Promise<void> {
-        const orderItem: OrderItem[] = await this.userService.getItemFromCart();
-        if (orderItem) {
-            console.log(orderItem);
+        const orderItems: Array<OrderItem> | undefined = await this.userService.getItemFromCart();
+         const orderItem: TemplateResult[] = this._OrderItem.map((e) => this.renderOrderItem(e));
+         console.log(orderItems);
+         console.log(orderItem);
+
         }
-    }
+    
 
     public load(): any {
+
         if (this._cartItemsArray === null) {
             console.log(this._cartItemsArray);
-            return;
+            return this.render();
         }
     }
 
@@ -225,14 +242,14 @@ export class CartPage extends LitElement {
                                 </button>
                                 <button
                                     class="quantity-btn minus"
-                                    @click=${(): void => this.quantityCalculator(orderItem.id, -1)}
+                                    @click=${(): void => this.quantityCalculator(orderItem.quantity, -1)}
                                 >
                                     -
                                 </button>
                                 <span class="quantity">${orderItem.quantity}</span>
                                 <button
                                     class="quantity-btn plus"
-                                    @click=${(): void => this.quantityCalculator(orderItem.id, 1)}
+                                    @click=${(): void => this.quantityCalculator(orderItem.quantity, 1)}
                                 >
                                     +
                                 </button>
@@ -248,19 +265,19 @@ export class CartPage extends LitElement {
     
 
     private quantityCalculator(itemId: number, change: number): void {
-        const updatedItems: OrderItem[] = this._cartItemsArray.map((item) => {
-            if (item.id === itemId) {
-                const newQuantity: number = Math.max(item.quantity + change, 1);
-                return { ...item, quantity: newQuantity };
+        const updatedItems: OrderItem[] = this._cartItemsArray.map((OrderItem) => {
+            if (OrderItem.quantity === itemId) {
+                const newQuantity: number = Math.max(OrderItem.quantity + change, 1);
+                return { ...OrderItem, quantity: newQuantity };
             }
-            return item;
+            return OrderItem;
         });
 
         this._cartItemsArray = updatedItems;
     }
 
     private calculateTotalPrice(): number {
-        return this._cartItemsArray.reduce((total, item) => total + item.price * item.quantity, 0);
+        return this._cartItemsArray.reduce((total, item) => total + item.price * item.quantity, 1);
     }
 
     public renderMyCartText(): TemplateResult {
@@ -274,15 +291,15 @@ export class CartPage extends LitElement {
         </div>`;
     }
 
-    public render(): TemplateResult {
-        console.log(this.userService.getItemFromCart());
+    public render(): TemplateResult{
         return html`
             <div class="cart-body">
-                ${this._cartItemsArray.length === 0
+                <p>Hallo</p>
+                ${this._cartItemsArray.length
                     ? html`<div>Loading... Please wait a moment.</div>`
                     : html`
                           ${this.renderMyCartText()}
-                          ${this._cartItemsArray.map((item) => this.renderOrderItem(item))}
+                          ${this._OrderItem.map((orderItem) => this.renderOrderItem(orderItem))}
                           ${this.renderCheckout()}
                       `}
             </div>
