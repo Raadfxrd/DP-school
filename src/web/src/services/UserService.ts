@@ -3,7 +3,7 @@ import { UserRegisterFormModel } from "@shared/formModels/UserRegisterFormModel"
 import { TokenService } from "./TokenService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
-import { OrderItem } from "@shared/types";
+import { CartItem } from "@shared/types";
 
 const headers: { "Content-Type": string } = {
     "Content-Type": "application/json",
@@ -148,6 +148,28 @@ export class UserService {
      *
      * @returns Current number of order items in the cart when successful, otherwise `false`.
      */
+
+public async amountPlusOne(): Promise<number | undefined>{
+    const token: string | undefined = this._tokenService.getToken();
+    if (!token) {
+        return undefined;
+    }
+    try {
+        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/plusone}`, {
+            method: "post",
+            headers: { ...headers, authorization: `b ${token}`},
+        });
+        if (!response.ok) {
+            console.error(response);
+            return undefined;
+        }
+        return (await response.json()) as number;
+    } catch (error) {
+        console.error("Add to cart error", error);
+        return undefined;
+    }
+};
+
     public async addOrderItemToCart(productId: number): Promise<number | undefined> {
         const token: string | undefined = this._tokenService.getToken();
         console.log(token);
@@ -172,7 +194,7 @@ export class UserService {
         }
     }
 
-    public async getItemFromCart(): Promise<Array<OrderItem> | undefined> {
+    public async getItemFromCart(): Promise<Array<CartItem> | undefined> {
         const token: string | undefined = this._tokenService.getToken();
         if (!token) {
             return undefined;
@@ -191,7 +213,7 @@ export class UserService {
                 return undefined;
             }
 
-            return (await response.json()) as OrderItem[];
+            return (await response.json()) as CartItem[];
         } catch (error) {
             console.error("Get items cart error", error);
             return undefined;

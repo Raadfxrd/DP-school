@@ -89,6 +89,7 @@ export class Root extends LitElement {
             right: 3%;
             justify-content: center;
             align-items: center;
+            z-index: 99;
         }
 
         .cartbuttondesign {
