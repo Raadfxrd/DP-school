@@ -3,8 +3,8 @@ import { LitElement, TemplateResult, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { RouterPage } from "./Root";
 import { AdminPanelService } from "../services/AdminPanelService";
-import { Product } from "@shared/types/Product";
-import { CreateProductFormModelSchema, ProductFormModelSchema } from "@shared/formModels/ProductFormModel";
+import { Product } from "../../../shared/types/Product";
+import { CreateProductFormModelSchema, ProductFormModelSchema } from "../../../shared/formModels/ProductFormModel";
 import { ZodError } from "zod";
 
 type InputElementType = "text" | "number" | "url" | "textarea"; // Define InputElementType

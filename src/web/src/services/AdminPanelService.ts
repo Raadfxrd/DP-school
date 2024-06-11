@@ -1,4 +1,4 @@
-import { Product } from "@shared/types/Product";
+import { Product } from "../../../shared/types/Product";
 
 export class AdminPanelService {
     private apiUrl = 'http://your-api-url.com/api'; 
