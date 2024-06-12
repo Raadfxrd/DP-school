@@ -333,7 +333,7 @@ export class AdminPage extends LitElement {
             const thumbnailBase64 = await this.readFileAsDataURL(thumbnailFile);
             const imagesBase64 = await Promise.all(imagesFiles.map((file) => this.readFileAsDataURL(file)));
     
-            const thumbnailUrl = await this.adminPanelService.uploadFile(thumbnailFile.name, thumbnailBase64);
+            const thumbnail = await this.adminPanelService.uploadFile(thumbnailFile.name, thumbnailBase64);
             const imagesUrls = await Promise.all(imagesFiles.map((file, index) => 
                 this.adminPanelService.uploadFile(`image_${index}_${file.name}`, imagesBase64[index])
             ));
@@ -345,7 +345,7 @@ export class AdminPage extends LitElement {
                 authors: (data.authors as string).split(",").map((author: string) => ({ name: author.trim() })),
                 tags: (data.tags as string).split(",").map((tag: string) => ({ tag: tag.trim() })),
                 images: imagesUrls.map((url) => ({ url })),
-                thumbnail: thumbnailUrl,
+                thumbnail: thumbnail,
                 url: data.url,
                 type: data.type
             });
@@ -386,7 +386,7 @@ export class AdminPage extends LitElement {
 
         try {
             this.errors = {};
-            const thumbnailFile = data.thumbnail as File;
+            const thumbnailFile = data.thumbnail as unknown as File;
             const imagesFiles = data.images as unknown as File[];
 
             const thumbnailBase64 = await this.readFileAsDataURL(thumbnailFile);
@@ -399,14 +399,15 @@ export class AdminPage extends LitElement {
 
             const parsed = CreateProductFormModelSchema.parse({
                 ...data,
-                title: data.title,
+                id: data.number,
+                title: (data.title as string),
+                description: (data.description as string),
                 price: Number(data.price),
-                authors: (data.authors as string).split(",").map((author: string) => ({ name: author.trim() })),
-                tags: (data.tags as string).split(",").map((tag: string) => ({ tag: tag.trim() })),
-                images: imagesUrls.map((url) => ({ url })),
-                thumbnail: thumbnailUrl,
+                thumbnailUrl: thumbnailUrl,
                 url: data.url,
-                type: data.type
+                tags: (data.tags as string).split(",").map((tag: string) => ({ tag: tag.trim() })),
+                authors: (data.authors as string).split(",").map((author: string) => ({ name: author.trim() })),
+                images: imagesUrls,
             });
 
             const errors = await this.adminPanelService.updateProduct(this.product.id, {
