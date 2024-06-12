@@ -27,7 +27,7 @@ export enum RouterPage {
     Cart = "cart",
     Checkout = "checkout",
     SearchResults = "searchResults",
-    
+    Favorites = "favorites",
 }
 
 declare global {
@@ -667,6 +667,129 @@ export class Root extends LitElement {
             font-weight: bold;
         }
 
+        .profile-container {
+            display: flex;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .vertical-nav {
+            flex: 0 0 200px;
+            display: flex;
+            flex-direction: column;
+            padding-right: 20px;
+            border-right: 1px solid #ddd;
+        }
+
+        .vertical-nav button {
+            background: none;
+            border: none;
+            padding: 10px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            color: #5a4e7c;
+        }
+
+        .vertical-nav button:hover {
+            background-color: #ddd;
+        }
+
+        .profile-content {
+            flex: 1;
+            padding-left: 20px;
+        }
+
+        .profile-item {
+            margin: 10px 0;
+        }
+
+        .profile-item span {
+            font-weight: bold;
+        }
+
+        .favorites-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .favorites-list li {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .favorites-list li:hover {
+            background-color: #f9f9f9;
+        }
+
+        .favorites-list li img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+
+        .favorites-list li span {
+            font-size: 16px;
+            flex-grow: 1;
+        }
+
+        .favorites-list li button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .favorites-list li button:hover {
+            background-color: #ff4c4c;
+        }
+
+        .delete-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .delete-button:hover {
+            background-color: #ff1a1a;
+        }
+
+        .profile-item label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .profile-item input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
         @keyframes showSearchBar {
             from {
                 opacity: 0;
@@ -702,22 +825,22 @@ export class Root extends LitElement {
     @state()
     private _showSearchBar: boolean = false;
 
+    private _showingDeleteAccount: boolean = false;
+
     @state()
     private _isLoggedIn: boolean = false;
 
     @state()
     private _OrderItem: OrderItem[] = [];
 
-
     @state()
     private _loadingOrderItems: boolean = true;
 
     @state()
     private _cartItemsCount: number = 0;
-    
+
     @state()
     private _cartItem: CartItem[] | undefined = [];
-    
 
     @state()
     private selectedProduct: OrderItem | undefined = undefined;
@@ -727,8 +850,6 @@ export class Root extends LitElement {
 
     @state()
     private _userProfile?: UserData;
-
-
 
     @state()
     private autoSlideInterval: any;
@@ -741,6 +862,23 @@ export class Root extends LitElement {
 
     @state()
     private isAutoSlideStopped: boolean = false;
+
+    @state()
+    private _favorites: any[] = [];
+
+    @state()
+    private _showingFavorites: boolean = false;
+
+    @state()
+    private _showingUpdateProfile: boolean = false;
+
+    @state()
+    private _updatedProfile: UserData = {
+        id: 0, // Standaardwaarde voor id
+        email: "",
+        password: "",
+        name: "",
+    };
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -775,13 +913,9 @@ export class Root extends LitElement {
         if (result) {
             this._isLoggedIn = true;
             this._cartItem = await this._userService.getItemFromCart();
-            if(this._cartItem)
-            this._cartItemsCount = this._cartItem.length;
+            if (this._cartItem) this._cartItemsCount = this._cartItem.length;
         }
     }
-    
-    
-
 
     private async getOrderItems(): Promise<void> {
         this._loadingOrderItems = true;
@@ -853,11 +987,9 @@ export class Root extends LitElement {
             return;
         }
 
-        (
-            `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
-                result.cartItems?.join("\r\n- ") || "None"
-            }`
-        );
+        `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
+            result.cartItems?.join("\r\n- ") || "None"
+        }`;
     }
 
     private navigateToPage(page: RouterPage, query?: string, searchResults?: OrderItem[]): void {
@@ -881,10 +1013,6 @@ export class Root extends LitElement {
         this._isLoggedIn = false;
     }
 
-
-
-
-
     private async addItemToCart(orderItem: OrderItem): Promise<void> {
         const productId: number = orderItem.id;
         const result: number | undefined = await this._userService.addOrderItemToCart(productId);
@@ -893,7 +1021,29 @@ export class Root extends LitElement {
         if (!result) {
             return;
         }
+    }
 
+    private async getFavorites(): Promise<void> {
+        try {
+            const favorites: any[] = await this._userService.getFavorites();
+            this._favorites = favorites;
+        } catch (error) {
+            console.error("Error fetching favorites:", error);
+        }
+    }
+
+    private async addFavorite(productId: number): Promise<void> {
+        try {
+            const result: any = await this._userService.addFavorite(productId);
+            if (result) {
+                alert("Added to favorites!");
+            } else {
+                alert("Failed to add to favorites.");
+            }
+        } catch (error) {
+            console.error("Error adding to favorites:", error);
+            alert("An error occurred while adding to favorites.");
+        }
     }
 
     protected render(): TemplateResult {
@@ -925,7 +1075,15 @@ export class Root extends LitElement {
             case RouterPage.Cart:
                 contentTemplate = this.renderCartPage();
                 break;
-            
+
+            case RouterPage.Checkout:
+                contentTemplate = this.renderCheckoutPage();
+                break;
+
+            case RouterPage.Checkout:
+                contentTemplate = this.renderCheckoutPage();
+                break;
+
             case RouterPage.Checkout:
                 contentTemplate = this.renderCheckoutPage();
                 break;
@@ -948,6 +1106,14 @@ export class Root extends LitElement {
                 ></search-results-page>`;
                 break;
 
+            case RouterPage.Account:
+                contentTemplate = this.renderAccount();
+                break;
+
+            case RouterPage.Favorites:
+                contentTemplate = this.renderFavorites();
+                break;
+
             default:
                 contentTemplate = this.renderHome();
         }
@@ -956,7 +1122,8 @@ export class Root extends LitElement {
             <header>
                 <nav>
                     <div class="nav-left">
-                        ${this.renderProductsInNav()} ${this.renderNewsInNav()} ${this.renderAccountInNav()} ${this.renderCheckoutInNav()}
+                        ${this.renderProductsInNav()} ${this.renderNewsInNav()} ${this.renderAccountInNav()}
+                        ${this.renderCheckoutInNav()}
                     </div>
                     <div
                         class="logo"
@@ -1140,12 +1307,20 @@ export class Root extends LitElement {
                     View details
                 </button>
                 ${this._isLoggedIn
-                    ? html`<button
-                          class="addItemToCart"
-                          @click=${async (): Promise<void> => this.addItemToCart(orderItem)}
-                      >
-                          Add to cart
-                      </button>`
+                    ? html`
+                          <button
+                              class="addItemToCart"
+                              @click=${async (): Promise<void> => this.addItemToCart(orderItem)}
+                          >
+                              Add to cart
+                          </button>
+                          <button
+                              class="addFavorite"
+                              @click=${async (): Promise<void> => this.addFavorite(orderItem.id)}
+                          >
+                              Add to favorites
+                          </button>
+                      `
                     : nothing}
             </div>
         `;
@@ -1256,11 +1431,9 @@ export class Root extends LitElement {
         return html`<cart-page></cart-page>`;
     }
 
-
     private renderCheckoutPage(): TemplateResult {
         return html`<checkout-page></checkout-page>`;
     }
-
 
     private renderProductsInNav(): TemplateResult {
         return html`
@@ -1293,15 +1466,15 @@ export class Root extends LitElement {
     }
 
     private renderCheckoutInNav(): any {
-        if (this._currentPage === RouterPage.Cart){
-        return html`<div class ="checkout"
-            @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Checkout)}
-        >
-            <button>Checkout</button>
-        </div>`;
+        if (this._currentPage === RouterPage.Cart) {
+            return html`<div
+                class="checkout"
+                @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Checkout)}
+            >
+                <button>Checkout</button>
+            </div>`;
+        }
     }
-}
-
 
     private renderAccountInNav(): TemplateResult {
         if (!this._isLoggedIn) {
@@ -1367,9 +1540,6 @@ export class Root extends LitElement {
         }
     }
 
-
-    
-
     private renderCartInNav(): TemplateResult {
         return html`
             <div @click=${this.clickCartButton}>
@@ -1382,7 +1552,7 @@ export class Root extends LitElement {
                 </button>
             </div>
         `;
-}
+    }
 
     private renderLoginInNav(): TemplateResult {
         if (this._isLoggedIn) {
@@ -1523,18 +1693,217 @@ export class Root extends LitElement {
 
         return html`
             <div class="profile-container">
-                <h2>User Profile</h2>
-                <div class="profile-item"><span>Username:</span> ${this._userProfile.username || ""}</div>
-                <div class="profile-item"><span>Email:</span> ${this._userProfile.email || ""}</div>
-                <div class="profile-item"><span>Date:</span> ${this._userProfile.date || ""}</div>
-                <div class="profile-item"><span>Gender:</span> ${this._userProfile.gender || ""}</div>
-                <div class="profile-item"><span>Street:</span> ${this._userProfile.street || ""}</div>
-                <div class="profile-item">
-                    <span>House Number:</span> ${this._userProfile.houseNumber || ""}
+                <div class="vertical-nav">
+                    <button @click=${this.showProfileDetails}>Profile Details</button>
+                    <button @click=${this.showFavorites}>Favorites</button>
+                    <button @click=${this.showUpdateProfile}>Update Profile</button>
+                    <button @click=${this.showDeleteAccount}>Delete Account</button>
                 </div>
-                <div class="profile-item"><span>Country:</span> ${this._userProfile.country || ""}</div>
+                <div class="profile-content">
+                    ${this._showingFavorites
+                        ? this.renderFavorites()
+                        : this._showingDeleteAccount
+                        ? this.renderDeleteAccount()
+                        : this._showingUpdateProfile
+                        ? this.renderUpdateProfile()
+                        : this.renderProfileDetails()}
+                </div>
             </div>
         `;
+    }
+
+    private showProfileDetails(): void {
+        this.resetProfileStates();
+        this.requestUpdate();
+    }
+
+    private resetProfileStates(): void {
+        this._showingFavorites = false;
+        this._showingDeleteAccount = false;
+        this._showingUpdateProfile = false;
+    }
+
+    private renderProfileDetails(): TemplateResult {
+        return html`
+            <h2>User Profile</h2>
+            <div class="profile-item"><span>Username:</span> ${this._userProfile?.username || ""}</div>
+            <div class="profile-item"><span>Email:</span> ${this._userProfile?.email || ""}</div>
+            <div class="profile-item"><span>Date:</span> ${this._userProfile?.date || ""}</div>
+            <div class="profile-item"><span>Gender:</span> ${this._userProfile?.gender || ""}</div>
+            <div class="profile-item"><span>Street:</span> ${this._userProfile?.street || ""}</div>
+            <div class="profile-item"><span>House Number:</span> ${this._userProfile?.houseNumber || ""}</div>
+            <div class="profile-item"><span>Country:</span> ${this._userProfile?.country || ""}</div>
+        `;
+    }
+
+    private async showFavorites(): Promise<void> {
+        await this.getFavorites();
+        this._showingFavorites = true;
+        this._showingDeleteAccount = false;
+        this.requestUpdate();
+    }
+    private renderFavorites(): TemplateResult {
+        return html`
+            <h2>My Favorites</h2>
+            ${this._favorites.length === 0
+                ? html`<p>No favorites yet.</p>`
+                : html`
+                      <ul class="favorites-list">
+                          ${this._favorites.map(
+                              (favorite) => html`
+                                  <li @click=${(): void => this.navigateToProductPage(favorite)}>
+                                      <img src="${favorite.thumbnail}" alt="${favorite.title}" />
+                                      <span>${favorite.title}</span>
+                                  </li>
+                              `
+                          )}
+                      </ul>
+                  `}
+        `;
+    }
+
+    private showDeleteAccount(): void {
+        this._showingFavorites = false;
+        this._showingDeleteAccount = true;
+        this.requestUpdate();
+    }
+
+    private renderDeleteAccount(): TemplateResult {
+        return html`
+            <h2>Delete Account</h2>
+            <p>Are you sure you want to delete your account? This cannot be undone.</p>
+            <button class="delete-button" @click=${this._confirmDeleteAccount}>Yes, delete my account</button>
+        `;
+    }
+
+    private _confirmDeleteAccount(): void {
+        if (
+            confirm("Weet je zeker dat je je account wilt verwijderen? Dit kan niet ongedaan worden gemaakt.")
+        ) {
+            void this._deleteAccount(); // Voeg 'void' toe om de promise te negeren
+        }
+    }
+
+    private async _deleteAccount(): Promise<void> {
+        try {
+            const token: string | undefined = this._tokenService.getToken();
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/delete`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete account");
+            }
+
+            alert("Account succesvol verwijderd.");
+            this._tokenService.removeToken();
+            // Redirect naar de homepage of login pagina
+            window.location.href = "/";
+        } catch (error) {
+            console.error("Error deleting account:", error);
+            alert("Er is iets misgegaan bij het verwijderen van het account.");
+        }
+    }
+
+    private showUpdateProfile(): void {
+        this._showingFavorites = false;
+        this._showingDeleteAccount = false;
+        this._showingUpdateProfile = true;
+
+        if (this._userProfile) {
+            this._updatedProfile = { ...this._userProfile };
+        }
+
+        this.requestUpdate();
+    }
+
+    private renderUpdateProfile(): TemplateResult {
+        return html`
+            <h2>Update Profile</h2>
+            <form @submit=${this.handleUpdateProfileSubmit}>
+                <div class="profile-item">
+                    <label>Username:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.username || ""}
+                        @input=${this.onProfileChange("username")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Email:</label>
+                    <input
+                        type="email"
+                        .value=${this._updatedProfile.email || ""}
+                        @input=${this.onProfileChange("email")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Date:</label>
+                    <input
+                        type="date"
+                        .value=${this._updatedProfile.date || ""}
+                        @input=${this.onProfileChange("date")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Gender:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.gender || ""}
+                        @input=${this.onProfileChange("gender")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Street:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.street || ""}
+                        @input=${this.onProfileChange("street")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>House Number:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.houseNumber || ""}
+                        @input=${this.onProfileChange("houseNumber")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Country:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.country || ""}
+                        @input=${this.onProfileChange("country")}
+                    />
+                </div>
+                <button type="submit">Update</button>
+            </form>
+        `;
+    }
+
+    private onProfileChange(field: keyof UserData): (event: Event) => void {
+        return (event: Event): void => {
+            const input: HTMLInputElement = event.target as HTMLInputElement;
+            this._updatedProfile = { ...this._updatedProfile, [field]: input.value };
+            this.requestUpdate();
+        };
+    }
+
+    private async handleUpdateProfileSubmit(event: Event): Promise<void> {
+        event.preventDefault();
+        const success: boolean = await this._userService.updateProfile(this._updatedProfile);
+        if (success) {
+            alert("Profile successfully updated.");
+            this._userProfile = { ...this._updatedProfile };
+            this.showProfileDetails();
+        } else {
+            alert("Failed to update profile.");
+        }
     }
 
     private toggleNewsItem(index: number): void {
@@ -1555,8 +1924,6 @@ export class Root extends LitElement {
     private onChangeName(event: InputEvent): void {
         this._name = (event.target as HTMLInputElement).value;
     }
-
-    
 
     private renderAdminButton(): TemplateResult {
         if (this._isLoggedIn) {
