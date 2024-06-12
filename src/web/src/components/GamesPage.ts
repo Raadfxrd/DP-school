@@ -2,41 +2,64 @@ import { LitElement, html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
 //import { product } from "@shared/types/OrderItem";
 import { GamesService } from "../services/GameService";
-import { merch } from "@shared/types";
+import { game} from "@shared/types";
 
 @customElement("game-page")
 export class GamePage extends LitElement {
-    @state() private games: merch[] = [];
+    @state() private games: game[] = [];
 
     private gameService = new GamesService();
 
     public static styles = css`
         :host {
-            display: block;
-            padding: 16px;
-        }
-        .game-item {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .game-item img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-        .game-item h2 {
-            margin: 8px 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 50vh;
+    padding: 16px;
+}
+
+.game-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px; /* Optioneel: voeg wat ruimte toe tussen de game-items */
+}
+
+.game-item {
+    padding: 20px;
+            padding-top: 0px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            height: 700px;
+}
+
+
+.game-item img {
+    width: 450px;
+            height: 450px;
+            max-width: 100%;
+}
+
+.game-item h2 {
+    align-self: stretch;
+    text-align: center;
+}
+
+.game-item p {
+    margin: 8px 0;
+}
+
+.game-item .price {
+    margin-top: 20px;
+            align-self: flex-end;
             font-size: 1.5rem;
-        }
-        .game-item p {
-            margin: 8px 0;
-        }
-        .game-item .price {
             font-weight: bold;
-            margin-top: 8px;
-        }
+}
+
     `;
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -50,7 +73,7 @@ export class GamePage extends LitElement {
         
         try {
             // eslint-disable-next-line @typescript-eslint/typedef
-            const data = await this.gameService.getAllGames();
+            const data = await this.gameService.getAllgame();
             if (data) {
                 this.games = data;
             } else {
