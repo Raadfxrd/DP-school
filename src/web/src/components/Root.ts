@@ -1637,9 +1637,14 @@ export class Root extends LitElement {
     }
 
     private showProfileDetails(): void {
+        this.resetProfileStates();
+        this.requestUpdate();
+    }
+
+    private resetProfileStates(): void {
         this._showingFavorites = false;
         this._showingDeleteAccount = false;
-        this.requestUpdate();
+        this._showingUpdateProfile = false;
     }
 
     private renderProfileDetails(): TemplateResult {
