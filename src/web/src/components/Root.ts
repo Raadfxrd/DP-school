@@ -59,6 +59,7 @@ export class Root extends LitElement {
             margin-left: 30px;
             margin-right: 30px;
             flex: 1 0 auto;
+            z-index: 0;
         }
 
         nav {
@@ -79,9 +80,11 @@ export class Root extends LitElement {
         .cartimg {
             width: 75px;
             height: 75px;
-            padding: none;
+            padding: 0;
             border: none;
             z-index: 100;
+            position: absolute;
+            right: 0px;
         }
 
         .cartbutton {
@@ -92,7 +95,7 @@ export class Root extends LitElement {
             right: 3%;
             justify-content: center;
             align-items: center;
-            z-index: 99;
+            z-index: 100;
         }
 
         .cartbuttondesign {
@@ -101,6 +104,7 @@ export class Root extends LitElement {
             border: none;
             border-radius: 50%;
             background: transparent;
+            z-index: 100;
         }
 
         nav button {
@@ -231,8 +235,9 @@ export class Root extends LitElement {
             align-items: center;
             position: relative;
             margin: 0;
+            z-index: 0;
             width: auto;
-            height: 900px;
+            height: 90svh;
         }
 
         .carousel-inner {
@@ -264,9 +269,10 @@ export class Root extends LitElement {
             align-items: center;
             justify-content: space-around;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            height: max-content;
+            height: 80vh;
             width: 95%;
             box-sizing: border-box;
+            transition: transform 0.3s ease;
         }
 
         .highlighted-game img {
