@@ -8,6 +8,7 @@ import { CustomJwtPayload } from "../types/jwt";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { queryDatabase } from "../../database/database";
 import { orderItems } from "../fakeDatabase";
+import { UserCheckoutFormModel } from "@shared/formModels/UserCheckoutFormModel";
 
 function escape(value: string): string {
     return mysql.escape(value);
@@ -122,34 +123,78 @@ export class UserController {
 
 
 
-        public async addOneToCart (req: Request): Promise<void> {
-            const userId: number = req.user.id;
+        public async addOneToCart(req: Request, res: Response): Promise<void>{
+              const userId: number = req.user.id;
             const productId: number = parseInt(req.params.id);
 
-             await queryDatabase<CartItem[]>(
-                "UPDATE `cart`(`amount`) VALUES (+ 1) WHERE product_id, user_id", productId, userId);
+              if (1 === 1) {
+                try {
+                        const result: CartItem[] = await queryDatabase<CartItem[]>(
+                            "UPDATE `cart` SET `amount` = `amount` + 1 WHERE `user_id` = ? AND `product_id` = ?", userId, productId);
+                        res.json(result);
+                        
+                    } catch (error: any) {
+                        console.error("Database Error:", error);
+                        res.status(500).json({ message: "Database error", error: error.message });
+                    }
+            }
         }
 
-    // Add an item to the user's cart
+
+
+        public async minusOneToCart(req: Request, res: Response): Promise<void>{
+            const userId: number = req.user.id;
+          const productId: number = parseInt(req.params.id);
+
+            if (1 === 1) {
+              try {
+                      const result: CartItem[] = await queryDatabase<CartItem[]>(
+                          "UPDATE `cart` SET `amount` = `amount` - 1 WHERE `user_id` = ? AND `product_id` = ?", userId, productId);
+                      res.json(result);
+                      
+                  } catch (error: any) {
+                      console.error("Database Error:", error);
+                      res.status(500).json({ message: "Database error", error: error.message });
+                  }
+          }
+      }
+
+      public async deleteItem(req: Request, res: Response): Promise<void>{
+        const userId: number = req.user.id;
+      const productId: number = parseInt(req.params.id);
+
+        if (1 === 1) {
+          try {
+                  const result: CartItem[] = await queryDatabase<CartItem[]>(
+                      "DELETE FROM `cart` WHERE `user_id` = ? AND `product_id` = ?", userId, productId);
+                  res.json(result);
+                  
+              } catch (error: any) {
+                  console.error("Database Error:", error);
+                  res.status(500).json({ message: "Database error", error: error.message });
+              }
+      }
+  }
+
     public async addOrderItemToCart(req: Request, res: Response): Promise<void> {
         const userId: number = req.user.id;
         const productId: number = parseInt(req.params.id);
         const cart: CartItem[] = [];
 
-        // Parse the cart string if it exists, otherwise use an empty array
-        if (1 === 1) {
-            try {
+        if (1 === 1) { 
+                try{
                     const result: CartItem[] = await queryDatabase<CartItem[]>(
                         "INSERT INTO `cart`(`user_id`, `product_id`, `amount`) VALUES (?,?,'1')", userId, productId);
                     res.json(result);
-                    
+                  
                 } catch (error: any) {
                     console.error("Database Error:", error);
                     res.status(500).json({ message: "Database error", error: error.message });
                 }
-        }
+            }
+        
         // Add the new item to the cart
-        cart.push({ user_id: userId, product_id: productId, amount: 1, price: 5});
+        cart.push({ user_id: userId, product_id: productId, amount: 1, price: 5, id: productId, thumbnail: ""});
 
     }
 
@@ -180,7 +225,6 @@ export class UserController {
         }
 
         const userId: number = req.user.id;
-
         try {
             // Retrieve the user's profile from the database
             const userProfile: UserData[] = await queryDatabase<UserData[]>(
@@ -196,6 +240,26 @@ export class UserController {
             console.log("User Profile:", userProfile[0]);
 
             res.json(userProfile[0]);
+        } catch (error) {
+            console.error("Database Error:", error);
+            res.status(500).json({ message: "Database error", error: (error as Error).message });
+        }
+    }
+
+
+
+    public async checkout(req: Request, res: Response): Promise<void> {
+        const userId: number = req.user.id;
+        const { date: date,  gender, street, housenumber, country } = req.body as UserCheckoutFormModel;
+        try {             
+            await queryDatabase("UPDATE `user` SET `timestamp` = ?, `gender` = ?, `street` = ?, `houseNumber` = ?, `country` = ? WHERE `id` = ?",
+                date,
+                gender,
+                street,
+                housenumber,
+                country,
+                userId );
+            res.status(201).json({ message: "Successfully registered user." });
         } catch (error) {
             console.error("Database Error:", error);
             res.status(500).json({ message: "Database error", error: (error as Error).message });

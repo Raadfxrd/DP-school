@@ -4,10 +4,12 @@ import { UserService } from "../services/UserService";
 import { TemplateResult } from "lit";
 import { CartItem } from "@shared/types";
 
+
 @customElement("cart-page")
 export class CartPage extends LitElement {
     @property({ type: Object }) public productData!: CartItem;
     private _userService: UserService = new UserService();
+    
     @property({ type: Number }) public cartItemsCount: number = 1;
 
     @state() private _cartItemsArray: CartItem[] = [];
@@ -16,7 +18,7 @@ export class CartPage extends LitElement {
     @state()
     private _cartItem: CartItem[] | undefined = [];
 
-    
+      
     public static styles = css`
         .cart-body {
             display: flex;
@@ -177,6 +179,11 @@ export class CartPage extends LitElement {
             margin-top: 10px;
         }
 
+        .game-image{
+            max-height: 10vh;
+            max-width: 10vw;
+        }
+
         .total-price {
             background-color: #ddd;
             box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
@@ -191,27 +198,15 @@ export class CartPage extends LitElement {
 
     public async firstUpdated(): Promise<void> {
         await this.loadCartItems();
-        console.log(this.getCartItems);
-    }
-
-
-    private async getCartItems(): Promise<void> {
-        const result: CartItem[] | undefined = await this._userService.getItemFromCart();
-        if (result) {
-            this._cartItem = result;
-            this._cartItemsArray = result;
-        }
-        console.log(result);
     }
 
     private async loadCartItems(): Promise<void> {
         this._cartItem = await this.userService.getItemFromCart();
-        }
-    
+        this._cartItemsArray = this._cartItem || [];
+    }
 
     public load(): any {
         if (this._cartItemsArray === null) {
-            console.log(this._cartItemsArray);
             return this.render();
         }
     }
@@ -223,7 +218,7 @@ export class CartPage extends LitElement {
                     <div class="game-info">
                         <div class="game-cart-image">
                             <div class="badge">New</div>
-                            <img src="" />
+                            <img class="game-image" src="${cartItem.thumbnail}" />
                         </div>
                         <div class="game-description-text">
                             <p class="game-title">${cartItem.title}</p>
@@ -233,73 +228,102 @@ export class CartPage extends LitElement {
                     <div class="game-amount">
                         <div class="game-price-quantity">
                             <div class="quantity-control">
-                                <button class="remove-btn">
+                                <button class="remove-btn"
+                                @click=${async (): Promise<void> => this.deleteAmountToCart(cartItem)}>
                                     <img src="/assets/img/trash.png" />
                                 </button>
                                 <button
                                     class="quantity-btn minus"
-                                    @click=${(): void => this.quantityCalculator(cartItem.amount +1 )}
+                                    @click=${async (): Promise<void> => this.minusOneAmountToCart(cartItem)}
                                 >
                                     -
                                 </button>
                                 <span class="quantity">${cartItem.amount}</span>
                                 <button
                                     class="quantity-btn plus"
-                                    @click=${(): void => this.quantityCalculator(cartItem.amount -1)}
-                                >
+                                    @click=${async (): Promise<void> => this.addOneAmountToCart(cartItem)}
+                                    >
                                     +
                                 </button>
                             </div>
                         </div>
-                        <span class="game-price">${cartItem.price}</span>
+                        <span class="game-price">${cartItem.price * cartItem.amount}</span>
                     </div>
                 </div>
             </div>
         `;
     }
 
-    
-
-    private quantityCalculator( change: number): void {
-        if (this._cartItem){
-        const updatedItems: CartItem[] = this._cartItem.map((cartItem) => {
-            if (cartItem.amount) {
-                const newQuantity: number = Math.max(cartItem.amount + change, 1);
-                return { ...cartItem, quantity: newQuantity };
-            }
-            return cartItem;
-        });
-
-        this._cartItemsArray = updatedItems;
+    private calculateTotalPrice(cartItems: CartItem[]): number {
+        let totalPrice: number = 0;
+        for (const cartItem of cartItems) {
+            totalPrice += cartItem.price * cartItem.amount;
+        }
+        return totalPrice;
     }
-}
 
-    private calculateTotalPrice(): number {
-        return this._cartItemsArray.reduce((total, item) => total + item.price * item.amount, 0);
+    private async addOneAmountToCart(cartItem: CartItem): Promise<void> {
+        const productId: number = cartItem.id;
+        const result: number | undefined = await this._userService.amountPlusOne(productId);
+        if (result !== undefined) {
+            await this.loadCartItems();
+        }
+    }
+
+    private async minusOneAmountToCart(cartItem: CartItem): Promise<void> {
+        const productId: number = cartItem.id;
+        const result: number | undefined = await this._userService.amountMinusOne(productId);
+        if (result !== undefined) {
+            await this.loadCartItems();
+        }
+    }
+
+    private async deleteAmountToCart(cartItem: CartItem): Promise<void> {
+        const productId: number = cartItem.id;  
+        const result: number | undefined = await this._userService.deleteItem(productId);
+        if (result !== undefined) {
+            await this.loadCartItems();
+        }
     }
 
     public renderMyCartText(): TemplateResult {
         return html` <div class="my-cart-title">My Cart:</div>`;
     }
 
+
+
     public renderCheckout(): TemplateResult {
-        return html` <div class="checkout-box">
-            <button class="checkout-button">Checkout</button>
-            <div class="total-price">Total: €${this.calculateTotalPrice()}</div>
-        </div>`;
+        return html` 
+            <div class="checkout-box">
+                <button class="checkout-button" @click=${this.triggerNavigation()}>
+                    Checkout
+                </button>
+                <div class="total-price">Total: €${this.calculateTotalPrice(this._cartItemsArray)}</div>
+            </div>`;
     }
 
-    public render(): TemplateResult{
-        console.log(this._cartItem);
-        
+
+    private triggerNavigation(): any {
+    return this.renderCheckoutPage();
+      }
+  
+    public renderCheckoutPage(): TemplateResult {
+        return html` 
+            <!-- <checkout-page></checkout-page> -->
+            `;
+    }
+
+    public render(): TemplateResult {
         return html`
             <div class="cart-body">
-                ${this._cartItemsArray.length 
+                ${this._cartItemsArray.length === 0 
                     ? html`<div>Loading... Please wait a moment.</div>`
                     : html`
                           ${this.renderMyCartText()}
-                         ${this._cartItem?.map((e) => this.renderOrderItem(e))}
+                          ${this._cartItemsArray.map((e) => this.renderOrderItem(e))}
                           ${this.renderCheckout()}
+                          
+                          ${this.renderCheckoutPage()}
                       `}
             </div>
         `;
