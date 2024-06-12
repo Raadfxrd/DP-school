@@ -7,7 +7,7 @@ export class GamesController {
         console.log("Fetching games products");
         try {
             const result: game[] = await queryDatabase<game[]>(
-                "SELECT * FROM product WHERE tags WHERE tags = 'game'"
+                "SELECT * FROM product WHERE tags = 'game';"
 
             );
             res.json(result);
