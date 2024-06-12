@@ -19,11 +19,6 @@ router.post(
     asyncHandler((req: Request, res: Response) => userController.register(req, res))
 );
 
-router.post(
-"/cart/plusone",
-asyncHandler((req: Request) => userController.addOneToCart(req))
-);
-
 
 router.post(
     "/users/login",
@@ -54,14 +49,35 @@ router.get(
 );
 
 router.post(
+    "/users/cart/plusone/:id",
+    asyncHandler((req: Request, res: Response) => userController.addOneToCart(req, res))
+    );
+    
+router.post(
+    "/users/cart/minusone/:id",
+    asyncHandler((req: Request, res: Response) => userController.minusOneToCart(req, res))
+    );
+
+router.post(
+    "/users/cart/delete/:id",
+    asyncHandler((req: Request, res: Response) => userController.deleteItem(req, res))
+    );
+
+router.post(
     "/users/cart/cartinfo/:id",
     asyncHandler((req: Request, res: Response) => userController.addOrderItemToCart(req, res))
+);
+
+router.post(
+    "/users/cart/checkout",
+    asyncHandler((req: Request, res: Response) => userController.checkout(req, res))
 );
 
 router.get(
     "/cart/cartinfo",
     asyncHandler((req: Request, res: Response) => userController.getItemFromCart(req, res))
 );
+
 
 router.get(
     "/users/profile",

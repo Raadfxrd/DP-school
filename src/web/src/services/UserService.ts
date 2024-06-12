@@ -4,6 +4,7 @@ import { TokenService } from "./TokenService";
 import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
 import { CartItem } from "@shared/types";
+import { UserCheckoutFormModel } from "@shared/formModels/UserCheckoutFormModel";
 
 const headers: { "Content-Type": string } = {
     "Content-Type": "application/json",
@@ -75,6 +76,36 @@ export class UserService {
             return false;
         }
     }
+
+    public async checkout(formData: UserCheckoutFormModel): Promise<boolean> {
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/checkout`, {
+                method: "post",
+                headers: headers,
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                console.error(response);
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error("Checkout error", error);
+            return false;
+        }
+    }
+
+
+    public triggerCheckoutPage(result:number): boolean {
+         if (result === 1){;
+            return true;
+        }
+            else{
+     return false;
+    }
+    };
 
     /**
      * Handles user logout
@@ -149,13 +180,13 @@ export class UserService {
      * @returns Current number of order items in the cart when successful, otherwise `false`.
      */
 
-public async amountPlusOne(): Promise<number | undefined>{
+public async amountPlusOne(productId: number): Promise<any>{
     const token: string | undefined = this._tokenService.getToken();
     if (!token) {
         return undefined;
     }
     try {
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/plusone}`, {
+        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/plusone/${productId}`, {
             method: "post",
             headers: { ...headers, authorization: `b ${token}`},
         });
@@ -165,10 +196,55 @@ public async amountPlusOne(): Promise<number | undefined>{
         }
         return (await response.json()) as number;
     } catch (error) {
-        console.error("Add to cart error", error);
+        console.error("Add one cart error", error);
         return undefined;
     }
 };
+
+
+public async amountMinusOne(productId: number): Promise<any>{
+    const token: string | undefined = this._tokenService.getToken();
+    if (!token) {
+        return undefined;
+    }
+    try {
+        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/minusone/${productId}`, {
+            method: "post",
+            headers: { ...headers, authorization: `b ${token}`},
+        });
+        if (!response.ok) {
+            console.error(response);
+            return undefined;
+        }
+        return (await response.json()) as number;
+    } catch (error) {
+        console.error("Minus one cart error", error);
+        return undefined;
+    }
+};
+
+
+public async deleteItem(productId: number): Promise<any>{
+    const token: string | undefined = this._tokenService.getToken();
+    if (!token) {
+        return undefined;
+    }
+    try {
+        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/delete/${productId}`, {
+            method: "post",
+            headers: { ...headers, authorization: `b ${token}`},
+        });
+        if (!response.ok) {
+            console.error(response);
+            return undefined;
+        }
+        return (await response.json()) as number;
+    } catch (error) {
+        console.error("Delete item cart error", error);
+        return undefined;
+    }
+};
+
 
     public async addOrderItemToCart(productId: number): Promise<number | undefined> {
         const token: string | undefined = this._tokenService.getToken();
@@ -193,6 +269,8 @@ public async amountPlusOne(): Promise<number | undefined>{
             return undefined;
         }
     }
+
+    
 
     public async getItemFromCart(): Promise<Array<CartItem> | undefined> {
         const token: string | undefined = this._tokenService.getToken();
@@ -219,6 +297,9 @@ public async amountPlusOne(): Promise<number | undefined>{
             return undefined;
         }
     }
+    
+
+
 
     /**
      * Fetches the user's profile data. Requires a valid token.

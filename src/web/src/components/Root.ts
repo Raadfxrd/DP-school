@@ -11,6 +11,8 @@ import { CartPage } from "./CartPage";
 import { AdminPage } from "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
+import { CartItem } from "@shared/types";
+import { CheckoutPage } from "./CheckoutPage";
 
 export enum RouterPage {
     Home = "orderItems",
@@ -23,7 +25,9 @@ export enum RouterPage {
     Admin = "admin",
     Product = "product",
     Cart = "cart",
+    Checkout = "checkout",
     SearchResults = "searchResults",
+    
 }
 
 declare global {
@@ -31,6 +35,7 @@ declare global {
         "product-page": ProductPage;
         "cart-page": CartPage;
         "admin-page": AdminPage;
+        "checkout-page": CheckoutPage;
     }
 }
 
@@ -703,6 +708,10 @@ export class Root extends LitElement {
 
     @state()
     private _cartItemsCount: number = 0;
+    
+    @state()
+    private _cartItem: CartItem[] | undefined = [];
+    
 
     @state()
     private selectedProduct: OrderItem | undefined = undefined;
@@ -712,6 +721,8 @@ export class Root extends LitElement {
 
     @state()
     private _userProfile?: UserData;
+
+
 
     @state()
     private autoSlideInterval: any;
@@ -757,9 +768,14 @@ export class Root extends LitElement {
 
         if (result) {
             this._isLoggedIn = true;
-            this._cartItemsCount = result.cartItems?.length || 0;
+            this._cartItem = await this._userService.getItemFromCart();
+            if(this._cartItem)
+            this._cartItemsCount = this._cartItem.length;
         }
     }
+    
+    
+
 
     private async getOrderItems(): Promise<void> {
         this._loadingOrderItems = true;
@@ -831,9 +847,7 @@ export class Root extends LitElement {
             return;
         }
 
-        this._cartItemsCount = result.cartItems?.length || 0;
-
-        alert(
+        (
             `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
                 result.cartItems?.join("\r\n- ") || "None"
             }`
@@ -861,16 +875,19 @@ export class Root extends LitElement {
         this._isLoggedIn = false;
     }
 
+
+
+
+
     private async addItemToCart(orderItem: OrderItem): Promise<void> {
         const productId: number = orderItem.id;
         const result: number | undefined = await this._userService.addOrderItemToCart(productId);
-        // console.log(orderItem.id);
         this._userService.addOrderItemToCart;
+        window.location.reload();
         if (!result) {
             return;
         }
 
-        this._cartItemsCount = result;
     }
 
     protected render(): TemplateResult {
@@ -902,6 +919,10 @@ export class Root extends LitElement {
             case RouterPage.Cart:
                 contentTemplate = this.renderCartPage();
                 break;
+            
+            case RouterPage.Checkout:
+                contentTemplate = this.renderCheckoutPage();
+                break;
 
             case RouterPage.Admin:
                 contentTemplate = html`<admin-page></admin-page>`;
@@ -929,7 +950,7 @@ export class Root extends LitElement {
             <header>
                 <nav>
                     <div class="nav-left">
-                        ${this.renderProductsInNav()} ${this.renderNewsInNav()} ${this.renderAccountInNav()}
+                        ${this.renderProductsInNav()} ${this.renderNewsInNav()} ${this.renderAccountInNav()} ${this.renderCheckoutInNav()}
                     </div>
                     <div
                         class="logo"
@@ -1177,6 +1198,12 @@ export class Root extends LitElement {
         return html`<cart-page></cart-page>`;
     }
 
+
+    private renderCheckoutPage(): TemplateResult {
+        return html`<checkout-page></checkout-page>`;
+    }
+
+
     private renderProductsInNav(): TemplateResult {
         return html`
             <div class="dropdown">
@@ -1208,6 +1235,17 @@ export class Root extends LitElement {
             <button>News</button>
         </div>`;
     }
+
+    private renderCheckoutInNav(): any {
+        if (this._currentPage === RouterPage.Cart){
+        return html`<div class ="checkout"
+            @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Checkout)}
+        >
+            <button>Checkout</button>
+        </div>`;
+    }
+}
+
 
     private renderAccountInNav(): TemplateResult {
         if (!this._isLoggedIn) {
@@ -1273,18 +1311,10 @@ export class Root extends LitElement {
         }
     }
 
-    private renderCartInNav(): TemplateResult {
-        if (!this._isLoggedIn) {
-            return html`
-                <button
-                    class="cartbuttondesign"
-                    @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Cart)}
-                >
-                    <img class="cartimg" src="/assets/img/cartimg.png" alt="cartimg" />
-                </button>
-            `;
-        }
 
+    
+
+    private renderCartInNav(): TemplateResult {
         return html`
             <div @click=${this.clickCartButton}>
                 <button
@@ -1296,7 +1326,7 @@ export class Root extends LitElement {
                 </button>
             </div>
         `;
-    }
+}
 
     private renderLoginInNav(): TemplateResult {
         if (this._isLoggedIn) {
@@ -1469,6 +1499,8 @@ export class Root extends LitElement {
     private onChangeName(event: InputEvent): void {
         this._name = (event.target as HTMLInputElement).value;
     }
+
+    
 
     private renderAdminButton(): TemplateResult {
         if (this._isLoggedIn) {
