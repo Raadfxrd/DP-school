@@ -227,12 +227,9 @@ export class Root extends LitElement {
 
         .highlighted-games-carousel {
             display: flex;
-            align-items: center;
             position: relative;
             margin: 0;
             z-index: 0;
-            width: auto;
-            height: 90svh;
         }
 
         .carousel-inner {
@@ -264,7 +261,7 @@ export class Root extends LitElement {
             align-items: center;
             justify-content: space-around;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            height: 80vh;
+            height: 90vh;
             width: 95%;
             box-sizing: border-box;
             transition: transform 0.3s ease;
@@ -272,8 +269,7 @@ export class Root extends LitElement {
 
         .highlighted-game img {
             width: 500px;
-            height: 500px;
-            object-fit: cover;
+            min-height: 500px;
         }
 
         .highlighted-game .product-price {
@@ -289,6 +285,8 @@ export class Root extends LitElement {
 
         .game-details {
             padding: 16px;
+            width: 100%;
+            height: 100%;
         }
 
         .game-details h2 {
@@ -299,6 +297,8 @@ export class Root extends LitElement {
         .game-details p {
             font-size: 1.5rem;
             color: #666;
+            height: 100px;
+            text-align: justify;
         }
 
         .game-details .details,
@@ -414,7 +414,7 @@ export class Root extends LitElement {
 
         .details {
             display: inline-block;
-            width: 100%;
+            min-width: 100%;
             height: 40px;
             background-color: #c4aad0;
             color: #fff;
@@ -954,13 +954,65 @@ export class Root extends LitElement {
                 <div class="sitemap">
                     <h3>Sitemap</h3>
                     <ul>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">Games</a></li>
-                        <li><a href="#">Merchandise</a></li>
-                        <li><a href="#">News</a></li>
-                        <li><a href="#">Account</a></li>
-                        <li><a href="#">Cart</a></li>
-                        <li><a href="#">Login</a></li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Home;
+                                }}
+                                >Home</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Games;
+                                }}
+                                >Games</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Merchandise;
+                                }}
+                                >Merchandise</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.News;
+                                }}
+                                >News</a
+                            >
+                        </li>
+                        ${this._isLoggedIn
+                            ? html`<li>
+                                  <a
+                                      href="#"
+                                      @click=${(): void => {
+                                          this._currentPage = RouterPage.Account;
+                                      }}
+                                      >Account</a
+                                  >
+                              </li>`
+                            : ""}
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Cart;
+                                }}
+                                >Cart</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Login;
+                                }}
+                                >Login</a
+                            >
+                        </li>
                     </ul>
                 </div>
                 <div class="social-media">
