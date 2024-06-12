@@ -762,6 +762,21 @@ export class Root extends LitElement {
             background-color: #ff4c4c;
         }
 
+        .delete-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .delete-button:hover {
+            background-color: #ff1a1a;
+        }
+
         @keyframes showSearchBar {
             from {
                 opacity: 0;
@@ -796,6 +811,8 @@ export class Root extends LitElement {
 
     @state()
     private _showSearchBar: boolean = false;
+
+    private _showingDeleteAccount: boolean = false;
 
     @state()
     private _isLoggedIn: boolean = false;
@@ -1667,9 +1684,14 @@ export class Root extends LitElement {
                 <div class="vertical-nav">
                     <button @click=${this.showProfileDetails}>Profile Details</button>
                     <button @click=${this.showFavorites}>Favorites</button>
+                    <button @click=${this.showDeleteAccount}>Delete Account</button>
                 </div>
                 <div class="profile-content">
-                    ${this._showingFavorites ? this.renderFavorites() : this.renderProfileDetails()}
+                    ${this._showingFavorites
+                        ? this.renderFavorites()
+                        : this._showingDeleteAccount
+                        ? this.renderDeleteAccount()
+                        : this.renderProfileDetails()}
                 </div>
             </div>
         `;
@@ -1677,6 +1699,7 @@ export class Root extends LitElement {
 
     private showProfileDetails(): void {
         this._showingFavorites = false;
+        this._showingDeleteAccount = false;
         this.requestUpdate();
     }
 
@@ -1696,9 +1719,9 @@ export class Root extends LitElement {
     private async showFavorites(): Promise<void> {
         await this.getFavorites();
         this._showingFavorites = true;
+        this._showingDeleteAccount = false;
         this.requestUpdate();
     }
-
     private renderFavorites(): TemplateResult {
         return html`
             <h2>My Favorites</h2>
@@ -1717,6 +1740,53 @@ export class Root extends LitElement {
                       </ul>
                   `}
         `;
+    }
+
+    private showDeleteAccount(): void {
+        this._showingFavorites = false;
+        this._showingDeleteAccount = true;
+        this.requestUpdate();
+    }
+
+    private renderDeleteAccount(): TemplateResult {
+        return html`
+            <h2>Delete Account</h2>
+            <p>Are you sure you want to delete your account? This cannot be undone.</p>
+            <button class="delete-button" @click=${this._confirmDeleteAccount}>Yes, delete my account</button>
+        `;
+    }
+
+    private _confirmDeleteAccount(): void {
+        if (
+            confirm("Weet je zeker dat je je account wilt verwijderen? Dit kan niet ongedaan worden gemaakt.")
+        ) {
+            void this._deleteAccount(); // Voeg 'void' toe om de promise te negeren
+        }
+    }
+
+    private async _deleteAccount(): Promise<void> {
+        try {
+            const token: string | undefined = this._tokenService.getToken();
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/delete`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete account");
+            }
+
+            alert("Account succesvol verwijderd.");
+            this._tokenService.removeToken();
+            // Redirect naar de homepage of login pagina
+            window.location.href = "/";
+        } catch (error) {
+            console.error("Error deleting account:", error);
+            alert("Er is iets misgegaan bij het verwijderen van het account.");
+        }
     }
 
     private toggleNewsItem(index: number): void {

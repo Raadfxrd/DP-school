@@ -92,6 +92,28 @@ export class UserController {
         res.json({ message: "You are logged out." });
     }
 
+    public async deleteAccount(req: Request, res: Response): Promise<void> {
+        if (!req.user) {
+            res.status(401).send("Unauthorized");
+            return;
+        }
+
+        const userId: number = req.user.id;
+
+        try {
+            // Verwijder eerst alle gerelateerde records in de 'favorites' tabel
+            await queryDatabase("DELETE FROM favorites WHERE user_id = ?", userId);
+
+            // Verwijder de gebruiker uit de database
+            await queryDatabase("DELETE FROM user WHERE id = ?", userId);
+
+            res.status(200).json({ message: "Account succesvol verwijderd." });
+        } catch (error) {
+            console.error("Database Error:", error);
+            res.status(500).json({ message: "Database error", error: (error as Error).message });
+        }
+    }
+
     public hello(req: Request, res: Response): void {
         const userData: UserData = req.user;
 

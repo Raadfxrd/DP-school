@@ -119,4 +119,9 @@ router.get(
     asyncHandler((req: Request, res: Response) => favoriteController.getFavorites(req, res))
 );
 
+router.delete(
+    "/users/delete",
+    asyncHandler((req: Request, res: Response) => userController.deleteAccount(req, res))
+);
+
 export default router;
