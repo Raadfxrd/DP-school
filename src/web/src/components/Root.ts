@@ -1268,14 +1268,12 @@ export class Root extends LitElement {
                 <button>Products</button>
                 <div class="dropdown-content">
                     <div class="dropdown-section">
-                        <button @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Games, e)}>
+                        <button @click=${(e: any): void => this.navigateToPage(RouterPage.Games, e)}>
                             Games
                         </button>
                     </div>
                     <div class="dropdown-section">
-                        <button
-                            @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Merchandise, e)}
-                        >
+                        <button @click=${(e: any): void => this.navigateToPage(RouterPage.Merchandise, e)}>
                             Merchandise
                         </button>
                     </div>
@@ -1310,7 +1308,7 @@ export class Root extends LitElement {
             return html``;
         }
 
-        return html`<div @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Account, e)}>
+        return html`<div @click=${(e: any): void => this.navigateToPage(RouterPage.Account, e)}>
             <button>Account</button>
         </div>`;
     }
