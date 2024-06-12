@@ -1,8 +1,8 @@
-import { LitElement, html, css, } from "lit";
+import { LitElement, html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
-//import { product } from "@shared/types/OrderItem";
 import { MerchandiseService } from "../services/MerchService";
 import { merch } from "@shared/types";
+
 @customElement("merchandise-page")
 export class MerchandisePage extends LitElement {
     @state() private merchandise: merch[] = [];
@@ -11,69 +11,111 @@ export class MerchandisePage extends LitElement {
 
     public static styles = css`
         :host {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 50vh;
             padding: 16px;
         }
+
+        .merch-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
         .merch-item {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 20px;
+            padding-top: 0px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            height: 700px;
         }
+
         .merch-item img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
+            width: 450px;
+            height: 450px;
+            max-width: 100%;
         }
+
         .merch-item h2 {
-            margin: 8px 0;
-            font-size: 1.5rem;
+            align-self: stretch;
+            text-align: center;
         }
+
         .merch-item p {
             margin: 8px 0;
         }
+
         .merch-item .price {
+            margin-top: 20px;
+            align-self: flex-end;
+            font-size: 1.5rem;
             font-weight: bold;
-            margin-top: 8px;
+        }
+
+        .details {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .details:hover {
+            background-color: #0056b3;
         }
     `;
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    public connectedCallback() {
+    public connectedCallback(): void {
         super.connectedCallback();
         void this.fetchMerchandise();
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    public async fetchMerchandise() {
+    public async fetchMerchandise(): Promise<void> {
         try {
             // eslint-disable-next-line @typescript-eslint/typedef
             const data = await this.merchandiseService.getAllMerchandise();
-            if (data) {
-                this.merchandise = data;
-            } else {
-                this.merchandise = [];
-            }
+            this.merchandise = data ? data : [];
         } catch (error) {
             console.error("Failed to fetch merchandise items:", error);
             this.merchandise = [];
         }
     }
 
+    private handleDetailsClick(item: merch): void {
+        this.dispatchEvent(new CustomEvent("navigate-to-product", {
+            detail: { item },
+            bubbles: true,
+            composed: true,
+        }));
+    }
+
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     public render() {
         return html`
             <h1>Merchandise</h1>
-            <div>
+            <div class="merch-container">
                 ${this.merchandise.length > 0 ? this.merchandise.map(
                     (item) => html`
-                        <div class="mrech-item">
+                        <div class="merch-item">
                             <img src="${item.thumbnail}" alt="${item.title}" />
                             <h2>${item.title}</h2>
                             <p>${item.description}</p>
                             <p>Authors: ${item.authors}</p>
                             <p>Tags: ${item.tags}</p>
                             <p class="price">$${item.price}</p>
+                            <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
+                                View details
+                            </button>
                         </div>
                     `
                 ) : html`<p>No merchandise available at the moment.</p>`}
