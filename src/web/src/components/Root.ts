@@ -765,6 +765,20 @@ export class Root extends LitElement {
             background-color: #ff1a1a;
         }
 
+        .profile-item label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .profile-item input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
         @keyframes showSearchBar {
             from {
                 opacity: 0;
@@ -840,6 +854,17 @@ export class Root extends LitElement {
 
     @state()
     private _showingFavorites: boolean = false;
+
+    @state()
+    private _showingUpdateProfile: boolean = false;
+
+    @state()
+    private _updatedProfile: UserData = {
+        id: 0, // Standaardwaarde voor id
+        email: "",
+        password: "",
+        name: "",
+    };
 
     private _userService: UserService = new UserService();
     private _orderItemService: OrderItemService = new OrderItemService();
@@ -1595,6 +1620,7 @@ export class Root extends LitElement {
                 <div class="vertical-nav">
                     <button @click=${this.showProfileDetails}>Profile Details</button>
                     <button @click=${this.showFavorites}>Favorites</button>
+                    <button @click=${this.showUpdateProfile}>Update Profile</button>
                     <button @click=${this.showDeleteAccount}>Delete Account</button>
                 </div>
                 <div class="profile-content">
@@ -1602,6 +1628,8 @@ export class Root extends LitElement {
                         ? this.renderFavorites()
                         : this._showingDeleteAccount
                         ? this.renderDeleteAccount()
+                        : this._showingUpdateProfile
+                        ? this.renderUpdateProfile()
                         : this.renderProfileDetails()}
                 </div>
             </div>
@@ -1697,6 +1725,103 @@ export class Root extends LitElement {
         } catch (error) {
             console.error("Error deleting account:", error);
             alert("Er is iets misgegaan bij het verwijderen van het account.");
+        }
+    }
+
+    private showUpdateProfile(): void {
+        this._showingFavorites = false;
+        this._showingDeleteAccount = false;
+        this._showingUpdateProfile = true;
+
+        if (this._userProfile) {
+            this._updatedProfile = { ...this._userProfile };
+        }
+
+        this.requestUpdate();
+    }
+
+    private renderUpdateProfile(): TemplateResult {
+        return html`
+            <h2>Update Profile</h2>
+            <form @submit=${this.handleUpdateProfileSubmit}>
+                <div class="profile-item">
+                    <label>Username:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.username || ""}
+                        @input=${this.onProfileChange("username")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Email:</label>
+                    <input
+                        type="email"
+                        .value=${this._updatedProfile.email || ""}
+                        @input=${this.onProfileChange("email")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Date:</label>
+                    <input
+                        type="date"
+                        .value=${this._updatedProfile.date || ""}
+                        @input=${this.onProfileChange("date")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Gender:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.gender || ""}
+                        @input=${this.onProfileChange("gender")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Street:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.street || ""}
+                        @input=${this.onProfileChange("street")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>House Number:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.houseNumber || ""}
+                        @input=${this.onProfileChange("houseNumber")}
+                    />
+                </div>
+                <div class="profile-item">
+                    <label>Country:</label>
+                    <input
+                        type="text"
+                        .value=${this._updatedProfile.country || ""}
+                        @input=${this.onProfileChange("country")}
+                    />
+                </div>
+                <button type="submit">Update</button>
+            </form>
+        `;
+    }
+
+    private onProfileChange(field: keyof UserData): (event: Event) => void {
+        return (event: Event): void => {
+            const input: HTMLInputElement = event.target as HTMLInputElement;
+            this._updatedProfile = { ...this._updatedProfile, [field]: input.value };
+            this.requestUpdate();
+        };
+    }
+
+    private async handleUpdateProfileSubmit(event: Event): Promise<void> {
+        event.preventDefault();
+        const success: boolean = await this._userService.updateProfile(this._updatedProfile);
+        if (success) {
+            alert("Profile successfully updated.");
+            this._userProfile = { ...this._updatedProfile };
+            this.showProfileDetails();
+        } else {
+            alert("Failed to update profile.");
         }
     }
 
