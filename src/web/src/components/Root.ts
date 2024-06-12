@@ -12,7 +12,6 @@ import "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
 
-
 export enum RouterPage {
     Home = "orderItems",
     Login = "login",
@@ -27,14 +26,13 @@ export enum RouterPage {
     Product = "product",
     Cart = "cart",
     SearchResults = "searchResults",
-    Admin = "Admin"
+    Admin = "Admin",
 }
 
 declare global {
     interface HTMLElementTagNameMap {
         "product-page": ProductPage;
         "cart-page": CartPage;
-
     }
 }
 
@@ -682,7 +680,7 @@ export class Root extends LitElement {
         }
     `;
 
-   @state()
+    @state()
     private _currentPage: RouterPage = RouterPage.Home;
 
     @state()
@@ -1255,7 +1253,7 @@ export class Root extends LitElement {
         event.preventDefault();
         const input: HTMLInputElement | null = (event.target as HTMLFormElement).querySelector("input");
         const query: string = (input?.value || "").trim();
-    
+
         if (query && query !== this._searchQuery) {
             try {
                 const searchResults: OrderItem[] | undefined = await this._orderItemService.search(query);
@@ -1272,7 +1270,7 @@ export class Root extends LitElement {
         } else if (query) {
             this.navigateToPage(RouterPage.SearchResults, query, this._searchResults);
         }
-    }    
+    }
 
     private renderCartInNav(): TemplateResult {
         if (!this._isLoggedIn) {
@@ -1462,12 +1460,12 @@ export class Root extends LitElement {
     private renderAdminButton(): TemplateResult {
         if (this._isLoggedIn) {
             return html`
-                <div @click=${() => this.navigateToPage(RouterPage.Admin)}>
+                <div @click=${(): void => this.navigateToPage(RouterPage.Admin)}>
                     <button>Admin</button>
                 </div>
             `;
-        } 
-        return html`Loading.....`;
+        }
+        return html``;
     }
 
     private onChangeEmail(event: InputEvent): void {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CreateProductFormModelSchema = z.object({
+export const CreateProductFormModelSchema: any = z.object({
     id: z.number().optional(),
     name: z.string().min(1, "Name is required"),
     description: z.string().min(1, "Description is required"),
@@ -11,7 +11,6 @@ export const CreateProductFormModelSchema = z.object({
     imagesUrl: z.array(z.string()).nullable(),
 });
 
-
-export const ProductFormModelSchema = CreateProductFormModelSchema.extend({
+export const ProductFormModelSchema: any = CreateProductFormModelSchema.extend({
     id: z.number().positive(),
 });
