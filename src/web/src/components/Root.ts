@@ -59,6 +59,7 @@ export class Root extends LitElement {
             margin-left: 30px;
             margin-right: 30px;
             flex: 1 0 auto;
+            z-index: 0;
         }
 
         nav {
@@ -79,9 +80,11 @@ export class Root extends LitElement {
         .cartimg {
             width: 75px;
             height: 75px;
-            padding: none;
+            padding: 0;
             border: none;
             z-index: 100;
+            position: absolute;
+            right: 0px;
         }
 
         .cartbutton {
@@ -101,6 +104,7 @@ export class Root extends LitElement {
             border: none;
             border-radius: 50%;
             background: transparent;
+            z-index: 100;
         }
 
         nav button {
@@ -228,11 +232,9 @@ export class Root extends LitElement {
 
         .highlighted-games-carousel {
             display: flex;
-            align-items: center;
             position: relative;
             margin: 0;
-            width: auto;
-            height: 900px;
+            z-index: 0;
         }
 
         .carousel-inner {
@@ -264,15 +266,15 @@ export class Root extends LitElement {
             align-items: center;
             justify-content: space-around;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            height: max-content;
+            height: 90vh;
             width: 95%;
             box-sizing: border-box;
+            transition: transform 0.3s ease;
         }
 
         .highlighted-game img {
             width: 500px;
-            height: 500px;
-            object-fit: cover;
+            min-height: 500px;
         }
 
         .highlighted-game .product-price {
@@ -288,6 +290,8 @@ export class Root extends LitElement {
 
         .game-details {
             padding: 16px;
+            width: 100%;
+            height: 100%;
         }
 
         .game-details h2 {
@@ -298,6 +302,8 @@ export class Root extends LitElement {
         .game-details p {
             font-size: 1.5rem;
             color: #666;
+            height: 100px;
+            text-align: justify;
         }
 
         .game-details .details,
@@ -413,7 +419,7 @@ export class Root extends LitElement {
 
         .details {
             display: inline-block;
-            width: 100%;
+            min-width: 100%;
             height: 40px;
             background-color: #c4aad0;
             color: #fff;
@@ -972,13 +978,65 @@ export class Root extends LitElement {
                 <div class="sitemap">
                     <h3>Sitemap</h3>
                     <ul>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">Games</a></li>
-                        <li><a href="#">Merchandise</a></li>
-                        <li><a href="#">News</a></li>
-                        <li><a href="#">Account</a></li>
-                        <li><a href="#">Cart</a></li>
-                        <li><a href="#">Login</a></li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Home;
+                                }}
+                                >Home</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Games;
+                                }}
+                                >Games</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Merchandise;
+                                }}
+                                >Merchandise</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.News;
+                                }}
+                                >News</a
+                            >
+                        </li>
+                        ${this._isLoggedIn
+                            ? html`<li>
+                                  <a
+                                      href="#"
+                                      @click=${(): void => {
+                                          this._currentPage = RouterPage.Account;
+                                      }}
+                                      >Account</a
+                                  >
+                              </li>`
+                            : ""}
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Cart;
+                                }}
+                                >Cart</a
+                            >
+                        </li>
+                        <li>
+                            <a
+                                @click=${(): void => {
+                                    this._currentPage = RouterPage.Login;
+                                }}
+                                >Login</a
+                            >
+                        </li>
                     </ul>
                 </div>
                 <div class="social-media">
@@ -1210,14 +1268,12 @@ export class Root extends LitElement {
                 <button>Products</button>
                 <div class="dropdown-content">
                     <div class="dropdown-section">
-                        <button @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Games, e)}>
+                        <button @click=${(e: any): void => this.navigateToPage(RouterPage.Games, e)}>
                             Games
                         </button>
                     </div>
                     <div class="dropdown-section">
-                        <button
-                            @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Merchandise, e)}
-                        >
+                        <button @click=${(e: any): void => this.navigateToPage(RouterPage.Merchandise, e)}>
                             Merchandise
                         </button>
                     </div>
@@ -1252,7 +1308,7 @@ export class Root extends LitElement {
             return html``;
         }
 
-        return html`<div @click=${(e: MouseEvent): void => this.navigateToPage(RouterPage.Account, e)}>
+        return html`<div @click=${(e: any): void => this.navigateToPage(RouterPage.Account, e)}>
             <button>Account</button>
         </div>`;
     }
