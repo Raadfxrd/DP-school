@@ -239,6 +239,56 @@ export class UserController {
 
     }
 
+    public async updateProfile(req: Request, res: Response): Promise<void> {
+        if (!req.user) {
+            res.status(401).send("Unauthorized");
+            return;
+        }
+
+        const userId: number = req.user.id;
+        const updatedData: Partial<UserData> = req.body;
+
+        try {
+            // Validatie van de data in updatedData
+            const allowedFields: (keyof UserData)[] = [
+                "username",
+                "email",
+                "date",
+                "gender",
+                "street",
+                "houseNumber",
+                "country",
+            ];
+            const fields: string[] = [];
+            const values: any[] = [];
+
+            for (const [key, value] of Object.entries(updatedData)) {
+                if (allowedFields.includes(key as keyof UserData) && value !== null && value !== undefined) {
+                    fields.push(`${key} = ?`);
+                    values.push(value);
+                }
+            }
+
+            if (fields.length === 0) {
+                res.status(400).json({ message: "No valid fields to update." });
+                return;
+            }
+
+            const query: string = `UPDATE user SET ${fields.join(", ")} WHERE id = ?`;
+            values.push(userId);
+
+            // Debugging: Log query en values
+            console.log("Query:", query);
+            console.log("Values:", values);
+
+            await queryDatabase(query, ...values); // Let op de spread operator hier
+            res.status(200).json({ message: "Profile successfully updated." });
+        } catch (error) {
+            console.error("Database Error:", error);
+            res.status(500).json({ message: "Database error", error: (error as Error).message });
+        }
+    }
+
     // Get the user's profile
     public async getProfile(req: Request, res: Response): Promise<void> {
         if (!req.user) {

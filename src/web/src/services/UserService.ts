@@ -379,4 +379,27 @@ public async deleteItem(productId: number): Promise<any>{
             return [];
         }
     }
+
+    public async updateProfile(updatedData: UserData): Promise<boolean> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/updateProfile`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(updatedData),
+            });
+
+            return response.ok;
+        } catch (error) {
+            console.error("Update profile error", error);
+            return false;
+        }
+    }
 }

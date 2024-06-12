@@ -124,4 +124,9 @@ router.delete(
     asyncHandler((req: Request, res: Response) => userController.deleteAccount(req, res))
 );
 
+router.put(
+    "/users/updateProfile",
+    asyncHandler((req: Request, res: Response) => userController.updateProfile(req, res))
+);
+
 export default router;
