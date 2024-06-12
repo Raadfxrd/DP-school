@@ -31,7 +31,6 @@ export async function handleTokenBasedAuthentication(
 
     try {
         jwtToken = jwt.verify(token, process.env.JWT_SECRET_KEY) as CustomJwtToken;
-        jwtToken = jwt.verify(authenticationToken, process.env.JWT_SECRET_KEY) as CustomJwtToken;
         console.log("Token is valid");
     } catch {
         console.log("Invalid token");
