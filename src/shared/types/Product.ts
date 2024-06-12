@@ -5,7 +5,6 @@ export interface Product {
     price: number;
     thumbnail: string;
     url: string;
-    type: "game" | "merch";
     tags: { tag: string }[];
     authors: { name: string }[];
     images: { url: string }[];

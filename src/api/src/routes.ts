@@ -57,4 +57,20 @@ router.get(
     asyncHandler((req: Request, res: Response) => userController.getProfile(req, res))
 );
 
+// Product routes
+router.post(
+    "/products",
+    asyncHandler((req: Request, res: Response) => productController.create(req, res))
+);
+
+router.put(
+    "/products/:id",
+    asyncHandler((req: Request, res: Response) => productController.update(req, res))
+);
+
+router.delete(
+    "/products/:id",
+    asyncHandler((req: Request, res: Response) => productController.delete(req, res))
+);
+
 export default router;

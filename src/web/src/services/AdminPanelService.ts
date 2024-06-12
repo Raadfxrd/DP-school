@@ -1,62 +1,72 @@
-import { Product } from "../../../shared/types/Product";
+import { Product } from "@shared/types/Product";
+import { api } from "@hboictcloud/api";
 
 export class AdminPanelService {
-    private apiUrl = 'http://your-api-url.com/api'; 
+    private baseUrl = "/api/products";
 
-    public async getProducts(page: number, limit: number): Promise<{ products: Product[], page: number, pages: number, limit: number } | undefined> {
-        const response = await fetch(`${this.apiUrl}/products?page=${page}&limit=${limit}`);
-        if (response.ok) {
-            return response.json();
-        }
-        console.error("Failed to fetch products", response.statusText);
-        return undefined;
+    public async getProducts(page: number, limit: number): Promise<{ products: Product[], page: number, pages: number, limit: number }> {
+        const response = await fetch(`${this.baseUrl}?page=${page}&limit=${limit}`);
+        return response.json();
     }
 
-    public async getProduct(id: number): Promise<Product | undefined> {
-        const response = await fetch(`${this.apiUrl}/products/${id}`);
-        if (response.ok) {
-            return response.json();
-        }
-        console.error("Failed to fetch product", response.statusText);
-        return undefined;
+    public async getProduct(id: number): Promise<Product> {
+        const response = await fetch(`${this.baseUrl}/${id}`);
+        return response.json();
     }
 
-    public async createProduct(product: Partial<Product>): Promise<{ errors: any[], data: Product | null }> {
-        const response = await fetch(`${this.apiUrl}/products`, {
-            method: 'POST',
+    public async createProduct(product: Product): Promise<{ errors: any[], data: Product }> {
+        const response = await fetch(this.baseUrl, {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
             body: JSON.stringify(product),
         });
-        if (response.ok) {
-            return response.json();
-        }
-        console.error("Failed to create product", response.statusText);
-        return { errors: [{ message: "Failed to create product" }], data: null };
+        return response.json();
     }
 
-    public async updateProduct(id: number, product: Partial<Product>): Promise<any[]> {
-        const response = await fetch(`${this.apiUrl}/products/${id}`, {
-            method: 'PUT',
+    public async updateProduct(id: number, product: Product): Promise<any> {
+        const response = await fetch(`${this.baseUrl}/${id}`, {
+            method: "PUT",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
             body: JSON.stringify(product),
         });
-        if (response.ok) {
-            return [];
-        }
-        console.error("Failed to update product", response.statusText);
-        return [{ message: "Failed to update product" }];
+        return response.json();
     }
 
     public async deleteProduct(id: number): Promise<void> {
-        const response = await fetch(`${this.apiUrl}/products/${id}`, {
-            method: 'DELETE',
+        await fetch(`${this.baseUrl}/${id}`, {
+            method: "DELETE",
         });
-        if (!response.ok) {
-            console.error("Failed to delete product", response.statusText);
+    }
+
+    public async uploadFile(fileName: string, dataUrl: string, overwrite: boolean = false): Promise<string> {
+        try {
+            const uploadResponse = await api.uploadFile(fileName, dataUrl, overwrite);
+            if (typeof uploadResponse === "string") {
+                return uploadResponse;
+            } else {
+                throw new Error("Upload failed");
+            }
+        } catch (error: any) {
+            throw new Error(`Upload failed: ${error.message}`);
         }
+    }
+
+    public async readFileAsDataURL(file: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (typeof reader.result === "string") {
+                    resolve(reader.result);
+                } else {
+                    reject(new Error("Failed to read file as data URL."));
+                }
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
     }
 }

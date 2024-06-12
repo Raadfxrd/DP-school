@@ -1,125 +1,122 @@
-/* eslint-disable @typescript-eslint/typedef */
 import { LitElement, TemplateResult, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { RouterPage } from "./Root";
 import { AdminPanelService } from "../services/AdminPanelService";
-import { Product } from "../../../shared/types/Product";
-import { CreateProductFormModelSchema, ProductFormModelSchema } from "../../../shared/formModels/ProductFormModel";
+import { Product } from "@shared/types/Product";
+import { CreateProductFormModelSchema } from "../../../shared/formModels/ProductFormModel";
 import { ZodError } from "zod";
 
-type InputElementType = "text" | "number" | "url" | "textarea"; // Define InputElementType
+type InputElementType = "text" | "number" | "url" | "textarea";
 
 @customElement("admin-page")
 export class AdminPage extends LitElement {
-        public static styles = css`
-            main {
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-                justify-content: center;
-                align-items: center;
-                padding: 10px;
-                margin-left: 30px;
-                margin-right: 30px;
-                flex: 1 0 auto;
-            }
-    
-            h1 {
-                color: #957dad; /* purple color */
-            }
-    
-            form, table {
-                width: 100%;
-                max-width: 550px;
-            }
-    
-            button {
-                border: none;
-                cursor: pointer;
-                background-color: #957dad; /* purple color */
-                color: #ffffff;
-                font-family: sans-serif;
-                font-size: 16px;
-                padding: 10px;
-                border-radius: 25px;
-            }
-    
-            button.delete {
-                background-color: #5a4e7c; /* darker purple color */
-            }
-    
-            input, select, textarea {
-                border: 2px solid #5a4e7c; /* darker purple color */
-                outline: none;
-                border-radius: var(--border-radius);
-                font-size: 1rem;
-                padding: 10px;
-            }
-    
-            label {
-                font-family: sans-serif;
-                color: #5a4e7c; /* darker purple color */
-                margin-bottom: -0.5rem;
-            }
-    
-            span {
-                margin: 0;
-                padding: 0;
-                margin-top: -0.5rem;
-                color: red;
-            }
-    
-            textarea {
-                resize: vertical;
-            }
-    
-            table {
-                margin-top: 1rem;
-            }
-    
-            th {
-                background-color: #957dad; /* purple color */
-                color: #ffffff;
-                font-weight: bold;
-                padding: 0.5rem;
-            }
-    
-            td {
-                padding: 0.5rem;
-            }
-    
-            tr:nth-child(even) {
-                background-color: #f2f2f2; /* light grey color */
-            }
-    
-            tr:hover {
-                background-color: #f1f1f1; /* slightly darker grey color */
-            }
-    
-            .table-footer, .navigation {
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-                gap: 1rem;
-            }
-    
-            .navigation {
-                align-items: center;
-                gap: 1rem;
-            }
-    
-            .actions {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                gap: 0.5rem;
-            }
-    
-            .actions button {
-                width: 100%;
-            }
-        `;
+    public static styles = css`
+        /* Common Styles */
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--theme-color-yellow);
+        }
+
+        form, table {
+            width: 100%;
+            max-width: 550px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            background-color: #957dad;
+            color: #ffffff;
+            font-family: sans-serif;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 25px;
+        }
+
+        button.delete {
+            background-color: #5a4e7c;
+        }
+
+        input, select, textarea {
+            border: 2px solid #957dad;
+            outline: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            padding: 10px;
+        }
+
+        label {
+            font-family: sans-serif;
+            color: #957dad;
+            margin-bottom: -0.5rem;
+        }
+
+        span {
+            margin: 0;
+            padding: 0;
+            margin-top: -0.5rem;
+            color: red;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        table {
+            margin-top: 1rem;
+        }
+
+        th {
+            background-color: #957dad;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 0.5rem;
+        }
+
+        td {
+            padding: 0.5rem;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-footer, .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            gap: 1rem;
+        }
+
+        .navigation {
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .actions button {
+            width: 100%;
+        }
+    `;
+
     private adminPanelService = new AdminPanelService();
 
     @state()
@@ -231,11 +228,6 @@ export class AdminPage extends LitElement {
                 ${this.renderInput("price", "Price", "number", this.product.price)}
                 ${this.renderInput("thumbnail", "Thumbnail", "url", this.product.thumbnail)}
                 ${this.renderInput("url", "URL", "url", this.product.url)}
-                <label for="type">Type</label>
-                <select id="type" name="type" .value=${this.product.type}>
-                    <option value="game">Game</option>
-                    <option value="merch">Merch</option>
-                </select>
                 ${this.renderInput("tags", "Tags (separate by comma)", "text", this.product.tags.map(tag => tag.tag).join(", "))}
                 ${this.renderInput("authors", "Authors (separate by comma)", "text", this.product.authors.map(author => author.name).join(", "))}
                 ${this.renderInput("images", "Images (separate by comma)", "textarea", this.product.images.map(image => image.url).join(", "))}
@@ -331,35 +323,42 @@ export class AdminPage extends LitElement {
                 [curr[0]]: existing ? [...(Array.isArray(existing) ? existing : [existing]), curr[1]] : curr[1],
             };
         }, {});
-
+    
         try {
             this.errors = {};
-            const thumbnailPromise = this.readFileAsDataURL(data.thumbnail as File);
-            const imagesPromise = Promise.all((data.images as File[]).map((file) => this.readFileAsDataURL(file)));
-            const [thumbnail, images] = await Promise.all([thumbnailPromise, imagesPromise]);
-
+    
+            const thumbnailFile = data.thumbnail as File;
+            const imagesFiles = data.images as File[];
+    
+            const thumbnailBase64 = await this.readFileAsDataURL(thumbnailFile);
+            const imagesBase64 = await Promise.all(imagesFiles.map((file) => this.readFileAsDataURL(file)));
+    
+            const thumbnailUrl = await this.adminPanelService.uploadFile(thumbnailFile.name, thumbnailBase64);
+            const imagesUrls = await Promise.all(imagesFiles.map((file, index) => 
+                this.adminPanelService.uploadFile(`image_${index}_${file.name}`, imagesBase64[index])
+            ));
+    
             const parsed = CreateProductFormModelSchema.parse({
                 ...data,
+                title: data.title,
                 price: Number(data.price),
                 authors: (data.authors as string).split(",").map((author: string) => ({ name: author.trim() })),
                 tags: (data.tags as string).split(",").map((tag: string) => ({ tag: tag.trim() })),
-                images: images.map((image: string) => ({ url: image })),
-                thumbnail,
+                images: imagesUrls.map((url) => ({ url })),
+                thumbnail: thumbnailUrl,
+                url: data.url,
+                type: data.type
             });
-
-// @ts-ignore
-            const { errors, data: resp } = await this.adminPanelService.createProduct({
-                ...parsed,
-               
-            });
-
+    
+            const { errors, data: resp } = await this.adminPanelService.createProduct(parsed);
+    
             if (errors.length) {
                 this.errors = errors.reduce((prev: Record<string, string>, curr) => {
                     return { ...prev, [curr.field[0]]: curr.message };
                 }, {});
                 return;
             }
-
+    
             if (resp?.id)
                 this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
         } catch (error) {
@@ -367,11 +366,11 @@ export class AdminPage extends LitElement {
                 this.errors = error.errors.reduce((prev: Record<string, string>, curr) => {
                     return { ...prev, [curr.path[0]]: curr.message };
                 }, {});
-
+    
                 console.error(this.errors);
                 return;
             }
-
+    
             console.error("[Admin Product Create]: Internal error", error);
             alert("An internal error occurred. Please try again later.");
         }
@@ -387,23 +386,36 @@ export class AdminPage extends LitElement {
 
         try {
             this.errors = {};
-            const parsed = ProductFormModelSchema.parse({
+            const thumbnailFile = data.thumbnail as File;
+            const imagesFiles = data.images as unknown as File[];
+
+            const thumbnailBase64 = await this.readFileAsDataURL(thumbnailFile);
+            const imagesBase64 = await Promise.all(imagesFiles.map((file) => this.readFileAsDataURL(file)));
+
+            const thumbnailUrl = await this.adminPanelService.uploadFile(thumbnailFile.name, thumbnailBase64);
+            const imagesUrls = await Promise.all(imagesFiles.map((file, index) =>
+                this.adminPanelService.uploadFile(`image_${index}_${file.name}`, imagesBase64[index])
+            ));
+
+            const parsed = CreateProductFormModelSchema.parse({
                 ...data,
+                title: data.title,
                 price: Number(data.price),
                 authors: (data.authors as string).split(",").map((author: string) => ({ name: author.trim() })),
                 tags: (data.tags as string).split(",").map((tag: string) => ({ tag: tag.trim() })),
-                images: (data.images as string).split(",").map((image: string) => ({ url: image.trim() })),
+                images: imagesUrls.map((url) => ({ url })),
+                thumbnail: thumbnailUrl,
+                url: data.url,
+                type: data.type
             });
 
             const errors = await this.adminPanelService.updateProduct(this.product.id, {
                 ...parsed,
                 id: this.product.id,
-                tags: parsed.tags.map((tag: string) => ({ tag })),
-                authors: parsed.authors.map((author: string) => ({ name: author })),
             } as unknown as Product);
 
             if (errors.length) {
-                this.errors = errors.reduce((prev: Record<string, string>, curr) => {
+                this.errors = errors.reduce((prev: Record<string, string>, curr: { field: any[]; message: any; }) => {
                     return { ...prev, [curr.field[0]]: curr.message };
                 }, {});
                 return;
@@ -424,8 +436,8 @@ export class AdminPage extends LitElement {
             alert("An internal error occurred. Please try again later.");
         }
     }
-
-    private readFileAsDataURL(file: File): Promise<string> {
+    
+    private async readFileAsDataURL(file: File): Promise<string> {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => {
