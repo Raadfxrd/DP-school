@@ -1,14 +1,15 @@
 ### Toekomstgericht organiseren
 
 ### Situatie:
-In mijn games shop wil ik bewuste keuzes maken met betrekking tot maatschappelijke en ethische kwesties in de gaming-industrie. Dit omvat onderwerpen zoals inclusiviteit, duurzaamheid en ethische productiepraktijken.
+In mijn games shop wil ik bewuste keuzes maken met betrekking tot maatschappelijke en ethische kwesties in de gaming-industrie. Dit omvat onderwerpen zoals  duurzaamheid en ethische productiepraktijken.
 ### Taak:
 Mijn doel is om mijn games shop zo te organiseren dat ik een positieve impact heb op de maatschappij en het milieu, naast het behalen van winst.
 ### Actie:
 Om dit te bereiken, onderneem ik de volgende acties:
-1- Diversiteit en inclusiviteit: Ik zal mijn game selecties diversifiëren en ervoor zorgen dat ze inclusief zijn, zodat spelers van verschillende achtergronden zich vertegenwoordigd voelen.
-2- Milieuvriendelijke verpakking en verzending: Ik zal overstappen op milieuvriendelijke verpakkingsmaterialen en verzendopties om mijn ecologische voetafdruk te minimaliseren.
-3- Samenwerking met ethisch verantwoorde producenten: Ik zal samenwerken met gameproducenten die zich inzetten voor ethische productiepraktijken en duurzaamheid.
+1- Ik zal game-ontwikkelaars overtuigen om dark mode als een standaardoptie aan te bieden in hun games, waardoor spelers de keuze hebben om energie te besparen en vermoeidheid van de ogen te verminderen.
+2- Ik zal duidelijk aangeven welke leeftijdsgroep geschikt is voor het spelen van elk spel, zodat ouders en spelers weloverwogen beslissingen kunnen nemen over de geschiktheid van het spel.
+3- Ik zal mijn game shop milieuverantwoordelijk maken door dark mode te promoten in mijn games en recyclebaar plastic te gebruiken voor het merchandising.
+4- Milieuvriendelijke verpakking en verzending: Ik zal overstappen op milieuvriendelijke verpakkingsmaterialen en verzendopties om mijn ecologische voetafdruk te minimaliseren.
 ### Resultaat:
 Het resultaat van deze acties zal zijn dat mijn games shop niet alleen winstgevend is, maar ook een positieve impact heeft op de maatschappij en het milieu.
 ### Reflectie:
