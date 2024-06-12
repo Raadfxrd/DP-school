@@ -264,8 +264,14 @@ export class UserController {
 
             for (const [key, value] of Object.entries(updatedData)) {
                 if (allowedFields.includes(key as keyof UserData) && value !== null && value !== undefined) {
-                    fields.push(`${key} = ?`);
-                    values.push(value);
+                    if (key === "date") {
+                        const formattedDate: string = new Date(value).toISOString().split("T")[0];
+                        fields.push(`${key} = ?`);
+                        values.push(formattedDate);
+                    } else {
+                        fields.push(`${key} = ?`);
+                        values.push(value);
+                    }
                 }
             }
 
@@ -281,7 +287,7 @@ export class UserController {
             console.log("Query:", query);
             console.log("Values:", values);
 
-            await queryDatabase(query, ...values); // Let op de spread operator hier
+            await queryDatabase(query, ...values);
             res.status(200).json({ message: "Profile successfully updated." });
         } catch (error) {
             console.error("Database Error:", error);
