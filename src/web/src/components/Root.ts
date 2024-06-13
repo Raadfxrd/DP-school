@@ -7,10 +7,11 @@ import { OrderItemService } from "../services/OrderItemService";
 import { UserData } from "@shared/types/UserData";
 import { ProductPage } from "./ProductPage";
 import { CartPage } from "./CartPage";
-import { AdminPage } from "./AdminPage";
+import "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
 import { CheckoutPage } from "./CheckoutPage";
+import { AdminPage } from "./AdminPage";
 
 export enum RouterPage {
     Home = "orderItems",
@@ -20,13 +21,15 @@ export enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-    Admin = "admin",
+    Admin = "Admin",
+    AdminOverviewPage = "admin-overview",
+    AdminCreateProductPage = "admin-create-product",
+    AdminEditProductPage = "admin-edit-product",
     Product = "product",
     Cart = "cart",
     Checkout = "checkout",
     SearchResults = "searchResults",
     Favorites = "favorites",
-    AdminEditProductPage = "AdminEditProductPage",
 }
 
 declare global {
