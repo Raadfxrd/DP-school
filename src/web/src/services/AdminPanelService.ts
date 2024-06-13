@@ -68,43 +68,17 @@ export class AdminPanelService {
         return response.json();
     }
 
-    public async updateProduct(id: number, product: OrderItem): Promise<{ errors: any[]; data: OrderItem }> {
-        type FormattedProduct = {
-            title: string;
-            description: string;
-            price: number;
-            thumbnailUrl: string;
-            imagesUrl: string[];
-            authors: string;
-            tags: string;
-            quantity: number;
-        };
-
-        const formattedProduct: FormattedProduct = {
-            title: product.title,
-            description: product.description,
-            price: product.price,
-            thumbnailUrl: product.thumbnail,
-            imagesUrl: product.images,
-            authors: JSON.stringify(product.authors),
-            tags: JSON.stringify(product.tags),
-            quantity: product.quantity,
-        };
-
+    public async updateProduct(id: number, product: Partial<OrderItem>): Promise<{ errors: any[]; data: OrderItem }> {
         const response: Response = await fetch(`${this.apiUrl}products/${id}`, {
             method: "PUT",
             headers: this.getHeaders(),
-            body: JSON.stringify(formattedProduct),
+            body: JSON.stringify(product),
         });
 
-        if (response.status === 401) {
-            console.error("Unauthorized Error: ", await response.text());
-            throw new Error("Unauthorized");
-        }
-
-        if (response.status === 404) {
-            console.error("Not Found Error: ", await response.text());
-            throw new Error("Not Found");
+        if (!response.ok) {
+            const errorText: string = await response.text();
+            console.error("Error Response: ", errorText);
+            throw new Error(response.statusText);
         }
 
         return response.json();
