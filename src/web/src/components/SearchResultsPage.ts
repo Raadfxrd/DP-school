@@ -129,7 +129,7 @@ export class SearchResultsPage extends LitElement {
                                               <p>
                                                   Tags: ${item.tags ? item.tags.join(", ").split(", ") : ""}
                                               </p>
-                                              
+
                                               <p>Price: €${item.price ?? ""}</p>
                                           </div>
                                       </li>

@@ -208,8 +208,9 @@ export class ProductPage extends LitElement {
         if (!this.productData) {
             return html`<div>No product data available</div>`;
         }
+
         if (typeof this.productData.images === "string") {
-            (this.productData.images as string).split(", ");
+            this.productData.images = this.productData.images.split(", ");
         }
         let allImages: string[] = [];
         if (this.productData.thumbnail) {
