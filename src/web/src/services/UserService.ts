@@ -14,6 +14,7 @@ const headers: { "Content-Type": string } = {
  */
 export class UserService {
     private _tokenService: TokenService = new TokenService();
+    private apiUrl: string = viteConfiguration.API_URL;
 
     /**
      * Handles user login
@@ -24,7 +25,7 @@ export class UserService {
      */
     public async login(formData: UserLoginFormModel): Promise<boolean> {
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/login`, {
+            const response: Response = await fetch(`${this.apiUrl}users/login`, {
                 method: "post",
                 headers: headers,
                 body: JSON.stringify(formData),
@@ -58,7 +59,7 @@ export class UserService {
      */
     public async register(formData: UserRegisterFormModel): Promise<boolean> {
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/register`, {
+            const response: Response = await fetch(`${this.apiUrl}users/register`, {
                 method: "post",
                 headers: headers,
                 body: JSON.stringify(formData),
@@ -78,7 +79,7 @@ export class UserService {
 
     public async checkout(formData: UserCheckoutFormModel): Promise<boolean> {
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/checkout`, {
+            const response: Response = await fetch(`${this.apiUrl}users/cart/checkout`, {
                 method: "post",
                 headers: headers,
                 body: JSON.stringify(formData),
@@ -116,7 +117,7 @@ export class UserService {
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/logout`, {
+            const response: Response = await fetch(`${this.apiUrl}users/logout`, {
                 method: "get",
                 headers: { ...headers, Authorization: `Bearer ${token}` },
             });
@@ -134,7 +135,6 @@ export class UserService {
         }
     }
 
-   
     /**
      * Handles adding an order item to the cart of the current user. Requires a valid token.
      *
@@ -147,13 +147,10 @@ export class UserService {
             return undefined;
         }
         try {
-            const response: Response = await fetch(
-                `${viteConfiguration.API_URL}users/cart/plusone/${productId}`,
-                {
-                    method: "post",
-                    headers: { ...headers, authorization: `b ${token}` },
-                }
-            );
+            const response: Response = await fetch(`${this.apiUrl}users/cart/plusone/${productId}`, {
+                method: "post",
+                headers: { ...headers, authorization: `b ${token}` },
+            });
             if (!response.ok) {
                 console.error(response);
                 return undefined;
@@ -171,13 +168,10 @@ export class UserService {
             return undefined;
         }
         try {
-            const response: Response = await fetch(
-                `${viteConfiguration.API_URL}users/cart/minusone/${productId}`,
-                {
-                    method: "post",
-                    headers: { ...headers, authorization: `b ${token}` },
-                }
-            );
+            const response: Response = await fetch(`${this.apiUrl}users/cart/minusone/${productId}`, {
+                method: "post",
+                headers: { ...headers, authorization: `b ${token}` },
+            });
             if (!response.ok) {
                 console.error(response);
                 return undefined;
@@ -195,13 +189,10 @@ export class UserService {
             return undefined;
         }
         try {
-            const response: Response = await fetch(
-                `${viteConfiguration.API_URL}users/cart/delete/${productId}`,
-                {
-                    method: "post",
-                    headers: { ...headers, authorization: `b ${token}` },
-                }
-            );
+            const response: Response = await fetch(`${this.apiUrl}users/cart/delete/${productId}`, {
+                method: "post",
+                headers: { ...headers, authorization: `b ${token}` },
+            });
             if (!response.ok) {
                 console.error(response);
                 return undefined;
@@ -220,13 +211,10 @@ export class UserService {
             return undefined;
         }
         try {
-            const response: Response = await fetch(
-                `${viteConfiguration.API_URL}users/cart/cartinfo/${productId}`,
-                {
-                    method: "post",
-                    headers: { ...headers, authorization: `b ${token}` },
-                }
-            );
+            const response: Response = await fetch(`${this.apiUrl}users/cart/cartinfo/${productId}`, {
+                method: "post",
+                headers: { ...headers, authorization: `b ${token}` },
+            });
 
             if (!response.ok) {
                 console.error(response);
@@ -246,7 +234,7 @@ export class UserService {
             return undefined;
         }
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}cart/cartinfo`, {
+            const response: Response = await fetch(`${this.apiUrl}cart/cartinfo`, {
                 method: "get",
                 headers: { ...headers, Authorization: `Bearer ${token}` },
             });
@@ -279,7 +267,7 @@ export class UserService {
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/profile`, {
+            const response: Response = await fetch(`${this.apiUrl}users/profile`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             });
@@ -308,7 +296,7 @@ export class UserService {
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/favorites`, {
+            const response: Response = await fetch(`${this.apiUrl}users/favorites`, {
                 method: "post",
                 headers: { ...headers, Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ productId }),
@@ -328,7 +316,7 @@ export class UserService {
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/favorites`, {
+            const response: Response = await fetch(`${this.apiUrl}users/favorites`, {
                 method: "get",
                 headers: { ...headers, Authorization: `Bearer ${token}` },
             });
@@ -352,7 +340,7 @@ export class UserService {
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/updateProfile`, {
+            const response: Response = await fetch(`${this.apiUrl}users/updateProfile`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -368,11 +356,12 @@ export class UserService {
         }
     }
 
-    
     public checkIfLoggedIn(): boolean {
         const token: string | undefined = this._tokenService.getToken();
         if (!token) {
             return false;
-        } else { return true;}
+        } else {
+            return true;
+        }
     }
 }

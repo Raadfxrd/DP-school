@@ -135,28 +135,32 @@ export class MerchandisePage extends LitElement {
     }
 
     private truncateDescription(description: string | undefined): string {
-        return description && description.length > 30 ? `${description.substring(0, 30)}...` : description || "";
+        return description && description.length > 30
+            ? `${description.substring(0, 30)}...`
+            : description || "";
     }
 
     private renderMerchList(): TemplateResult {
         return html`
             <h1>Merchandise</h1>
             <div class="merch-container">
-                ${this.merchandise.length > 0 ? this.merchandise.map(
-                    (item) => html`
-                        <div class="merch-item">
-                            <img src="${item.thumbnail}" alt="${item.title}" />
-                            <h2>${item.title}</h2>
-                            <p>${this.truncateDescription(item.description)}</p>
-                            <p>Authors: ${item.authors}</p>
-                            <p>Tags: ${item.tags}</p>
-                            <p class="price">$${item.price}</p>
-                            <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
-                                View details
-                            </button>
-                        </div>
-                    `
-                ) : html`<p>No merchandise available at the moment.</p>`}
+                ${this.merchandise.length > 0
+                    ? this.merchandise.map(
+                          (item) => html`
+                              <div class="merch-item">
+                                  <img src="${item.thumbnail}" alt="${item.title}" />
+                                  <h2>${item.title}</h2>
+                                  <p>${this.truncateDescription(item.description)}</p>
+                                  <p>Authors: ${item.authors}</p>
+                                  <p>Tags: ${item.tags}</p>
+                                  <p class="price">$${item.price}</p>
+                                  <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
+                                      View details
+                                  </button>
+                              </div>
+                          `
+                      )
+                    : html`<p>No merchandise available at the moment.</p>`}
             </div>
         `;
     }

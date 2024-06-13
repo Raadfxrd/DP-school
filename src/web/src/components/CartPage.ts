@@ -17,6 +17,9 @@ export class CartPage extends LitElement {
     @state()
     private _cartItem: CartItem[] | undefined = [];
 
+    @state()
+    private _currentPage: string | undefined;
+
     public static styles = css`
         .cart-body {
             display: flex;
@@ -193,6 +196,11 @@ export class CartPage extends LitElement {
         }
     `;
 
+    private navigateToPage(page: string): void {
+        this._currentPage = page;
+        this.requestUpdate();
+    }
+
     public async firstUpdated(): Promise<void> {
         await this.loadCartItems();
     }
@@ -290,31 +298,41 @@ export class CartPage extends LitElement {
     }
 
     public renderCheckout(): TemplateResult {
-        return html` <div class="checkout-box">
-            <button class="checkout-button" @click=${this.triggerNavigation()}>Checkout</button>
-            <div class="total-price">Total: €${this.calculateTotalPrice(this._cartItemsArray)}</div>
-        </div>`;
+        return html`
+            <div class="checkout-box">
+                <button class="checkout-button" @click=${(): void => this.triggerNavigation()}>
+                    Checkout
+                </button>
+                <div class="total-price">Total: €${this.calculateTotalPrice(this._cartItemsArray)}</div>
+            </div>
+        `;
     }
 
-    private triggerNavigation(): any {
-        return this.renderCheckoutPage();
+    private triggerNavigation(): void {
+        this._currentPage = "checkout";
+        this.requestUpdate();
     }
 
     public renderCheckoutPage(): TemplateResult {
-        return html` <!-- <checkout-page></checkout-page> --> `;
+        return html`<checkout-page></checkout-page> `;
     }
 
     public render(): TemplateResult {
-        return html`
-            <div class="cart-body">
-                ${this._cartItemsArray.length === 0
-                    ? html`<div>Loading... Please wait a moment.</div>`
-                    : html`
-                          ${this.renderMyCartText()}
-                          ${this._cartItemsArray.map((e) => this.renderOrderItem(e))} ${this.renderCheckout()}
-                          ${this.renderCheckoutPage()}
-                      `}
-            </div>
-        `;
+        switch (this._currentPage) {
+            case "checkout":
+                return this.renderCheckoutPage();
+            default:
+                return html`
+                    <div class="cart-body">
+                        ${this._cartItemsArray.length === 0
+                            ? html`<div>You have nothing in your cart.</div>`
+                            : html`
+                                  ${this.renderMyCartText()}
+                                  ${this._cartItemsArray.map((e) => this.renderOrderItem(e))}
+                                  ${this.renderCheckout()}
+                              `}
+                    </div>
+                `;
+        }
     }
 }

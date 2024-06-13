@@ -154,34 +154,41 @@ export class AdminPage extends LitElement {
 
     public override async connectedCallback(): Promise<void> {
         super.connectedCallback();
-        await this.updateProducts();
-        void this.fetchProducts();
+        await this.fetchProducts();
 
         const searchParams: URLSearchParams = new URLSearchParams(location.search);
         const id: number = Number(searchParams.get("id"));
         if (id && !isNaN(id)) {
-            const product: OrderItem = await this.adminPanelService.getProduct(id);
-            if (product) {
-                this.loading = false;
+            try {
+                const product: OrderItem = await this.adminPanelService.getProduct(id);
+                if (product) {
+                    this.loading = false;
+                }
+            } catch (error) {
+                console.error("Error fetching product:", error);
             }
         }
     }
 
     public updated(changedProperties: Map<string | number | symbol, unknown>): void {
-        if (changedProperties.has("products")) {
+        if (changedProperties.has("products") && !this.loading) {
             void this.fetchProducts();
         }
     }
 
     public async fetchProducts(): Promise<void> {
         try {
+            console.log("Fetching products...");
+            this.loading = true;
             const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
+            console.log("Products fetched:", result.products);
             this.products = result.products;
-            this.loading = false;
         } catch (error) {
-            console.error("Error during fetching products:", error);
+            console.error("Error fetching products:", error);
             this.products = [];
+        } finally {
             this.loading = false;
+            console.log("Fetch complete. Loading:", this.loading);
         }
     }
 
@@ -195,8 +202,11 @@ export class AdminPage extends LitElement {
     }
 
     private renderOverview(): TemplateResult {
-        if (!this.products) {
-            this.products = [];
+        if (this.loading) {
+            return html`<div>Loading...</div>`;
+        }
+        if (!this.products || this.products.length === 0) {
+            return html`<div>No products available</div>`;
         }
 
         return html`
@@ -214,15 +224,15 @@ export class AdminPage extends LitElement {
                     </tr>
                 </thead>
                 <tbody>
-                    ${this.products.map((product: OrderItem) => {
+                    ${(this.products ?? []).map((product) => {
                         return html`
                             <tr>
                                 <td>${product.id}</td>
                                 <td>${product.title}</td>
                                 <td><img src="${product.thumbnail}" /></td>
                                 <td>${product.description}</td>
-                                <td>${product.authors}</td>
-                                <td>${product.tags}</td>
+                                <td>${product.authors.join(", ")}</td>
+                                <td>${product.tags.join(", ")}</td>
                                 <td>${product.price}</td>
                                 <td class="actions">
                                     <button
@@ -237,7 +247,6 @@ export class AdminPage extends LitElement {
                     })}
                 </tbody>
             </table>
-            <br /><br /><br /><br /><br /><br />
         `;
     }
 
@@ -253,8 +262,6 @@ export class AdminPage extends LitElement {
                 ${this.renderInput("thumbnail", "Thumbnail", "text")}
                 ${this.renderInput("images", "Images (separate by comma)", "text")}
                 <button type="submit">Create</button>
-
-                <br /><br /><br /><br /><br /><br /><br />
             </form>
         `;
     }
@@ -296,28 +303,22 @@ ${value}</textarea
                       type="${type}"
                       step="0.01"
                       placeholder=${placeholder}
-                      value=${value}
+                      .value=${value}
                   />`}
             ${error ? html`<span>${error}</span>` : nothing}
         `;
-    }
-
-    private async updateProducts(): Promise<void> {
-        try {
-            const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
-            this.products = result.products;
-        } catch (error) {
-            console.error("Error updating products:", error);
-            this.products = [];
-        }
     }
 
     private async deleteProduct(id: number): Promise<void> {
         const confirmation: boolean = confirm("Are you sure you want to delete this product?");
         if (!confirmation) return;
 
-        await this.adminPanelService.deleteProduct(id);
-        await this.updateProducts();
+        try {
+            await this.adminPanelService.deleteProduct(id);
+            await this.fetchProducts();
+        } catch (error) {
+            console.error("Error deleting product:", error);
+        }
     }
 
     private async onSubmitCreate(event: SubmitEvent): Promise<void> {
@@ -333,7 +334,7 @@ ${value}</textarea
                 id: data.id ? Number(data.id) : undefined,
                 title: String(data.title || ""),
                 description: String(data.description || ""),
-                price: String(data.price || "0"),
+                price: parseFloat(data.price) || 0,
                 authors: String(data.authors || "")
                     .split(",")
                     .map((author: string) => author.trim()),
@@ -361,12 +362,8 @@ ${value}</textarea
             if (resp?.id) {
                 this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
             }
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error("[Admin Product Create]:", error.message);
-            } else {
-                console.error("[Admin Product Create]: An unknown error occurred", error);
-            }
+        } catch (error) {
+            console.error("[Admin Product Create]:", error);
             alert("An internal error occurred. Please try again later.");
         }
     }
@@ -419,7 +416,7 @@ ${value}</textarea
                 return;
             }
 
-            await this.updateProducts();
+            await this.fetchProducts();
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error("[Admin Product Edit]: Internal error", error.message);

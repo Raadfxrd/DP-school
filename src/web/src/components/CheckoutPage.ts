@@ -291,8 +291,6 @@ export class CheckoutPage extends LitElement {
         return html` <div class="my-cart-title">Checkout</div>`;
     }
 
-    // Root.navigateToPage(RouterPage.Cart);
-
     private async checkoutForm(event: Event): Promise<void> {
         event.preventDefault();
         console.log("Submitting checkout...");
