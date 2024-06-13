@@ -26,7 +26,6 @@ export class AdminPage extends LitElement {
         form,
         table {
             width: 100%;
-            max-width: 550px;
         }
 
         button {
@@ -122,16 +121,7 @@ export class AdminPage extends LitElement {
         }
     `;
 
-    private adminPanelService = new AdminPanelService();
-
-    @state()
-    private page = 1;
-
-    @state()
-    private pages = 1;
-
-    @state()
-    private limit = 10;
+    private adminPanelService: AdminPanelService = new AdminPanelService();
 
     @state()
     private products: OrderItem[] = [];
@@ -140,7 +130,7 @@ export class AdminPage extends LitElement {
     private product: OrderItem | null = null;
 
     @state()
-    private loading = true;
+    private loading: boolean = true;
 
     @state()
     private errors: Record<string, string> = {};
@@ -189,6 +179,10 @@ export class AdminPage extends LitElement {
     }
 
     private renderOverview(): TemplateResult {
+        if (!this.products) {
+            this.products = [];
+        }
+
         return html`
             <table>
                 <thead>
@@ -204,7 +198,7 @@ export class AdminPage extends LitElement {
                     </tr>
                 </thead>
                 <tbody>
-                    ${this.products.map((product) => {
+                    ${this.products.map((product: OrderItem) => {
                         return html`
                             <tr>
                                 <td>${product.id}</td>
@@ -218,10 +212,7 @@ export class AdminPage extends LitElement {
                                     <button @click=${(): void => this.editPage(product.id)}>Edit</button>
                                     <button
                                         class="delete"
-                                        @click=${(): any => this.deleteProduct(product.id)}
-                                    >
-                                        Delete
-                                    </button>
+                                        @click=${(): void => this.deleteProduct(product.id)}>Delete</button>
                                 </td>
                             </tr>
                         `;
@@ -233,22 +224,6 @@ export class AdminPage extends LitElement {
                 <button @click=${(): void => this.changeRoute(RouterPage.AdminCreateProductPage)}>
                     Add Product
                 </button>
-
-                <div class="navigation">
-                    <span>Items per page</span>
-                    <input
-                        type="number"
-                        min="1"
-                        max="100"
-                        name="limit"
-                        value="10"
-                        @input=${this.onLimitChange}
-                    />
-
-                    <span>Page ${this.page} of ${this.pages}</span>
-                    <button @click=${this.previousPage.bind(this)}>Previous</button>
-                    <button @click=${this.nextPage.bind(this)}>Next</button>
-                </div>
             </div>
         `;
     }
@@ -260,18 +235,10 @@ export class AdminPage extends LitElement {
                 ${this.renderInput("title", "Title", "text")}
                 ${this.renderInput("description", "Description", "textarea")}
                 ${this.renderInput("price", "Price", "number")}
-                <label for="thumbnail">Thumbnail</label>
-                <input required id="thumbnail" name="thumbnail" type="file" accept="image/*" />
-                ${this.renderInput("url", "URL", "url")}
-                <label for="type">Type</label>
-                <select id="type" name="type">
-                    <option value="game">Game</option>
-                    <option value="merch">Merch</option>
-                </select>
                 ${this.renderInput("tags", "Tags (separate by comma)", "text")}
                 ${this.renderInput("authors", "Authors (separate by comma)", "text")}
-                <label for="images">Images</label>
-                <input required id="images" name="images" type="file" accept="image/*" multiple />
+                ${this.renderInput("thumbnail", "Thumbnail", "text")}
+                ${this.renderInput("images", "Images (separate by comma)", "text")}
                 <button type="submit">Create</button>
             </form>
         `;
@@ -285,7 +252,7 @@ export class AdminPage extends LitElement {
                 ${this.renderInput("title", "Title", "text", this.product.title)}
                 ${this.renderInput("description", "Description", "textarea", this.product.description)}
                 ${this.renderInput("price", "Price", "number", this.product.price)}
-                ${this.renderInput("thumbnail", "Thumbnail", "url", this.product.thumbnail)}
+                ${this.renderInput("thumbnail", "Thumbnail", "text", this.product.thumbnail)}
                 ${this.renderInput("quantity", "Quantity", "number", this.product.quantity)}
                 ${this.renderInput(
                     "tags",
@@ -302,13 +269,14 @@ export class AdminPage extends LitElement {
                 ${this.renderInput(
                     "images",
                     "Images (separate by comma)",
-                    "textarea",
+                    "text",
                     this.product.images.map((image) => image).join(", ")
                 )}
                 <button type="submit">Save</button>
             </form>
         `;
     }
+
 
     private renderInput(
         id: string,
@@ -320,9 +288,7 @@ export class AdminPage extends LitElement {
         return html`
             <label for="${id}">${placeholder}</label>
             ${type === "textarea"
-                ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>
-${value}</textarea
-                  >`
+                ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>${value}</textarea>`
                 : html`<input
                       required
                       id="${id}"
@@ -337,34 +303,19 @@ ${value}</textarea
     }
 
     private changeRoute(route: RouterPage, options?: { searchParams?: Record<string, any> }): void {
-        const params: string = options?.searchParams
-            ? new URLSearchParams(options.searchParams).toString()
-            : "";
+        const params: string = options?.searchParams ? new URLSearchParams(options.searchParams).toString() : "";
         const url: string = params ? `#${route}?${params}` : `#${route}`;
         window.location.href = url;
     }
 
     private async updateProducts(): Promise<void> {
-        const { products, page, pages, limit } = (await this.adminPanelService.getProducts()) ?? {
-            products: [],
-            page: 1,
-            pages: 1,
-            limit: 10,
-        };
-        this.products = products;
-        this.page = page;
-        this.pages = pages;
-        this.limit = limit;
-    }
-
-    private onLimitChange(event: Event): void {
-        const target: HTMLInputElement = event.target as HTMLInputElement;
-        const limit: number = parseInt(target.value, 10);
-
-        if (limit <= 0 || isNaN(limit)) this.limit = 10;
-        else this.limit = limit;
-
-        void this.updateProducts();
+        try {
+            const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
+            this.products = result.products;
+        } catch (error) {
+            console.error("Error updating products:", error);
+            this.products = [];
+        }
     }
 
     private editPage(id: number): void {
@@ -379,186 +330,58 @@ ${value}</textarea
         await this.updateProducts();
     }
 
-    private async previousPage(): Promise<void> {
-        if (this.page > 1) {
-            this.page -= 1;
-            await this.updateProducts();
-        }
-    }
-
-    private async nextPage(): Promise<void> {
-        if (this.page < this.pages) {
-            this.page += 1;
-            await this.updateProducts();
-        }
-    }
-
     private async onSubmitCreate(event: SubmitEvent): Promise<void> {
         event.preventDefault();
         const form: HTMLFormElement = event.target as HTMLFormElement;
         const formData: FormData = new FormData(form);
-        const data: Record<string, any> = [...formData.entries()].reduce<Record<string, any>>(
-            (prev, curr) => {
-                const existing: any = prev[curr[0]];
-                return {
-                    ...prev,
-                    [curr[0]]: existing
-                        ? [...(Array.isArray(existing) ? existing : [existing]), curr[1]]
-                        : curr[1],
-                };
-            },
-            {}
-        );
-
+        const data: Record<string, any> = Object.fromEntries(formData.entries());
+    
+        this.errors = {};
+    
         try {
-            this.errors = {};
-
-            const thumbnailFile: File = data.thumbnail as File;
-            const imagesFiles: File[] = data.images as File[];
-
-            const thumbnailBase64: string = await this.readFileAsDataURL(thumbnailFile);
-            const imagesBase64: string[] = await Promise.all(
-                imagesFiles.map((file) => this.readFileAsDataURL(file))
-            );
-
-            const thumbnail: string = await this.adminPanelService.uploadFile(
-                thumbnailFile.name,
-                thumbnailBase64
-            );
-            const imagesUrls: string[] = await Promise.all(
-                imagesFiles.map((file, index) =>
-                    this.adminPanelService.uploadFile(`image_${index}_${file.name}`, imagesBase64[index])
-                )
-            );
-
-            const parsed: any = CreateProductFormModelSchema.parse({
-                ...data,
-                title: data.title,
-                price: Number(data.price),
-                authors: (data.authors as string)
-                    .split(",")
-                    .map((author: string) => ({ name: author.trim() })),
-                tags: (data.tags as string).split(",").map((tag: string) => ({ tag: tag.trim() })),
-                images: imagesUrls.map((url) => ({ url })),
-                thumbnail: thumbnail,
-                url: data.url,
-                type: data.type,
+            const parsedData: any = CreateProductFormModelSchema.parse({
+                id: data.id ? Number(data.id) : undefined,
+                title: String(data.title || ""),
+                description: String(data.description || ""),
+                price: String(data.price || "0"), // Ensure price is a string
+                authors: String(data.authors || "").split(",").map((author: string) => author.trim()),
+                tags: String(data.tags || "").split(",").map((tag: string) => tag.trim()),
+                thumbnailUrl: String(data.thumbnail || ""),
+                imagesUrl: String(data.images || "").split(",").map((image: string) => image.trim())
             });
-
-            const { errors, data: resp } = await this.adminPanelService.createProduct(parsed);
-
-            if (errors.length) {
+    
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
+            const { errors, data: resp } = response;
+    
+            if (errors && errors.length) {
                 this.errors = errors.reduce((prev: Record<string, string>, curr) => {
                     return { ...prev, [curr.field[0]]: curr.message };
                 }, {});
                 return;
             }
-
-            if (resp?.id)
+    
+            if (resp?.id) {
                 this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
+            }
         } catch (error) {
+            if (error.message === "Unauthorized") {
+                alert("You are not authorized to perform this action. Please log in.");
+                // Optionally, redirect to login page
+                // window.location.href = "/login";
+                return;
+            }
+    
             if (error instanceof ZodError) {
                 this.errors = error.errors.reduce((prev: Record<string, string>, curr: any) => {
                     return { ...prev, [curr.path[0]]: curr.message };
                 }, {});
-
+    
                 console.error(this.errors);
                 return;
             }
-
+    
             console.error("[Admin Product Create]: Internal error", error);
             alert("An internal error occurred. Please try again later.");
         }
-    }
-
-    private async onSubmitEdit(event: SubmitEvent): Promise<void> {
-        if (!this.product) return;
-
-        event.preventDefault();
-        const form: HTMLFormElement = event.target as HTMLFormElement;
-        const formData: FormData = new FormData(form);
-        const data: {
-            [k: string]: FormDataEntryValue;
-        } = Object.fromEntries(formData.entries());
-
-        try {
-            this.errors = {};
-            const thumbnailFile: File = data.thumbnail as unknown as File;
-            const imagesFiles: File[] = data.images as unknown as File[];
-
-            const thumbnailBase64: string = await this.readFileAsDataURL(thumbnailFile);
-            const imagesBase64: string[] = await Promise.all(
-                imagesFiles.map((file) => this.readFileAsDataURL(file))
-            );
-
-            const thumbnailUrl: string = await this.adminPanelService.uploadFile(
-                thumbnailFile.name,
-                thumbnailBase64
-            );
-            const imagesUrls: string[] = await Promise.all(
-                imagesFiles.map((file, index) =>
-                    this.adminPanelService.uploadFile(`image_${index}_${file.name}`, imagesBase64[index])
-                )
-            );
-
-            const parsed: any = CreateProductFormModelSchema.parse({
-                ...data,
-                id: data.number,
-                title: data.title as string,
-                description: data.description as string,
-                price: Number(data.price),
-                thumbnailUrl: thumbnailUrl,
-                url: data.url,
-                tags: (data.tags as string).split(",").map((tag: string) => ({ tag: tag.trim() })),
-                authors: (data.authors as string)
-                    .split(",")
-                    .map((author: string) => ({ name: author.trim() })),
-                images: imagesUrls,
-            });
-
-            const errors: any = await this.adminPanelService.updateProduct(this.product.id, {
-                ...parsed,
-                id: this.product.id,
-            } as unknown as OrderItem);
-
-            if (errors.length) {
-                this.errors = errors.reduce(
-                    (prev: Record<string, string>, curr: { field: any[]; message: any }) => {
-                        return { ...prev, [curr.field[0]]: curr.message };
-                    },
-                    {}
-                );
-                return;
-            }
-
-            this.changeRoute(RouterPage.AdminOverviewPage);
-        } catch (error) {
-            if (error instanceof ZodError) {
-                this.errors = error.errors.reduce((prev: Record<string, string>, curr: any) => {
-                    return { ...prev, [curr.path[0]]: curr.message };
-                }, {});
-
-                console.error(this.errors);
-                return;
-            }
-
-            console.error("[Admin Product Edit]: Internal error", error);
-            alert("An internal error occurred. Please try again later.");
-        }
-    }
-
-    private async readFileAsDataURL(file: File): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const reader: FileReader = new FileReader();
-            reader.onloadend = (): void => {
-                if (typeof reader.result === "string") {
-                    resolve(reader.result);
-                } else {
-                    reject(new Error("Failed to read file as data URL."));
-                }
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
     }
 }

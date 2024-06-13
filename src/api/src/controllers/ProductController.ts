@@ -19,7 +19,7 @@ export class ProductController {
     public async search(req: Request, res: Response): Promise<void> {
         const query: string = req.query.query as string;
         try {
-            const sqlQuery: any =
+            const sqlQuery: string =
                 "SELECT id, title, thumbnail, images, description, price, authors, tags FROM product WHERE (title LIKE ? OR description LIKE ?) AND price > ? ORDER BY title ASC";
             const sqlParams: (string | number)[] = [`%${query}%`, `%${query}%`, 0];
             const result: OrderItem[] = await queryDatabase<OrderItem[]>(sqlQuery, ...sqlParams);
@@ -31,105 +31,87 @@ export class ProductController {
         }
     }
 
-    // public async create(req: Request, res: Response): Promise<void> {
-    //     try {
-    //         const { title, description, price, authors, tags, thumbnail, images } = req.body;
+    public async create(req: Request, res: Response): Promise<void> {
+        try {
+            const { title, description, price, authors, tags, thumbnail, images } = req.body;
 
-    //         const thumbnailUrl: any = await api.uploadFile(`${title}_thumbnail.png`, thumbnail, true);
+            const newProduct: OrderItem = {
+                id: 0,
+                title: title || "",
+                description: description || "",
+                price: price || 0,
+                thumbnail: thumbnail || "",
+                images: images || [],
+                authors: authors || [],
+                tags: tags || [],
+                quantity: 0,
+            };
 
-    //         const imageUrls: any[] = await Promise.all(
-    //             images.map((image: string, index: number) =>
-    //                 api.uploadFile(`${title}_image${index + 1}.png`, image, true)
-    //             )
-    //         );
+            const sqlQuery: string =
+                "INSERT INTO product (title, description, price, thumbnail, images, authors, tags ) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            const sqlParams: any[] = [
+                newProduct.title,
+                newProduct.description,
+                newProduct.price,
+                newProduct.thumbnail,
+                JSON.stringify(newProduct.images),
+                JSON.stringify(newProduct.authors),
+                JSON.stringify(newProduct.tags),
+            ];
+            const result: { insertId: number } = await queryDatabase<{ insertId: number }>(sqlQuery, ...sqlParams);
+            newProduct.id = result.insertId;
 
-    //         const newProduct: OrderItem = {
-    //             title,
-    //             description,
-    //             price,
-    //             thumbnail: thumbnailUrl as string,
-    //             images: imageUrls as string[],
-    //             authors,
-    //             tags,
-    //             id: 0,
-    //             quantity: 0,
-    //         };
+            res.status(201).json(newProduct);
+        } catch (error: any) {
+            console.error("Database Error:", error.message);
+            res.status(500).json({ message: "Database error", error: error.message });
+        }
+    }
 
-    //         const sqlQuery: any =
-    //             "INSERT INTO product (title, description, price, thumbnail, images, authors, tags ) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    //         const sqlParams: any[] = [
-    //             title,
-    //             description,
-    //             price,
-    //             thumbnailUrl,
-    //             JSON.stringify(newProduct.images),
-    //             JSON.stringify(authors),
-    //             JSON.stringify(tags),
-    //         ];
-    //         const result: {
-    //             insertId: number;
-    //         } = await queryDatabase<{ insertId: number }>(sqlQuery, ...sqlParams);
-    //         newProduct.id = result.insertId;
+    public async update(req: Request, res: Response): Promise<void> {
+        try {
+            const id: number = Number(req.params.id);
+            const { title, description, price, authors, tags, thumbnail, images } = req.body;
 
-    //         res.status(201).json(newProduct);
-    //     } catch (error: any) {
-    //         console.error("Database Error:", error.message);
-    //         res.status(500).json({ message: "Database error", error: error.message });
-    //     }
-    // }
+            const updatedProduct: Partial<OrderItem> = {
+                title: title || "",
+                description: description || "",
+                price: price || 0,
+                thumbnail: thumbnail || "",
+                images: images || [],
+                authors: authors || [],
+                tags: tags || [],
+            };
 
-    // public async update(req: Request, res: Response): Promise<void> {
-    //     try {
-    //         const id: number = Number(req.params.id);
-    //         const { title, description, price, authors, tags, thumbnail, images } = req.body;
+            const sqlQuery: string =
+                "UPDATE product SET title = ?, description = ?, price = ?, thumbnail = ?, images = ?, authors = ?, tags = ? WHERE id = ?";
+            const sqlParams: any[] = [
+                updatedProduct.title,
+                updatedProduct.description,
+                updatedProduct.price,
+                updatedProduct.thumbnail,
+                JSON.stringify(updatedProduct.images),
+                JSON.stringify(updatedProduct.authors),
+                JSON.stringify(updatedProduct.tags),
+                id,
+            ];
+            await queryDatabase(sqlQuery, ...sqlParams);
 
-    //         const thumbnailUrl: any = await api.uploadFile(`${title}_thumbnail.png`, thumbnail, true);
+            res.json({ ...updatedProduct, id });
+        } catch (error: any) {
+            console.error("Database Error:", error.message);
+            res.status(500).json({ message: "Database error", error: error.message });
+        }
+    }
 
-    //         const imageUrls: any[] = await Promise.all(
-    //             images.map((image: string, index: number) =>
-    //                 api.uploadFile(`${title}_image${index + 1}.png`, image, true)
-    //             )
-    //         );
-
-    //         const updatedProduct: Partial<OrderItem> = {
-    //             title,
-    //             description,
-    //             price,
-    //             thumbnail: thumbnailUrl as string,
-    //             images: imageUrls as string[],
-    //             authors,
-    //             tags,
-    //         };
-
-    //         const sqlQuery: any =
-    //             "UPDATE product SET title = ?, description = ?, price = ?, thumbnail = ?, images = ?, authors = ?, tags = ? WHERE id = ?";
-    //         const sqlParams: any[] = [
-    //             title,
-    //             description,
-    //             price,
-    //             thumbnailUrl,
-    //             JSON.stringify(updatedProduct.images),
-    //             JSON.stringify(authors),
-    //             JSON.stringify(tags),
-    //             id,
-    //         ];
-    //         await queryDatabase(sqlQuery, ...sqlParams);
-
-    //         res.json({ ...updatedProduct, id });
-    //     } catch (error: any) {
-    //         console.error("Database Error:", error.message);
-    //         res.status(500).json({ message: "Database error", error: error.message });
-    //     }
-    // }
-
-    // public async delete(req: Request, res: Response): Promise<void> {
-    //     try {
-    //         const id: number = Number(req.params.id);
-    //         await queryDatabase("DELETE FROM product WHERE id = ?", id);
-    //         res.status(204).send();
-    //     } catch (error: any) {
-    //         console.error("Database Error:", error.message);
-    //         res.status(500).json({ message: "Database error", error: error.message });
-    //     }
-    // }
+    public async delete(req: Request, res: Response): Promise<void> {
+        try {
+            const id: number = Number(req.params.id);
+            await queryDatabase("DELETE FROM product WHERE id = ?", id);
+            res.status(204).send();
+        } catch (error: any) {
+            console.error("Database Error:", error.message);
+            res.status(500).json({ message: "Database error", error: error.message });
+        }
+    }
 }

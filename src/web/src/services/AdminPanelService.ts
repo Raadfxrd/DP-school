@@ -1,77 +1,84 @@
 import { OrderItem } from "@shared/types/OrderItem";
+import { TokenService } from "./TokenService";
 
 export class AdminPanelService {
     private apiUrl: string = viteConfiguration.API_URL;
+    private tokenService: TokenService = new TokenService();
 
-    public async getProducts(): Promise<{
-        products: OrderItem[];
-        page: number;
-        pages: number;
-        limit: number;
-    }> {
-        const response: Response = await fetch(`${this.apiUrl}orderItems`);
-        const responseBody: string = await response.text();
-        return JSON.parse(responseBody);
+    private getHeaders(): HeadersInit {
+        const token: string | undefined = this.tokenService.getToken();
+        console.log("Token Retrieved:", token);
+        return {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        };
+    }
+
+    public async getProducts(): Promise<{ products: OrderItem[]; page: number; pages: number; limit: number }> {
+        const response: Response = await fetch(`${this.apiUrl}orderItems`, {
+            headers: this.getHeaders(),
+        });
+        return response.json();
     }
 
     public async getProduct(id: number): Promise<OrderItem> {
-        const response: Response = await fetch(`${this.apiUrl}orderItems/${id}`);
+        const response: Response = await fetch(`${this.apiUrl}orderItems/${id}`, {
+            headers: this.getHeaders(),
+        });
         return response.json();
     }
 
     public async createProduct(product: OrderItem): Promise<{ errors: any[]; data: OrderItem }> {
-        const response: Response = await fetch(this.apiUrl, {
+        const response: Response = await fetch(`${this.apiUrl}products`, { // Updated endpoint
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: this.getHeaders(),
             body: JSON.stringify(product),
         });
+    
+        if (!response.ok) {
+            const errorText: string = await response.text();
+            console.error("Error Response: ", errorText);
+            throw new Error(response.statusText);
+        }
+    
         return response.json();
     }
+    
 
-    public async updateProduct(id: number, product: OrderItem): Promise<any> {
-        const response: Response = await fetch(`${this.apiUrl}/${id}`, {
+    public async updateProduct(id: number, product: OrderItem): Promise<{ errors: any[]; data: OrderItem }> {
+        const response: Response = await fetch(`${this.apiUrl}products/${id}`, { // Updated endpoint
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: this.getHeaders(),
             body: JSON.stringify(product),
         });
+
+        if (response.status === 401) {
+            console.error("Unauthorized Error: ", await response.text());
+            throw new Error("Unauthorized");
+        }
+
+        if (response.status === 404) {
+            console.error("Not Found Error: ", await response.text());
+            throw new Error("Not Found");
+        }
+
         return response.json();
     }
 
     public async deleteProduct(id: number): Promise<void> {
-        await fetch(`${this.apiUrl}/${id}`, {
+        const response: Response = await fetch(`${this.apiUrl}products/${id}`, { // Updated endpoint
             method: "DELETE",
+            headers: this.getHeaders(),
         });
-    }
 
-    // public async uploadFile(fileName: string, dataUrl: string, overwrite: boolean = false): Promise<string> {
-    //     try {
-    //         const uploadResponse: string = await api.uploadFile(fileName, dataUrl, overwrite);
-    //         if (typeof uploadResponse === "string") {
-    //             return uploadResponse;
-    //         } else {
-    //             throw new Error("Upload failed");
-    //         }
-    //     } catch (error: any) {
-    //         throw new Error(`Upload failed: ${error.message}`);
-    //     }
-    // }
+        if (response.status === 401) {
+            console.error("Unauthorized Error: ", await response.text());
+            throw new Error("Unauthorized");
+        }
 
-    public async readFileAsDataURL(file: File): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const reader: FileReader = new FileReader();
-            reader.onloadend = (): void => {
-                if (typeof reader.result === "string") {
-                    resolve(reader.result);
-                } else {
-                    reject(new Error("Failed to read file as data URL."));
-                }
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
+        if (response.status === 404) {
+            console.error("Not Found Error: ", await response.text());
+            throw new Error("Not Found");
+        }
     }
 }
