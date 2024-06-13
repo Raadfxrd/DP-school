@@ -149,8 +149,8 @@ export class AdminPage extends LitElement {
 
     @state()
     private errors: Record<string, string> = {};
-    product: OrderItem | undefined;
-    changeRoute: any;
+    public product: OrderItem | undefined;
+    private changeRoute: any;
 
     public override async connectedCallback(): Promise<void> {
         super.connectedCallback();
