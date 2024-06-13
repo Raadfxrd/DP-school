@@ -679,6 +679,34 @@ export class Root extends LitElement {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
+        .updateProfileButton {
+            display: inline-block;
+            width: 100%;
+            height: 40px;
+            background-color: #c4aad0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .updateProfileButton:hover {
+            background-color: #8e7996;
+        }
+
+        .updateProfileButton:focus {
+            outline: none;
+        }
+
+        .updateProfileButton:active {
+            transform: translateY(1px);
+        }
+
         .vertical-nav {
             flex: 0 0 200px;
             display: flex;
@@ -761,6 +789,34 @@ export class Root extends LitElement {
 
         .favorites-list li button:hover {
             background-color: #ff4c4c;
+        }
+
+        .addFavorite {
+            display: inline-block;
+            width: 100%;
+            height: 40px;
+            background-color: #c4aad0;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .addFavorite:hover {
+            background-color: #8e7996;
+        }
+
+        .addFavorite:focus {
+            outline: none;
+        }
+
+        .addFavorite:active {
+            transform: translateY(1px);
         }
 
         .delete-button {
@@ -906,8 +962,6 @@ export class Root extends LitElement {
         super.disconnectedCallback();
     }
 
-
-
     private async getOrderItems(): Promise<void> {
         this._loadingOrderItems = true;
         const result: OrderItem[] | undefined = await this._orderItemService.getAll();
@@ -947,7 +1001,7 @@ export class Root extends LitElement {
         }
     }
 
-    private checkIfloggedIn():any{
+    private checkIfloggedIn(): any {
         const result: boolean = this._userService.checkIfLoggedIn();
             if(result === true){
                 return this._isLoggedIn = true;}
@@ -982,7 +1036,7 @@ export class Root extends LitElement {
         }
     }
 
-    private clickCartButton(): any{
+    private clickCartButton(): any {
         return this.navigateToPage(RouterPage.Cart);
     }
 
@@ -1863,7 +1917,7 @@ export class Root extends LitElement {
                         @input=${this.onProfileChange("country")}
                     />
                 </div>
-                <button type="submit">Update</button>
+                <button class="updateProfileButton" type="submit">Update</button>
             </form>
         `;
     }
