@@ -4,7 +4,6 @@ import { RouterPage } from "./Root";
 import { AdminPanelService } from "../services/AdminPanelService";
 import { OrderItem } from "@shared/types/OrderItem";
 import { CreateProductFormModelSchema } from "../../../shared/formModels/ProductFormModel";
-import { ZodError } from "zod";
 
 type InputElementType = "text" | "number" | "url" | "textarea";
 
@@ -150,6 +149,8 @@ export class AdminPage extends LitElement {
 
     @state()
     private errors: Record<string, string> = {};
+    product: OrderItem | undefined;
+    changeRoute: any;
 
     public override async connectedCallback(): Promise<void> {
         super.connectedCallback();
@@ -175,8 +176,8 @@ export class AdminPage extends LitElement {
 
     public async fetchProducts(): Promise<void> {
         try {
-            const results: OrderItem[] | undefined = await this.adminPanelService.getProducts();
-            this.products = results ?? [];
+            const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
+            this.products = result.products;
             this.loading = false;
         } catch (error) {
             console.error("Error during fetching products:", error);
@@ -184,6 +185,7 @@ export class AdminPage extends LitElement {
             this.loading = false;
         }
     }
+    
 
     public render(): TemplateResult {
         return html`
@@ -325,9 +327,9 @@ ${value}</textarea
         const form: HTMLFormElement = event.target as HTMLFormElement;
         const formData: FormData = new FormData(form);
         const data: Record<string, any> = Object.fromEntries(formData.entries());
-
+    
         this.errors = {};
-
+    
         try {
             const parsedData: any = CreateProductFormModelSchema.parse({
                 id: data.id ? Number(data.id) : undefined,
@@ -345,42 +347,29 @@ ${value}</textarea
                     .split(",")
                     .map((image: string) => image.trim()),
             });
-
-            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(
-                parsedData
-            );
+    
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
             const { errors, data: resp } = response;
-
+    
             if (errors && errors.length) {
                 this.errors = errors.reduce((prev: Record<string, string>, curr) => {
                     return { ...prev, [curr.field[0]]: curr.message };
                 }, {});
                 return;
             }
-
+    
             if (resp?.id) {
                 this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
             }
-        } catch (error) {
-            if (error.message === "Unauthorized") {
-                alert("You are not authorized to perform this action. Please log in.");
-                return;
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("[Admin Product Create]:", error.message);
+            } else {
+                console.error("[Admin Product Create]: An unknown error occurred", error);
             }
-
-            if (error instanceof ZodError) {
-                this.errors = error.errors.reduce((prev: Record<string, string>, curr: any) => {
-                    return { ...prev, [curr.path[0]]: curr.message };
-                }, {});
-
-                console.error(this.errors);
-                return;
-            }
-
-            console.error("[Admin Product Create]: Internal error", error as string);
             alert("An internal error occurred. Please try again later.");
         }
     }
-
     private async onSubmitEdit(event: SubmitEvent): Promise<void> {
         event.preventDefault();
         const form: HTMLFormElement = event.target as HTMLFormElement;
