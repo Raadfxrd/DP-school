@@ -1040,8 +1040,7 @@ export class Root extends LitElement {
 
     private navigateToPage(page: RouterPage, query?: string, searchResults?: OrderItem[]): void {
         this._currentPage = page;
-        if (page === RouterPage.Product && this.selectedProduct) {
-        } else if (query) {
+        if (query) {
             this._searchQuery = query;
         }
         if (searchResults) {

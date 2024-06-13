@@ -210,12 +210,14 @@ export class ProductPage extends LitElement {
         }
 
         if (typeof this.productData.images === "string") {
-            (this.productData.images as string).split(", ");
+            this.productData.images = (this.productData.images as string).split(", ");
         }
+
         let allImages: string[] = [];
         if (this.productData.thumbnail) {
             allImages.push(this.productData.thumbnail);
         }
+
         if (this.productData.images && this.productData.images.length > 0) {
             allImages = [...allImages, ...this.productData.images];
         }
