@@ -123,12 +123,15 @@ export class SearchResultsPage extends LitElement {
                                               <p>${item.description ?? ""}</p>
                                               ${item.authors
                                                   ? html`<p>
-                                                        Authors: ${item.authors.split(", ").join(", ")}
+                                                        Authors: ${item.authors ? item.authors.join(", ") : null}
+
                                                     </p>`
                                                   : null}
                                               <p>
-                                                  Tags: ${item.tags ? item.tags.split(", ").join(", ") : ""}
+                                                  Tags: ${item.tags ? item.tags.join(", ") : ""}
+
                                               </p>
+                                              
                                               <p>Price: €${item.price ?? ""}</p>
                                           </div>
                                       </li>
