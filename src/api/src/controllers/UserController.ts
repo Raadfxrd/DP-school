@@ -100,7 +100,10 @@ export class UserController {
         const userId: number = req.user.id;
 
         try {
-            // Verwijder eerst alle gerelateerde records in de 'favorites' tabel
+            // Verwijder eerst alle gerelateerde records in de 'cart' tabel
+            await queryDatabase("DELETE FROM cart WHERE user_id = ?", userId);
+
+            // Verwijder alle gerelateerde records in de 'favorites' tabel
             await queryDatabase("DELETE FROM favorites WHERE user_id = ?", userId);
 
             // Verwijder de gebruiker uit de database
@@ -112,8 +115,6 @@ export class UserController {
             res.status(500).json({ message: "Database error", error: (error as Error).message });
         }
     }
-
-   
 
     public async addOneToCart(req: Request, res: Response): Promise<void> {
         const userId: number = req.user.id;
