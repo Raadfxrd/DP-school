@@ -4,14 +4,13 @@ import { RouterPage } from "./Root";
 import { AdminPanelService } from "../services/AdminPanelService";
 import { OrderItem } from "@shared/types/OrderItem";
 import { CreateProductFormModelSchema } from "../../../shared/formModels/ProductFormModel";
-import { ZodError } from "zod";
 
 type InputElementType = "text" | "number" | "url" | "textarea";
 
 @customElement("admin-page")
 export class AdminPage extends LitElement {
     public static styles = css`
-           main {
+        main {
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -29,10 +28,9 @@ export class AdminPage extends LitElement {
             background-color: #f1f1f1;
             padding: 1.5rem;
             width: 100%;
-            align-self:center;
-            text-align:center;
+            align-self: center;
+            text-align: center;
             font-size: 24px;
-
         }
 
         form,
@@ -141,19 +139,18 @@ export class AdminPage extends LitElement {
         }
     `;
 
-private adminPanelService: AdminPanelService = new AdminPanelService();
+    private adminPanelService: AdminPanelService = new AdminPanelService();
 
     @state()
     private products: OrderItem[] = [];
-
-    @state()
-    private product: OrderItem | null = null;
 
     @state()
     private loading: boolean = true;
 
     @state()
     private errors: Record<string, string> = {};
+
+    private changeRoute: any;
 
     public override async connectedCallback(): Promise<void> {
         super.connectedCallback();
@@ -166,7 +163,6 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
             const product: OrderItem = await this.adminPanelService.getProduct(id);
             if (product) {
                 this.loading = false;
-                this.product = product;
             }
         }
     }
@@ -179,8 +175,8 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
 
     public async fetchProducts(): Promise<void> {
         try {
-            const results: OrderItem[] | undefined = await this.adminPanelService.getProducts();
-            this.products = results ?? [];
+            const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
+            this.products = result.products;
             this.loading = false;
         } catch (error) {
             console.error("Error during fetching products:", error);
@@ -231,14 +227,17 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
                                 <td class="actions">
                                     <button
                                         class="delete"
-                                        @click=${(): void => this.deleteProduct(product.id)}>Delete</button>
+                                        @click=${(): any => this.deleteProduct(product.id)}
+                                    >
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         `;
                     })}
                 </tbody>
             </table>
-<br><br><br><br><br><br>
+            <br /><br /><br /><br /><br /><br />
         `;
     }
 
@@ -255,7 +254,7 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
                 ${this.renderInput("images", "Images (separate by comma)", "text")}
                 <button type="submit">Create</button>
 
-                <br><br><br><br><br><br><br>
+                <br /><br /><br /><br /><br /><br /><br />
             </form>
         `;
     }
@@ -287,7 +286,9 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
         return html`
             <label for="${id}">${placeholder}</label>
             ${type === "textarea"
-                ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>${value}</textarea>`
+                ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>
+${value}</textarea
+                  >`
                 : html`<input
                       required
                       id="${id}"
@@ -324,51 +325,46 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
         const form: HTMLFormElement = event.target as HTMLFormElement;
         const formData: FormData = new FormData(form);
         const data: Record<string, any> = Object.fromEntries(formData.entries());
-
+    
         this.errors = {};
-
+    
         try {
             const parsedData: any = CreateProductFormModelSchema.parse({
                 id: data.id ? Number(data.id) : undefined,
                 title: String(data.title || ""),
                 description: String(data.description || ""),
                 price: String(data.price || "0"),
-                authors: String(data.authors || "").split(",").map((author: string) => author.trim()),
-                tags: String(data.tags || "").split(",").map((tag: string) => tag.trim()),
+                authors: String(data.authors || "")
+                    .split(",")
+                    .map((author: string) => author.trim()),
+                tags: String(data.tags || "")
+                    .split(",")
+                    .map((tag: string) => tag.trim()),
                 thumbnail: String(data.thumbnail || ""),
-                images: String(data.images || "").split(",").map((image: string) => image.trim()),
-                
+                images: String(data.images || "")
+                    .split(",")
+                    .map((image: string) => image.trim()),
             });
-
+    
             const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
             const { errors, data: resp } = response;
-
+    
             if (errors && errors.length) {
                 this.errors = errors.reduce((prev: Record<string, string>, curr) => {
                     return { ...prev, [curr.field[0]]: curr.message };
                 }, {});
                 return;
             }
-
+    
             if (resp?.id) {
                 this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
             }
-        } catch (error) {
-            if (error.message === "Unauthorized") {
-                alert("You are not authorized to perform this action. Please log in.");
-                return;
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("[Admin Product Create]:", error.message);
+            } else {
+                console.error("[Admin Product Create]: An unknown error occurred", error);
             }
-
-            if (error instanceof ZodError) {
-                this.errors = error.errors.reduce((prev: Record<string, string>, curr: any) => {
-                    return { ...prev, [curr.path[0]]: curr.message };
-                }, {});
-
-                console.error(this.errors);
-                return;
-            }
-
-            console.error("[Admin Product Create]: Internal error", error);
             alert("An internal error occurred. Please try again later.");
         }
     }
@@ -389,14 +385,29 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
             title: data["edit-title"] ? String(data["edit-title"]) : undefined,
             description: data["edit-description"] ? String(data["edit-description"]) : undefined,
             price: data["edit-price"] ? Number(data["edit-price"]) : undefined,
-            authors: data["edit-authors"] ? String(data["edit-authors"]).split(",").map((author: string) => author.trim()) : undefined,
-            tags: data["edit-tags"] ? String(data["edit-tags"]).split(",").map((tag: string) => tag.trim()) : undefined,
+            authors: data["edit-authors"]
+                ? String(data["edit-authors"])
+                      .split(",")
+                      .map((author: string) => author.trim())
+                : undefined,
+            tags: data["edit-tags"]
+                ? String(data["edit-tags"])
+                      .split(",")
+                      .map((tag: string) => tag.trim())
+                : undefined,
             thumbnail: data["edit-thumbnail"] ? String(data["edit-thumbnail"]) : undefined,
-            images: data["edit-images"] ? String(data["edit-images"]).split(",").map((image: string) => image.trim()) : undefined,
+            images: data["edit-images"]
+                ? String(data["edit-images"])
+                      .split(",")
+                      .map((image: string) => image.trim())
+                : undefined,
         };
 
         try {
-            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.updateProduct(productId, updatedData);
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.updateProduct(
+                productId,
+                updatedData
+            );
             const { errors } = response;
 
             if (errors && errors.length) {
@@ -406,9 +417,13 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
                 return;
             }
 
-            await this.updateProducts(); // Refresh the product list
-        } catch (error) {
-            console.error("[Admin Product Edit]: Internal error", error);
+            await this.updateProducts();
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("[Admin Product Edit]: Internal error", error.message);
+            } else {
+                console.error("[Admin Product Edit]: An unknown error occurred", error);
+            }
             alert("An internal error occurred. Please try again later.");
         }
     }

@@ -34,8 +34,8 @@ export class AdminPanelService {
             title: string;
             description: string;
             price: number;
-            thumbnail: string;
-            images: string[];
+            thumbnailUrl: string;
+            imagesUrl: string[];
             authors: string;
             tags: string;
             quantity: number;
@@ -46,8 +46,8 @@ export class AdminPanelService {
             title: product.title,
             description: product.description,
             price: product.price,
-            thumbnail: product.thumbnail,
-            images: product.images,
+            thumbnailUrl: product.thumbnail,
+            imagesUrl: product.images,
             authors: JSON.stringify(product.authors),
             tags: JSON.stringify(product.tags),
             quantity: product.quantity,
