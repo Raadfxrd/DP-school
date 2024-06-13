@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { MerchandiseService } from "../services/MerchService";
 import { merch } from "@shared/types";
@@ -6,6 +6,8 @@ import { merch } from "@shared/types";
 @customElement("merchandise-page")
 export class MerchandisePage extends LitElement {
     @state() private merchandise: merch[] = [];
+    @state() private selectedMerch: merch | null = null;
+    @state() private _currentPage: string = "home";
 
     private merchandiseService = new MerchandiseService();
 
@@ -22,11 +24,12 @@ export class MerchandisePage extends LitElement {
             display: flex;
             flex-wrap: wrap;
             gap: 16px;
+            justify-content: center;
         }
 
         .merch-item {
+            flex: 1 1 300px;
             padding: 20px;
-            padding-top: 0px;
             border-radius: 10px;
             display: flex;
             flex-direction: column;
@@ -73,6 +76,37 @@ export class MerchandisePage extends LitElement {
         .details:hover {
             background-color: #0056b3;
         }
+
+        .merch-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .merch-details img {
+            width: 100%;
+            height: auto;
+            max-width: 450px;
+            max-height: 450px;
+        }
+
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
     `;
 
     public connectedCallback(): void {
@@ -92,15 +126,20 @@ export class MerchandisePage extends LitElement {
     }
 
     private handleDetailsClick(item: merch): void {
-        this.dispatchEvent(new CustomEvent("navigate-to-product", {
-            detail: { item },
-            bubbles: true,
-            composed: true,
-        }));
+        this.navigateToPage("details", item);
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    public render() {
+    private navigateToPage(page: string, item: merch | null = null): void {
+        this._currentPage = page;
+        this.selectedMerch = item;
+        this.requestUpdate();
+    }
+
+    private truncateDescription(description: string | undefined): string {
+        return description && description.length > 30 ? `${description.substring(0, 30)}...` : description || "";
+    }
+
+    private renderMerchList(): TemplateResult {
         return html`
             <h1>Merchandise</h1>
             <div class="merch-container">
@@ -109,7 +148,7 @@ export class MerchandisePage extends LitElement {
                         <div class="merch-item">
                             <img src="${item.thumbnail}" alt="${item.title}" />
                             <h2>${item.title}</h2>
-                            <p>${item.description}</p>
+                            <p>${this.truncateDescription(item.description)}</p>
                             <p>Authors: ${item.authors}</p>
                             <p>Tags: ${item.tags}</p>
                             <p class="price">$${item.price}</p>
@@ -121,6 +160,30 @@ export class MerchandisePage extends LitElement {
                 ) : html`<p>No merchandise available at the moment.</p>`}
             </div>
         `;
+    }
+
+    private renderMerchDetails(): TemplateResult {
+        if (!this.selectedMerch) {
+            return html`<p>No merchandise selected.</p>`;
+        }
+
+        return html`
+            <div class="merch-details">
+                <img src="${this.selectedMerch.thumbnail}" alt="${this.selectedMerch.title}" />
+                <h2>${this.selectedMerch.title}</h2>
+                <p>${this.selectedMerch.description}</p>
+                <p>Authors: ${this.selectedMerch.authors}</p>
+                <p>Tags: ${this.selectedMerch.tags}</p>
+                <p class="price">$${this.selectedMerch.price}</p>
+                <button class="back-button" @click=${(): void => this.navigateToPage("home")}>
+                    Back to Merchandise
+                </button>
+            </div>
+        `;
+    }
+
+    public render(): TemplateResult {
+        return this._currentPage === "home" ? this.renderMerchList() : this.renderMerchDetails();
     }
 }
 
