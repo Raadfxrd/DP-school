@@ -24,6 +24,17 @@ export class AdminPage extends LitElement {
             color: var(--theme-color-yellow);
         }
 
+        h3 {
+            color: var(--theme-color-yellow);
+            background-color: #f1f1f1;
+            padding: 1.5rem;
+            width: 100%;
+            align-self:center;
+            text-align:center;
+            font-size: 24px;
+
+        }
+
         form,
         table {
             width: 100%;
@@ -132,252 +143,273 @@ export class AdminPage extends LitElement {
 
 private adminPanelService: AdminPanelService = new AdminPanelService();
 
-@state()
-private products: OrderItem[] = [];
+    @state()
+    private products: OrderItem[] = [];
 
+    @state()
+    private product: OrderItem | null = null;
 
-@state()
-private loading: boolean = true;
+    @state()
+    private loading: boolean = true;
 
-@state()
-private errors: Record<string, string> = {};
+    @state()
+    private errors: Record<string, string> = {};
 
-public override async connectedCallback(): Promise<void> {
-    super.connectedCallback();
-    await this.updateProducts();
-}
+    public override async connectedCallback(): Promise<void> {
+        super.connectedCallback();
+        await this.updateProducts();
+        void this.fetchProducts();
 
-public async fetchProducts(): Promise<void> {
-    try {
-        const results: OrderItem[] | undefined = await this.adminPanelService.getProducts();
-        this.products = results ?? [];
-        this.loading = false;
-    } catch (error) {
-        console.error("Error during fetching products:", error);
-        this.products = [];
-        this.loading = false;
-    }
-}
-
-public render(): TemplateResult {
-    return html`
-        <main>
-            ${this.loading ? html`<h1>Loading...</h1>` : nothing}
-            ${this.renderOverview()}
-            ${this.renderCreateForm()}
-            ${this.renderEditForm()}
-        </main>
-    `;
-}
-
-private renderOverview(): TemplateResult {
-    if (!this.products) {
-        this.products = [];
+        const searchParams: URLSearchParams = new URLSearchParams(location.search);
+        const id: number = Number(searchParams.get("id"));
+        if (id && !isNaN(id)) {
+            const product: OrderItem = await this.adminPanelService.getProduct(id);
+            if (product) {
+                this.loading = false;
+                this.product = product;
+            }
+        }
     }
 
-    return html`
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Thumbnail</th>
-                    <th>Description</th>
-                    <th>Authors</th>
-                    <th>Tags</th>
-                    <th>Price</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${this.products.map((product: OrderItem) => {
-                    return html`
-                        <tr>
-                            <td>${product.id}</td>
-                            <td>${product.title}</td>
-                            <td><img src="${product.thumbnail}" /></td>
-                            <td>${product.description}</td>
-                            <td>${product.authors}</td>
-                            <td>${product.tags}</td>
-                            <td>${product.price}</td>
-                            <td class="actions">
-                                <button
-                                    class="delete"
-                                    @click=${(): void => this.deleteProduct(product.id)}>Delete</button>
-                            </td>
-                        </tr>
-                    `;
-                })}
-            </tbody>
-        </table>
-    `;
-}
-
-private renderCreateForm(): TemplateResult {
-    return html`
-        <h1>Create Product</h1>
-        <form @submit=${this.onSubmitCreate.bind(this)}>
-            ${this.renderInput("title", "Title", "text")}
-            ${this.renderInput("description", "Description", "textarea")}
-            ${this.renderInput("price", "Price", "number")}
-            ${this.renderInput("tags", "Tags (separate by comma)", "text")}
-            ${this.renderInput("authors", "Authors (separate by comma)", "text")}
-            ${this.renderInput("thumbnail", "Thumbnail", "text")}
-            ${this.renderInput("images", "Images (separate by comma)", "text")}
-            <button type="submit">Create</button>
-        </form>
-    `;
-}
-
-private renderEditForm(): TemplateResult {
-    return html`
-        <h1>Edit Product</h1>
-        <form @submit=${this.onSubmitEdit.bind(this)}>
-            ${this.renderInput("edit-id", "Product ID", "number")}
-            ${this.renderInput("edit-title", "Title", "text")}
-            ${this.renderInput("edit-description", "Description", "textarea")}
-            ${this.renderInput("edit-price", "Price", "number")}
-            ${this.renderInput("edit-tags", "Tags (separate by comma)", "text")}
-            ${this.renderInput("edit-authors", "Authors (separate by comma)", "text")}
-            ${this.renderInput("edit-thumbnail", "Thumbnail", "text")}
-            ${this.renderInput("edit-images", "Images (separate by comma)", "text")}
-            <button type="submit">Edit</button>
-        </form>
-    `;
-}
-
-private renderInput(
-    id: string,
-    placeholder: string,
-    type: InputElementType | "textarea" = "text",
-    value: any = ""
-): TemplateResult {
-    const error: string | undefined = this.errors[id];
-    return html`
-        <label for="${id}">${placeholder}</label>
-        ${type === "textarea"
-            ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>${value}</textarea>`
-            : html`<input
-                  required
-                  id="${id}"
-                  name="${id}"
-                  type="${type}"
-                  step="0.01"
-                  placeholder=${placeholder}
-                  value=${value}
-              />`}
-        ${error ? html`<span>${error}</span>` : nothing}
-    `;
-}
-
-private async updateProducts(): Promise<void> {
-    try {
-        const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
-        this.products = result.products;
-    } catch (error) {
-        console.error("Error updating products:", error);
-        this.products = [];
+    public updated(changedProperties: Map<string | number | symbol, unknown>): void {
+        if (changedProperties.has("products")) {
+            void this.fetchProducts();
+        }
     }
-}
 
-private async deleteProduct(id: number): Promise<void> {
-    const confirmation: boolean = confirm("Are you sure you want to delete this product?");
-    if (!confirmation) return;
+    public async fetchProducts(): Promise<void> {
+        try {
+            const results: OrderItem[] | undefined = await this.adminPanelService.getProducts();
+            this.products = results ?? [];
+            this.loading = false;
+        } catch (error) {
+            console.error("Error during fetching products:", error);
+            this.products = [];
+            this.loading = false;
+        }
+    }
 
-    await this.adminPanelService.deleteProduct(id);
-    await this.updateProducts();
-}
+    public render(): TemplateResult {
+        return html`
+            <main>
+                ${this.loading ? html`<h1>Loading...</h1>` : nothing} ${this.renderOverview()}
+                ${this.renderCreateForm()} ${this.renderEditForm()}
+            </main>
+        `;
+    }
 
-private async onSubmitCreate(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
-    const form: HTMLFormElement = event.target as HTMLFormElement;
-    const formData: FormData = new FormData(form);
-    const data: Record<string, any> = Object.fromEntries(formData.entries());
+    private renderOverview(): TemplateResult {
+        if (!this.products) {
+            this.products = [];
+        }
 
-    this.errors = {};
+        return html`
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Thumbnail</th>
+                        <th>Description</th>
+                        <th>Authors</th>
+                        <th>Tags</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${this.products.map((product: OrderItem) => {
+                        return html`
+                            <tr>
+                                <td>${product.id}</td>
+                                <td>${product.title}</td>
+                                <td><img src="${product.thumbnail}" /></td>
+                                <td>${product.description}</td>
+                                <td>${product.authors}</td>
+                                <td>${product.tags}</td>
+                                <td>${product.price}</td>
+                                <td class="actions">
+                                    <button
+                                        class="delete"
+                                        @click=${(): void => this.deleteProduct(product.id)}>Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    })}
+                </tbody>
+            </table>
+<br><br><br><br><br><br>
+        `;
+    }
 
-    try {
-        const parsedData: any = CreateProductFormModelSchema.parse({
-            id: data.id ? Number(data.id) : undefined,
-            title: String(data.title || ""),
-            description: String(data.description || ""),
-            price: String(data.price || "0"),
-            authors: String(data.authors || "").split(",").map((author: string) => author.trim()),
-            tags: String(data.tags || "").split(",").map((tag: string) => tag.trim()),
-            thumbnailUrl: String(data.thumbnail || ""),
-            imagesUrl: String(data.images || "").split(",").map((image: string) => image.trim())
-        });
+    private renderCreateForm(): TemplateResult {
+        return html`
+            <h3>Create game</h3>
+            <form @submit=${this.onSubmitCreate.bind(this)}>
+                ${this.renderInput("title", "Title", "text")}
+                ${this.renderInput("description", "Description", "textarea")}
+                ${this.renderInput("price", "Price", "number")}
+                ${this.renderInput("tags", "Tags (separate by comma)", "text")}
+                ${this.renderInput("authors", "Authors (separate by comma)", "text")}
+                ${this.renderInput("thumbnail", "Thumbnail", "text")}
+                ${this.renderInput("images", "Images (separate by comma)", "text")}
+                <button type="submit">Create</button>
 
-        const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
-        const { errors, data: resp } = response;
+                <br><br><br><br><br><br><br>
+            </form>
+        `;
+    }
 
-        if (errors && errors.length) {
-            this.errors = errors.reduce((prev: Record<string, string>, curr) => {
-                return { ...prev, [curr.field[0]]: curr.message };
-            }, {});
+    private renderEditForm(): TemplateResult {
+        return html`
+            <h3>Edit game</h3>
+            <form @submit=${this.onSubmitEdit.bind(this)}>
+                ${this.renderInput("edit-id", "Product ID", "number")}
+                ${this.renderInput("edit-title", "Title", "text")}
+                ${this.renderInput("edit-description", "Description", "textarea")}
+                ${this.renderInput("edit-price", "Price", "number")}
+                ${this.renderInput("edit-tags", "Tags (separate by comma)", "text")}
+                ${this.renderInput("edit-authors", "Authors (separate by comma)", "text")}
+                ${this.renderInput("edit-thumbnail", "Thumbnail", "text")}
+                ${this.renderInput("edit-images", "Images (separate by comma)", "text")}
+                <button type="submit">Edit</button>
+            </form>
+        `;
+    }
+
+    private renderInput(
+        id: string,
+        placeholder: string,
+        type: InputElementType | "textarea" = "text",
+        value: any = ""
+    ): TemplateResult {
+        const error: string | undefined = this.errors[id];
+        return html`
+            <label for="${id}">${placeholder}</label>
+            ${type === "textarea"
+                ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>${value}</textarea>`
+                : html`<input
+                      required
+                      id="${id}"
+                      name="${id}"
+                      type="${type}"
+                      step="0.01"
+                      placeholder=${placeholder}
+                      value=${value}
+                  />`}
+            ${error ? html`<span>${error}</span>` : nothing}
+        `;
+    }
+
+    private async updateProducts(): Promise<void> {
+        try {
+            const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
+            this.products = result.products;
+        } catch (error) {
+            console.error("Error updating products:", error);
+            this.products = [];
+        }
+    }
+
+    private async deleteProduct(id: number): Promise<void> {
+        const confirmation: boolean = confirm("Are you sure you want to delete this product?");
+        if (!confirmation) return;
+
+        await this.adminPanelService.deleteProduct(id);
+        await this.updateProducts();
+    }
+
+    private async onSubmitCreate(event: SubmitEvent): Promise<void> {
+        event.preventDefault();
+        const form: HTMLFormElement = event.target as HTMLFormElement;
+        const formData: FormData = new FormData(form);
+        const data: Record<string, any> = Object.fromEntries(formData.entries());
+
+        this.errors = {};
+
+        try {
+            const parsedData: any = CreateProductFormModelSchema.parse({
+                id: data.id ? Number(data.id) : undefined,
+                title: String(data.title || ""),
+                description: String(data.description || ""),
+                price: String(data.price || "0"),
+                authors: String(data.authors || "").split(",").map((author: string) => author.trim()),
+                tags: String(data.tags || "").split(",").map((tag: string) => tag.trim()),
+                thumbnail: String(data.thumbnail || ""),
+                images: String(data.images || "").split(",").map((image: string) => image.trim()),
+                
+            });
+
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
+            const { errors, data: resp } = response;
+
+            if (errors && errors.length) {
+                this.errors = errors.reduce((prev: Record<string, string>, curr) => {
+                    return { ...prev, [curr.field[0]]: curr.message };
+                }, {});
+                return;
+            }
+
+            if (resp?.id) {
+                this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
+            }
+        } catch (error) {
+            if (error.message === "Unauthorized") {
+                alert("You are not authorized to perform this action. Please log in.");
+                return;
+            }
+
+            if (error instanceof ZodError) {
+                this.errors = error.errors.reduce((prev: Record<string, string>, curr: any) => {
+                    return { ...prev, [curr.path[0]]: curr.message };
+                }, {});
+
+                console.error(this.errors);
+                return;
+            }
+
+            console.error("[Admin Product Create]: Internal error", error);
+            alert("An internal error occurred. Please try again later.");
+        }
+    }
+
+    private async onSubmitEdit(event: SubmitEvent): Promise<void> {
+        event.preventDefault();
+        const form: HTMLFormElement = event.target as HTMLFormElement;
+        const formData: FormData = new FormData(form);
+        const data: Record<string, any> = Object.fromEntries(formData.entries());
+
+        const productId: number = Number(data["edit-id"]);
+        if (!productId) {
+            alert("Please provide a valid Product ID.");
             return;
         }
 
-        if (resp?.id) {
-            this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
-        }
-    } catch (error) {
-        if (error.message === "Unauthorized") {
-            alert("You are not authorized to perform this action. Please log in.");
-            return;
-        }
+        const updatedData: Partial<OrderItem> = {
+            title: data["edit-title"] ? String(data["edit-title"]) : undefined,
+            description: data["edit-description"] ? String(data["edit-description"]) : undefined,
+            price: data["edit-price"] ? Number(data["edit-price"]) : undefined,
+            authors: data["edit-authors"] ? String(data["edit-authors"]).split(",").map((author: string) => author.trim()) : undefined,
+            tags: data["edit-tags"] ? String(data["edit-tags"]).split(",").map((tag: string) => tag.trim()) : undefined,
+            thumbnail: data["edit-thumbnail"] ? String(data["edit-thumbnail"]) : undefined,
+            images: data["edit-images"] ? String(data["edit-images"]).split(",").map((image: string) => image.trim()) : undefined,
+        };
 
-        if (error instanceof ZodError) {
-            this.errors = error.errors.reduce((prev: Record<string, string>, curr: any) => {
-                return { ...prev, [curr.path[0]]: curr.message };
-            }, {});
+        try {
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.updateProduct(productId, updatedData);
+            const { errors } = response;
 
-            console.error(this.errors);
-            return;
+            if (errors && errors.length) {
+                this.errors = errors.reduce((prev: Record<string, string>, curr) => {
+                    return { ...prev, [curr.field[0]]: curr.message };
+                }, {});
+                return;
+            }
+
+            await this.updateProducts(); // Refresh the product list
+        } catch (error) {
+            console.error("[Admin Product Edit]: Internal error", error);
+            alert("An internal error occurred. Please try again later.");
         }
-
-        console.error("[Admin Product Create]: Internal error", error);
-        alert("An internal error occurred. Please try again later.");
     }
-}
-
-private async onSubmitEdit(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
-    const form: HTMLFormElement = event.target as HTMLFormElement;
-    const formData: FormData = new FormData(form);
-    const data: Record<string, any> = Object.fromEntries(formData.entries());
-
-    const productId: number = Number(data["edit-id"]);
-    if (!productId) {
-        alert("Please provide a valid Product ID.");
-        return;
-    }
-
-    const updatedData: Partial<OrderItem> = {
-        title: data["edit-title"] ? String(data["edit-title"]) : undefined,
-        description: data["edit-description"] ? String(data["edit-description"]) : undefined,
-        price: data["edit-price"] ? Number(data["edit-price"]) : undefined,
-        authors: data["edit-authors"] ? String(data["edit-authors"]).split(",").map((author: string) => author.trim()) : undefined,
-        tags: data["edit-tags"] ? String(data["edit-tags"]).split(",").map((tag: string) => tag.trim()) : undefined,
-        thumbnail: data["edit-thumbnail"] ? String(data["edit-thumbnail"]) : undefined,
-        images: data["edit-images"] ? String(data["edit-images"]).split(",").map((image: string) => image.trim()) : undefined,
-    };
-
-    try {
-        const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.updateProduct(productId, updatedData);
-        const { errors } = response;
-
-        if (errors && errors.length) {
-            this.errors = errors.reduce((prev: Record<string, string>, curr) => {
-                return { ...prev, [curr.field[0]]: curr.message };
-            }, {});
-            return;
-        }
-
-        await this.updateProducts(); // Refresh the product list
-    } catch (error) {
-        console.error("[Admin Product Edit]: Internal error", error);
-        alert("An internal error occurred. Please try again later.");
-    }
-}
 }
