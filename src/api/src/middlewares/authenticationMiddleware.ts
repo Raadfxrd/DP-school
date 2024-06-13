@@ -19,7 +19,7 @@ export async function handleTokenBasedAuthentication(
         return;
     }
 
-    const token: string = authHeader.split(" ")[1]; // Extract the token part
+    const token: string = authHeader.split(" ")[1];
 
     if (!token) {
         console.log("Token format is invalid");
@@ -32,8 +32,8 @@ export async function handleTokenBasedAuthentication(
     try {
         jwtToken = jwt.verify(token, process.env.JWT_SECRET_KEY) as CustomJwtToken;
         console.log("Token is valid");
-    } catch (error) {
-        console.log("Invalid token", error);
+    } catch {
+        console.log("Invalid token");
         res.status(401).send("Unauthorized");
         return;
     }

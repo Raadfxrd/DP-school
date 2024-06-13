@@ -1,136 +1,427 @@
-import { LitElement, html, css, CSSResult, TemplateResult } from "lit";
+import { LitElement, TemplateResult, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import { RouterPage } from "./Root";
+import { AdminPanelService } from "../services/AdminPanelService";
+import { OrderItem } from "@shared/types/OrderItem";
+import { CreateProductFormModelSchema } from "../../../shared/formModels/ProductFormModel";
+
+type InputElementType = "text" | "number" | "url" | "textarea";
 
 @customElement("admin-page")
 export class AdminPage extends LitElement {
-    public static styles: CSSResult = css`
-        :host {
-            display: block;
-            padding: 16px;
+    public static styles = css`
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
         }
 
-        form {
-            margin-top: 20px;
-            background: #fbfbfa;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        h1 {
+            color: var(--theme-color-yellow);
         }
 
-        input,
-        textarea {
+        h3 {
+            color: var(--theme-color-yellow);
+            background-color: #f1f1f1;
+            padding: 1.5rem;
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
+            align-self: center;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        form,
+        table {
+            width: 100%;
+            margin: 1rem 0;
         }
 
         button {
-            background-color: #957dad;
-            color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
+            background-color: #957dad;
+            color: #ffffff;
+            font-family: sans-serif;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 25px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        button:hover {
+        button.delete {
             background-color: #5a4e7c;
         }
 
+        input,
+        select,
+        textarea {
+            border: 2px solid #957dad;
+            outline: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
         label {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
+            font-family: sans-serif;
+            color: #957dad;
+            margin-bottom: 0.5rem;
             display: block;
+        }
+
+        span {
+            color: red;
+            font-size: 0.8rem;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        table {
+            margin-top: 1rem;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th {
+            background-color: #957dad;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 0.5rem;
+        }
+
+        td {
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        td img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .form-container {
+            background-color: #f4f4f9;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .actions button {
+            width: auto;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
         }
     `;
 
-    @state()
-    private gameName: string = "";
+    private adminPanelService: AdminPanelService = new AdminPanelService();
 
     @state()
-    private gameDescription: string = "";
+    private products: OrderItem[] = [];
 
     @state()
-    private gamePrice: string = "";
+    private loading: boolean = true;
 
     @state()
-    private gameFile: File | null = null;
+    private errors: Record<string, string> = {};
+    public product: OrderItem | undefined;
+    private changeRoute: any;
 
-    protected render(): TemplateResult {
+    public override async connectedCallback(): Promise<void> {
+        super.connectedCallback();
+        await this.updateProducts();
+        void this.fetchProducts();
+
+        const searchParams: URLSearchParams = new URLSearchParams(location.search);
+        const id: number = Number(searchParams.get("id"));
+        if (id && !isNaN(id)) {
+            const product: OrderItem = await this.adminPanelService.getProduct(id);
+            if (product) {
+                this.loading = false;
+                this.product = product;
+            }
+        }
+    }
+
+    public updated(changedProperties: Map<string | number | symbol, unknown>): void {
+        if (changedProperties.has("products")) {
+            void this.fetchProducts();
+        }
+    }
+
+    public async fetchProducts(): Promise<void> {
+        try {
+            const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
+            this.products = result.products;
+            this.loading = false;
+        } catch (error) {
+            console.error("Error during fetching products:", error);
+            this.products = [];
+            this.loading = false;
+        }
+    }
+    
+
+    public render(): TemplateResult {
         return html`
-            <h2>Upload New Game</h2>
-            <form @submit=${this.handleSubmit}>
-                <label for="gameName">Game Name:</label>
-                <input
-                    id="gameName"
-                    type="text"
-                    .value=${this.gameName}
-                    @input=${this.updateGameName}
-                    placeholder="Enter game name"
-                />
+            <main>
+                ${this.loading ? html`<h1>Loading...</h1>` : nothing} ${this.renderOverview()}
+                ${this.renderCreateForm()} ${this.renderEditForm()}
+            </main>
+        `;
+    }
 
-                <label for="description">Description:</label>
-                <textarea
-                    id="description"
-                    .value=${this.gameDescription}
-                    @input=${this.updateGameDescription}
-                    placeholder="Enter game description"
-                ></textarea>
+    private renderOverview(): TemplateResult {
+        if (!this.products) {
+            this.products = [];
+        }
 
-                <label for="price">Price:</label>
-                <input
-                    id="price"
-                    type="text"
-                    .value=${this.gamePrice}
-                    @input=${this.updateGamePrice}
-                    placeholder="Enter price"
-                />
+        return html`
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Thumbnail</th>
+                        <th>Description</th>
+                        <th>Authors</th>
+                        <th>Tags</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${this.products.map((product: OrderItem) => {
+                        return html`
+                            <tr>
+                                <td>${product.id}</td>
+                                <td>${product.title}</td>
+                                <td><img src="${product.thumbnail}" /></td>
+                                <td>${product.description}</td>
+                                <td>${product.authors}</td>
+                                <td>${product.tags}</td>
+                                <td>${product.price}</td>
+                                <td class="actions">
+                                    <button
+                                        class="delete"
+                                        @click=${(): any => this.deleteProduct(product.id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    })}
+                </tbody>
+            </table>
+            <br /><br /><br /><br /><br /><br />
+        `;
+    }
 
-                <label for="gameFile">Game Image:</label>
-                <input id="gameFile" type="file" @change=${this.updateGameFile} />
+    private renderCreateForm(): TemplateResult {
+        return html`
+            <h3>Create game</h3>
+            <form @submit=${this.onSubmitCreate.bind(this)}>
+                ${this.renderInput("title", "Title", "text")}
+                ${this.renderInput("description", "Description", "textarea")}
+                ${this.renderInput("price", "Price", "number")}
+                ${this.renderInput("tags", "Tags (separate by comma)", "text")}
+                ${this.renderInput("authors", "Authors (separate by comma)", "text")}
+                ${this.renderInput("thumbnail", "Thumbnail", "text")}
+                ${this.renderInput("images", "Images (separate by comma)", "text")}
+                <button type="submit">Create</button>
 
-                <button type="submit">Upload Game</button>
+                <br /><br /><br /><br /><br /><br /><br />
             </form>
         `;
     }
 
-    private updateGameName(e: InputEvent): void {
-        const input: HTMLInputElement = e.target as HTMLInputElement;
-        this.gameName = input.value;
+    private renderEditForm(): TemplateResult {
+        return html`
+            <h3>Edit game</h3>
+            <form @submit=${this.onSubmitEdit.bind(this)}>
+                ${this.renderInput("edit-id", "Product ID", "number")}
+                ${this.renderInput("edit-title", "Title", "text")}
+                ${this.renderInput("edit-description", "Description", "textarea")}
+                ${this.renderInput("edit-price", "Price", "number")}
+                ${this.renderInput("edit-tags", "Tags (separate by comma)", "text")}
+                ${this.renderInput("edit-authors", "Authors (separate by comma)", "text")}
+                ${this.renderInput("edit-thumbnail", "Thumbnail", "text")}
+                ${this.renderInput("edit-images", "Images (separate by comma)", "text")}
+                <button type="submit">Edit</button>
+            </form>
+        `;
     }
 
-    private updateGameDescription(e: InputEvent): void {
-        const textarea: HTMLTextAreaElement = e.target as HTMLTextAreaElement;
-        this.gameDescription = textarea.value;
+    private renderInput(
+        id: string,
+        placeholder: string,
+        type: InputElementType | "textarea" = "text",
+        value: any = ""
+    ): TemplateResult {
+        const error: string | undefined = this.errors[id];
+        return html`
+            <label for="${id}">${placeholder}</label>
+            ${type === "textarea"
+                ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>
+${value}</textarea
+                  >`
+                : html`<input
+                      required
+                      id="${id}"
+                      name="${id}"
+                      type="${type}"
+                      step="0.01"
+                      placeholder=${placeholder}
+                      value=${value}
+                  />`}
+            ${error ? html`<span>${error}</span>` : nothing}
+        `;
     }
 
-    private updateGamePrice(e: InputEvent): void {
-        const input: HTMLInputElement = e.target as HTMLInputElement;
-        this.gamePrice = input.value;
+    private async updateProducts(): Promise<void> {
+        try {
+            const result: { products: OrderItem[] } = await this.adminPanelService.getProducts();
+            this.products = result.products;
+        } catch (error) {
+            console.error("Error updating products:", error);
+            this.products = [];
+        }
     }
 
-    private updateGameFile(e: InputEvent): void {
-        const input: HTMLInputElement = e.target as HTMLInputElement;
-        this.gameFile = input.files ? input.files[0] : null;
+    private async deleteProduct(id: number): Promise<void> {
+        const confirmation: boolean = confirm("Are you sure you want to delete this product?");
+        if (!confirmation) return;
+
+        await this.adminPanelService.deleteProduct(id);
+        await this.updateProducts();
     }
 
-    private handleSubmit(e: SubmitEvent): void {
-        e.preventDefault();
-        console.log("Uploading game:", this.gameName, this.gameDescription, this.gamePrice, this.gameFile);
+    private async onSubmitCreate(event: SubmitEvent): Promise<void> {
+        event.preventDefault();
+        const form: HTMLFormElement = event.target as HTMLFormElement;
+        const formData: FormData = new FormData(form);
+        const data: Record<string, any> = Object.fromEntries(formData.entries());
+    
+        this.errors = {};
+    
+        try {
+            const parsedData: any = CreateProductFormModelSchema.parse({
+                id: data.id ? Number(data.id) : undefined,
+                title: String(data.title || ""),
+                description: String(data.description || ""),
+                price: String(data.price || "0"),
+                authors: String(data.authors || "")
+                    .split(",")
+                    .map((author: string) => author.trim()),
+                tags: String(data.tags || "")
+                    .split(",")
+                    .map((tag: string) => tag.trim()),
+                thumbnail: String(data.thumbnail || ""),
+                images: String(data.images || "")
+                    .split(",")
+                    .map((image: string) => image.trim()),
+            });
+    
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
+            const { errors, data: resp } = response;
+    
+            if (errors && errors.length) {
+                this.errors = errors.reduce((prev: Record<string, string>, curr) => {
+                    return { ...prev, [curr.field[0]]: curr.message };
+                }, {});
+                return;
+            }
+    
+            if (resp?.id) {
+                this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
+            }
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("[Admin Product Create]:", error.message);
+            } else {
+                console.error("[Admin Product Create]: An unknown error occurred", error);
+            }
+            alert("An internal error occurred. Please try again later.");
+        }
+    }
+    private async onSubmitEdit(event: SubmitEvent): Promise<void> {
+        event.preventDefault();
+        const form: HTMLFormElement = event.target as HTMLFormElement;
+        const formData: FormData = new FormData(form);
+        const data: Record<string, any> = Object.fromEntries(formData.entries());
 
-        // Implement the logic to send the data to your server
-        const formData: FormData = new FormData();
-        formData.append("name", this.gameName);
-        formData.append("description", this.gameDescription);
-        formData.append("price", this.gamePrice);
-        formData.append("file", this.gameFile as Blob);
+        const productId: number = Number(data["edit-id"]);
+        if (!productId) {
+            alert("Please provide a valid Product ID.");
+            return;
+        }
 
-        // Fetch API or another method to send formData to the server
-        // Example: fetch("your-api-endpoint", { method: "POST", body: formData });
+        const updatedData: Partial<OrderItem> = {
+            title: data["edit-title"] ? String(data["edit-title"]) : undefined,
+            description: data["edit-description"] ? String(data["edit-description"]) : undefined,
+            price: data["edit-price"] ? Number(data["edit-price"]) : undefined,
+            authors: data["edit-authors"]
+                ? String(data["edit-authors"])
+                      .split(",")
+                      .map((author: string) => author.trim())
+                : undefined,
+            tags: data["edit-tags"]
+                ? String(data["edit-tags"])
+                      .split(",")
+                      .map((tag: string) => tag.trim())
+                : undefined,
+            thumbnail: data["edit-thumbnail"] ? String(data["edit-thumbnail"]) : undefined,
+            images: data["edit-images"]
+                ? String(data["edit-images"])
+                      .split(",")
+                      .map((image: string) => image.trim())
+                : undefined,
+        };
+
+        try {
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.updateProduct(
+                productId,
+                updatedData
+            );
+            const { errors } = response;
+
+            if (errors && errors.length) {
+                this.errors = errors.reduce((prev: Record<string, string>, curr) => {
+                    return { ...prev, [curr.field[0]]: curr.message };
+                }, {});
+                return;
+            }
+
+            await this.updateProducts();
+        } catch (error) {
+            console.error("[Admin Product Edit]: Internal error", error);
+            alert("An internal error occurred. Please try again later.");
+        }
     }
 }

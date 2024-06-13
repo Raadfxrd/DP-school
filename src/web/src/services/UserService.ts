@@ -1,7 +1,6 @@
 import { UserLoginFormModel } from "@shared/formModels/UserLoginFormModel";
 import { UserRegisterFormModel } from "@shared/formModels/UserRegisterFormModel";
 import { TokenService } from "./TokenService";
-import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
 import { CartItem } from "@shared/types";
 import { UserCheckoutFormModel } from "@shared/formModels/UserCheckoutFormModel";
@@ -97,15 +96,13 @@ export class UserService {
         }
     }
 
-
-    public triggerCheckoutPage(result:number): boolean {
-         if (result === 1){;
+    public triggerCheckoutPage(result: number): boolean {
+        if (result === 1) {
             return true;
+        } else {
+            return false;
         }
-            else{
-     return false;
     }
-    };
 
     /**
      * Handles user logout
@@ -137,114 +134,84 @@ export class UserService {
         }
     }
 
-    /**
-     * Handles user welcome message containing user and cart data. Requires a valid token.
-     *
-     * @returns Object with user and cart data when successful, otherwise `undefined`.
-     */
-    public async getWelcome(): Promise<UserHelloResponse | undefined> {
-        const token: string | undefined = this._tokenService.getToken();
-
-        if (!token) {
-            console.error("No token found in local storage.");
-            return undefined;
-        }
-
-        try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/hello`, {
-                method: "GET",
-                headers: {
-                    ...headers,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                const errorText: string = await response.text();
-                console.error(
-                    `Error fetching welcome message: ${response.status} ${response.statusText} - ${errorText}`
-                );
-                return undefined;
-            }
-
-            return (await response.json()) as UserHelloResponse;
-        } catch (error) {
-            console.error("Get welcome error", error);
-            return undefined;
-        }
-    }
-
+   
     /**
      * Handles adding an order item to the cart of the current user. Requires a valid token.
      *
      * @returns Current number of order items in the cart when successful, otherwise `false`.
      */
 
-public async amountPlusOne(productId: number): Promise<any>{
-    const token: string | undefined = this._tokenService.getToken();
-    if (!token) {
-        return undefined;
-    }
-    try {
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/plusone/${productId}`, {
-            method: "post",
-            headers: { ...headers, authorization: `b ${token}`},
-        });
-        if (!response.ok) {
-            console.error(response);
+    public async amountPlusOne(productId: number): Promise<any> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
             return undefined;
         }
-        return (await response.json()) as number;
-    } catch (error) {
-        console.error("Add one cart error", error);
-        return undefined;
-    }
-};
-
-
-public async amountMinusOne(productId: number): Promise<any>{
-    const token: string | undefined = this._tokenService.getToken();
-    if (!token) {
-        return undefined;
-    }
-    try {
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/minusone/${productId}`, {
-            method: "post",
-            headers: { ...headers, authorization: `b ${token}`},
-        });
-        if (!response.ok) {
-            console.error(response);
+        try {
+            const response: Response = await fetch(
+                `${viteConfiguration.API_URL}users/cart/plusone/${productId}`,
+                {
+                    method: "post",
+                    headers: { ...headers, authorization: `b ${token}` },
+                }
+            );
+            if (!response.ok) {
+                console.error(response);
+                return undefined;
+            }
+            return (await response.json()) as number;
+        } catch (error) {
+            console.error("Add one cart error", error);
             return undefined;
         }
-        return (await response.json()) as number;
-    } catch (error) {
-        console.error("Minus one cart error", error);
-        return undefined;
     }
-};
 
-
-public async deleteItem(productId: number): Promise<any>{
-    const token: string | undefined = this._tokenService.getToken();
-    if (!token) {
-        return undefined;
-    }
-    try {
-        const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/delete/${productId}`, {
-            method: "post",
-            headers: { ...headers, authorization: `b ${token}`},
-        });
-        if (!response.ok) {
-            console.error(response);
+    public async amountMinusOne(productId: number): Promise<any> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
             return undefined;
         }
-        return (await response.json()) as number;
-    } catch (error) {
-        console.error("Delete item cart error", error);
-        return undefined;
+        try {
+            const response: Response = await fetch(
+                `${viteConfiguration.API_URL}users/cart/minusone/${productId}`,
+                {
+                    method: "post",
+                    headers: { ...headers, authorization: `b ${token}` },
+                }
+            );
+            if (!response.ok) {
+                console.error(response);
+                return undefined;
+            }
+            return (await response.json()) as number;
+        } catch (error) {
+            console.error("Minus one cart error", error);
+            return undefined;
+        }
     }
-};
 
+    public async deleteItem(productId: number): Promise<any> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return undefined;
+        }
+        try {
+            const response: Response = await fetch(
+                `${viteConfiguration.API_URL}users/cart/delete/${productId}`,
+                {
+                    method: "post",
+                    headers: { ...headers, authorization: `b ${token}` },
+                }
+            );
+            if (!response.ok) {
+                console.error(response);
+                return undefined;
+            }
+            return (await response.json()) as number;
+        } catch (error) {
+            console.error("Delete item cart error", error);
+            return undefined;
+        }
+    }
 
     public async addOrderItemToCart(productId: number): Promise<number | undefined> {
         const token: string | undefined = this._tokenService.getToken();
@@ -253,10 +220,13 @@ public async deleteItem(productId: number): Promise<any>{
             return undefined;
         }
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/cart/cartinfo/${productId}`, {
-                method: "post",
-                headers: { ...headers, authorization: `b ${token}`},
-            });
+            const response: Response = await fetch(
+                `${viteConfiguration.API_URL}users/cart/cartinfo/${productId}`,
+                {
+                    method: "post",
+                    headers: { ...headers, authorization: `b ${token}` },
+                }
+            );
 
             if (!response.ok) {
                 console.error(response);
@@ -270,17 +240,15 @@ public async deleteItem(productId: number): Promise<any>{
         }
     }
 
-    
-
     public async getItemFromCart(): Promise<Array<CartItem> | undefined> {
         const token: string | undefined = this._tokenService.getToken();
         if (!token) {
             return undefined;
         }
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}cart/cartinfo`,  {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}cart/cartinfo`, {
                 method: "get",
-                headers: { ...headers, Authorization: `Bearer ${token}` },                
+                headers: { ...headers, Authorization: `Bearer ${token}` },
             });
             if (response) {
                 console.log(response);
@@ -297,9 +265,6 @@ public async deleteItem(productId: number): Promise<any>{
             return undefined;
         }
     }
-    
-
-
 
     /**
      * Fetches the user's profile data. Requires a valid token.
@@ -314,11 +279,11 @@ public async deleteItem(productId: number): Promise<any>{
         }
 
         try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/user/userinfo`,  {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/profile`, {
                 method: "GET",
-                headers: { ...headers, Authorization: `Bearer ${token}` },                
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             });
-          
+
             if (!response.ok) {
                 const errorText: string = await response.text();
                 console.error(
@@ -334,5 +299,80 @@ public async deleteItem(productId: number): Promise<any>{
             console.error("Get user profile error", error);
             return undefined;
         }
+    }
+
+    public async addFavorite(productId: number): Promise<boolean> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/favorites`, {
+                method: "post",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ productId }),
+            });
+
+            return response.ok;
+        } catch (error) {
+            console.error("Add to favorites error", error);
+            return false;
+        }
+    }
+
+    public async getFavorites(): Promise<any[]> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return [];
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/favorites`, {
+                method: "get",
+                headers: { ...headers, Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                console.error("Error fetching favorites", response.statusText);
+                return [];
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching favorites", error);
+            return [];
+        }
+    }
+
+    public async updateProfile(updatedData: UserData): Promise<boolean> {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const response: Response = await fetch(`${viteConfiguration.API_URL}users/updateProfile`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(updatedData),
+            });
+
+            return response.ok;
+        } catch (error) {
+            console.error("Update profile error", error);
+            return false;
+        }
+    }
+
+    
+    public checkIfLoggedIn(): boolean {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return false;
+        } else { return true;}
     }
 }

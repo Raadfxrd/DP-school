@@ -2,12 +2,11 @@
 // import { queryDatabase } from "../../database/database";
 // import { OrderItem } from "@shared/types/OrderItem";
 
-
 // export class CartController {
 //     public async insertCart(_req: Request, res: Response): Promise<void> {
 //         console.log("Fetching products");
 //         try {
-            
+
 //             const result: OrderItem[] = await queryDatabase<OrderItem[]>(
 //                 "INSERT INTO `cart`(`user_id`, `product_id`, `amount`) VALUES ('?','?','1')",sessionStorage.id, productId);
 //             res.json(result);

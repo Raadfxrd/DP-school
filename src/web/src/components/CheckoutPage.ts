@@ -4,27 +4,20 @@ import { UserService } from "../services/UserService";
 import { TemplateResult } from "lit";
 import { CartItem } from "@shared/types";
 
-
 @customElement("checkout-page")
 export class CheckoutPage extends LitElement {
     @property({ type: Object }) public productData!: CartItem;
     private _userService: UserService = new UserService();
-    
-    @property({ type: Number }) public cartItemsCount: number = 1;
 
+    @property({ type: Number }) public cartItemsCount: number = 1;
 
     private _date: string = "";
     private _gender: string = "";
     private _street: string = "";
     private _housenumber: string = "";
     private _country: string = "";
-    
 
-
-      
     public static styles = css`
-
-
         .login-container {
             max-width: 360px;
             margin: auto;
@@ -35,7 +28,6 @@ export class CheckoutPage extends LitElement {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-
         .login-container input {
             width: 100%;
             padding: 12px;
@@ -43,14 +35,13 @@ export class CheckoutPage extends LitElement {
             border: 1px solid rgb(204, 204, 204);
             border-radius: 8px;
             box-sizing: border-box;
-
         }
 
-        .login-container h1{
+        .login-container h1 {
             font-size: 2vw;
         }
-        
-        .login-container h2{
+
+        .login-container h2 {
             font-size: 0.9vw;
         }
         .cart-body {
@@ -86,8 +77,6 @@ export class CheckoutPage extends LitElement {
             padding: 3px 10px;
         }
 
-
-
         .game-cart-item {
             display: flex;
             align-items: center;
@@ -98,7 +87,6 @@ export class CheckoutPage extends LitElement {
             border-radius: 5px;
             box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
             width: 70vw;
-
         }
 
         .game-badge {
@@ -214,7 +202,7 @@ export class CheckoutPage extends LitElement {
             margin-top: 10px;
         }
 
-        .game-image{
+        .game-image {
             max-height: 10vh;
             max-width: 10vw;
         }
@@ -231,10 +219,8 @@ export class CheckoutPage extends LitElement {
         }
     `;
 
-
-
     public load(): any {
-            return this.render();
+        return this.render();
     }
 
     private renderInputFields(): TemplateResult {
@@ -301,8 +287,6 @@ export class CheckoutPage extends LitElement {
         `;
     }
 
-
-
     public renderMyCartText(): TemplateResult {
         return html` <div class="my-cart-title">Checkout</div>`;
     }
@@ -322,8 +306,7 @@ export class CheckoutPage extends LitElement {
             gender: this._gender,
             street: this._street,
             housenumber: this._housenumber,
-            country: this._country
-
+            country: this._country,
         });
 
         if (result) {
@@ -333,48 +316,30 @@ export class CheckoutPage extends LitElement {
             alert("Failed to Checkout!");
         }
     }
-  
-
-  
-    
 
     public render(): TemplateResult {
         return html`
-            <div class="cart-body">
-                ${
-                     html`
-                          ${this.renderMyCartText()}
-                          ${this.renderInputFields()}
-                      `}
-            </div>
+            <div class="cart-body">${html` ${this.renderMyCartText()} ${this.renderInputFields()} `}</div>
         `;
     }
 
-
-    
     private onChangeDate(event: InputEvent): void {
         this._date = (event.target as HTMLInputElement).value;
     }
 
-    
     private onChangeGender(event: InputEvent): void {
         this._gender = (event.target as HTMLInputElement).value;
     }
 
-    
     private onChangeStreet(event: InputEvent): void {
         this._street = (event.target as HTMLInputElement).value;
     }
 
-    
     private onChangeHouseNumber(event: InputEvent): void {
         this._housenumber = (event.target as HTMLInputElement).value;
     }
 
-    
     private onChangeCountry(event: InputEvent): void {
         this._country = (event.target as HTMLInputElement).value;
     }
-
-    
 }
