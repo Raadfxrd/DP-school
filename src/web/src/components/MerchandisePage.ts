@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { MerchandiseService } from "../services/MerchService";
 import { merch } from "@shared/types";
@@ -82,8 +82,7 @@ export class MerchandisePage extends LitElement {
 
     public async fetchMerchandise(): Promise<void> {
         try {
-            // eslint-disable-next-line @typescript-eslint/typedef
-            const data = await this.merchandiseService.getAllMerchandise();
+            const data: merch[] | undefined = await this.merchandiseService.getAllMerchandise();
             this.merchandise = data ? data : [];
         } catch (error) {
             console.error("Failed to fetch merchandise items:", error);
@@ -92,33 +91,36 @@ export class MerchandisePage extends LitElement {
     }
 
     private handleDetailsClick(item: merch): void {
-        this.dispatchEvent(new CustomEvent("navigate-to-product", {
-            detail: { item },
-            bubbles: true,
-            composed: true,
-        }));
+        this.dispatchEvent(
+            new CustomEvent("navigate-to-product", {
+                detail: { item },
+                bubbles: true,
+                composed: true,
+            })
+        );
     }
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    public render() {
+    public render(): TemplateResult<1> {
         return html`
             <h1>Merchandise</h1>
             <div class="merch-container">
-                ${this.merchandise.length > 0 ? this.merchandise.map(
-                    (item) => html`
-                        <div class="merch-item">
-                            <img src="${item.thumbnail}" alt="${item.title}" />
-                            <h2>${item.title}</h2>
-                            <p>${item.description}</p>
-                            <p>Authors: ${item.authors}</p>
-                            <p>Tags: ${item.tags}</p>
-                            <p class="price">$${item.price}</p>
-                            <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
-                                View details
-                            </button>
-                        </div>
-                    `
-                ) : html`<p>No merchandise available at the moment.</p>`}
+                ${this.merchandise.length > 0
+                    ? this.merchandise.map(
+                          (item) => html`
+                              <div class="merch-item">
+                                  <img src="${item.thumbnail}" alt="${item.title}" />
+                                  <h2>${item.title}</h2>
+                                  <p>${item.description}</p>
+                                  <p>Authors: ${item.authors}</p>
+                                  <p>Tags: ${item.tags}</p>
+                                  <p class="price">$${item.price}</p>
+                                  <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
+                                      View details
+                                  </button>
+                              </div>
+                          `
+                      )
+                    : html`<p>No merchandise available at the moment.</p>`}
             </div>
         `;
     }

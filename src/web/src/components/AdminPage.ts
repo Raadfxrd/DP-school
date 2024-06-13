@@ -11,7 +11,7 @@ type InputElementType = "text" | "number" | "url" | "textarea";
 @customElement("admin-page")
 export class AdminPage extends LitElement {
     public static styles = css`
-           main {
+        main {
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -29,10 +29,9 @@ export class AdminPage extends LitElement {
             background-color: #f1f1f1;
             padding: 1.5rem;
             width: 100%;
-            align-self:center;
-            text-align:center;
+            align-self: center;
+            text-align: center;
             font-size: 24px;
-
         }
 
         form,
@@ -141,7 +140,7 @@ export class AdminPage extends LitElement {
         }
     `;
 
-private adminPanelService: AdminPanelService = new AdminPanelService();
+    private adminPanelService: AdminPanelService = new AdminPanelService();
 
     @state()
     private products: OrderItem[] = [];
@@ -231,14 +230,17 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
                                 <td class="actions">
                                     <button
                                         class="delete"
-                                        @click=${(): void => this.deleteProduct(product.id)}>Delete</button>
+                                        @click=${(): any => this.deleteProduct(product.id)}
+                                    >
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         `;
                     })}
                 </tbody>
             </table>
-<br><br><br><br><br><br>
+            <br /><br /><br /><br /><br /><br />
         `;
     }
 
@@ -255,7 +257,7 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
                 ${this.renderInput("images", "Images (separate by comma)", "text")}
                 <button type="submit">Create</button>
 
-                <br><br><br><br><br><br><br>
+                <br /><br /><br /><br /><br /><br /><br />
             </form>
         `;
     }
@@ -287,7 +289,9 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
         return html`
             <label for="${id}">${placeholder}</label>
             ${type === "textarea"
-                ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>${value}</textarea>`
+                ? html`<textarea required id="${id}" name="${id}" placeholder=${placeholder}>
+${value}</textarea
+                  >`
                 : html`<input
                       required
                       id="${id}"
@@ -333,14 +337,21 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
                 title: String(data.title || ""),
                 description: String(data.description || ""),
                 price: String(data.price || "0"),
-                authors: String(data.authors || "").split(",").map((author: string) => author.trim()),
-                tags: String(data.tags || "").split(",").map((tag: string) => tag.trim()),
+                authors: String(data.authors || "")
+                    .split(",")
+                    .map((author: string) => author.trim()),
+                tags: String(data.tags || "")
+                    .split(",")
+                    .map((tag: string) => tag.trim()),
                 thumbnail: String(data.thumbnail || ""),
-                images: String(data.images || "").split(",").map((image: string) => image.trim()),
-                
+                images: String(data.images || "")
+                    .split(",")
+                    .map((image: string) => image.trim()),
             });
 
-            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(
+                parsedData
+            );
             const { errors, data: resp } = response;
 
             if (errors && errors.length) {
@@ -368,7 +379,7 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
                 return;
             }
 
-            console.error("[Admin Product Create]: Internal error", error);
+            console.error("[Admin Product Create]: Internal error", error as string);
             alert("An internal error occurred. Please try again later.");
         }
     }
@@ -389,14 +400,29 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
             title: data["edit-title"] ? String(data["edit-title"]) : undefined,
             description: data["edit-description"] ? String(data["edit-description"]) : undefined,
             price: data["edit-price"] ? Number(data["edit-price"]) : undefined,
-            authors: data["edit-authors"] ? String(data["edit-authors"]).split(",").map((author: string) => author.trim()) : undefined,
-            tags: data["edit-tags"] ? String(data["edit-tags"]).split(",").map((tag: string) => tag.trim()) : undefined,
+            authors: data["edit-authors"]
+                ? String(data["edit-authors"])
+                      .split(",")
+                      .map((author: string) => author.trim())
+                : undefined,
+            tags: data["edit-tags"]
+                ? String(data["edit-tags"])
+                      .split(",")
+                      .map((tag: string) => tag.trim())
+                : undefined,
             thumbnail: data["edit-thumbnail"] ? String(data["edit-thumbnail"]) : undefined,
-            images: data["edit-images"] ? String(data["edit-images"]).split(",").map((image: string) => image.trim()) : undefined,
+            images: data["edit-images"]
+                ? String(data["edit-images"])
+                      .split(",")
+                      .map((image: string) => image.trim())
+                : undefined,
         };
 
         try {
-            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.updateProduct(productId, updatedData);
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.updateProduct(
+                productId,
+                updatedData
+            );
             const { errors } = response;
 
             if (errors && errors.length) {
@@ -406,7 +432,7 @@ private adminPanelService: AdminPanelService = new AdminPanelService();
                 return;
             }
 
-            await this.updateProducts(); // Refresh the product list
+            await this.updateProducts();
         } catch (error) {
             console.error("[Admin Product Edit]: Internal error", error);
             alert("An internal error occurred. Please try again later.");

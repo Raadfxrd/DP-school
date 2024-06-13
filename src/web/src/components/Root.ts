@@ -28,6 +28,7 @@ export enum RouterPage {
     Checkout = "checkout",
     SearchResults = "searchResults",
     Favorites = "favorites",
+    AdminEditProductPage = "AdminEditProductPage",
 }
 
 declare global {
@@ -1080,24 +1081,12 @@ export class Root extends LitElement {
                 contentTemplate = this.renderCheckoutPage();
                 break;
 
-            case RouterPage.Checkout:
-                contentTemplate = this.renderCheckoutPage();
-                break;
-
-            case RouterPage.Checkout:
-                contentTemplate = this.renderCheckoutPage();
-                break;
-
             case RouterPage.Admin:
                 contentTemplate = html`<admin-page></admin-page>`;
                 break;
 
             case RouterPage.News:
                 contentTemplate = this.renderNews();
-                break;
-
-            case RouterPage.Account:
-                contentTemplate = this.renderAccount();
                 break;
 
             case RouterPage.SearchResults:

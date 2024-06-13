@@ -5,9 +5,9 @@ export class GamesService {
     private tokenService: TokenService = new TokenService();
 
     public async getAllgame(): Promise<game[] | undefined> {
-        const apiUrl: string = viteConfiguration.API_URL; // Assuming you have this configuration available
+        const apiUrl: string = viteConfiguration.API_URL;
         console.log("API_URL:", apiUrl);
-        const url: string = `${apiUrl}game`; // Assuming the endpoint for merchandise items is different
+        const url: string = `${apiUrl}game`;
         console.log(`Fetching URL: ${url}`);
 
         try {
@@ -15,7 +15,7 @@ export class GamesService {
                 method: "get",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${this.tokenService.getToken()}`, // Ensure the token is added
+                    Authorization: `Bearer ${this.tokenService.getToken()}`,
                 },
             });
             if (response.ok) {

@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { GamesService } from "../services/GameService";
 import { game } from "@shared/types";
@@ -20,13 +20,13 @@ export class GamePage extends LitElement {
 
         .game-container {
             display: flex;
-            flex-wrap: wrap; /* Laat de items naar een nieuwe rij springen */
-            gap: 16px; /* Ruimte tussen de items */
-            justify-content: center; /* Centreer de items in de container */
-    }   
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+        }
 
         .game-item {
-            flex: 1 1 300px; /* Elke game-item neemt evenveel ruimte in beslag, maar heeft een minimale breedte van 300px */
+            flex: 1 1 300px;
             padding: 20px;
             border-radius: 10px;
             display: flex;
@@ -36,7 +36,6 @@ export class GamePage extends LitElement {
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
             height: 700px;
         }
-
 
         .game-item img {
             width: 450px;
@@ -77,61 +76,65 @@ export class GamePage extends LitElement {
         }
     `;
 
-public connectedCallback(): void {
-    super.connectedCallback();
-    void this.fetchGames();
-}
+    public connectedCallback(): void {
+        super.connectedCallback();
+        void this.fetchGames();
+    }
 
-public async fetchGames(): Promise<void> {
-    try {
-        // eslint-disable-next-line @typescript-eslint/typedef
-        const data = await this.gameService.getAllgame();
-        this.games = data ? data : [];
-    } catch (error) {
-        console.error("Failed to fetch game items:", error);
-        this.games = [];
+    public async fetchGames(): Promise<void> {
+        try {
+            const data: game[] | undefined = await this.gameService.getAllgame();
+            this.games = data ? data : [];
+        } catch (error) {
+            console.error("Failed to fetch game items:", error);
+            this.games = [];
+        }
+    }
+
+    private handleDetailsClick(item: game): void {
+        this.dispatchEvent(
+            new CustomEvent("./ProductPage", {
+                detail: { item },
+                bubbles: true,
+                composed: true,
+            })
+        );
+    }
+
+    private truncateDescription(description: string | undefined): string {
+        return description && description.length > 30
+            ? `${description.substring(0, 10)}...`
+            : description || "";
+    }
+
+    public render(): TemplateResult<1> {
+        return html`
+            <h1>Games</h1>
+            <div class="game-container">
+                ${this.games.length > 0
+                    ? this.games.map(
+                          (item) => html`
+                              <div class="game-item">
+                                  <img src="${item.thumbnail}" alt="${item.title}" />
+                                  <h2>${item.title}</h2>
+                                  <p>${this.truncateDescription(item.description)}</p>
+                                  <p>Authors: ${item.authors}</p>
+                                  <p>Tags: ${item.tags}</p>
+                                  <p class="price">$${item.price}</p>
+                                  <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
+                                      View details
+                                  </button>
+                              </div>
+                          `
+                      )
+                    : html`<p>No games available at the moment.</p>`}
+            </div>
+        `;
     }
 }
 
-private handleDetailsClick(item: game): void {
-    this.dispatchEvent(new CustomEvent("./ProductPage", {
-        detail: { item },
-        bubbles: true,
-        composed: true,
-    }));
-}
-
-private truncateDescription(description: string | undefined): string {
-    return description && description.length > 30 ? `${description.substring(0, 10)}...` : description || "";
-}
-
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-public render() {
-    return html`
-        <h1>Games</h1>
-        <div class="game-container">
-            ${this.games.length > 0 ? this.games.map(
-                (item) => html`
-                    <div class="game-item">
-                        <img src="${item.thumbnail}" alt="${item.title}" />
-                        <h2>${item.title}</h2>
-                        <p>${this.truncateDescription(item.description)}</p>
-                        <p>Authors: ${item.authors}</p>
-                        <p>Tags: ${item.tags}</p>
-                        <p class="price">$${item.price}</p>
-                        <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
-                            View details
-                        </button>
-                    </div>
-                `
-            ) : html`<p>No games available at the moment.</p>`}
-        </div>
-    `;
-}
-}
-
 declare global {
-interface HTMLElementTagNameMap {
-    "game-page": GamePage;
-}
+    interface HTMLElementTagNameMap {
+        "game-page": GamePage;
+    }
 }

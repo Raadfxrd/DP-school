@@ -6,6 +6,7 @@ import { FavoriteController } from "./controllers/FavoriteController";
 import { asyncHandler } from "./middlewares/asyncHandler";
 import { MerchandiseController } from "./controllers/MerchandiseController";
 import { GamesController } from "./controllers/GamesController";
+import { asyncMiddleware } from "./middlewares/asyncMiddleware";
 
 export const router: Router = Router();
 
@@ -24,7 +25,6 @@ router.post(
     "/users/register",
     asyncHandler((req: Request, res: Response) => userController.register(req, res))
 );
-
 
 router.post(
     "/users/login",

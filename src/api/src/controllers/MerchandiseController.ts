@@ -8,7 +8,6 @@ export class MerchandiseController {
         try {
             const result: merch[] = await queryDatabase<merch[]>(
                 "SELECT * FROM product WHERE tags = 'merch'"
-
             );
             res.json(result);
         } catch (error: any) {

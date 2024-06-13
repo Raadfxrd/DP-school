@@ -19,7 +19,7 @@ export async function handleTokenBasedAuthentication(
         return;
     }
 
-    const token: string = authHeader.split(" ")[1]; // Extract the token part
+    const token: string = authHeader.split(" ")[1];
 
     if (!token) {
         console.log("Token format is invalid");
