@@ -4,12 +4,11 @@ import { UserService } from "../services/UserService";
 import { TemplateResult } from "lit";
 import { CartItem } from "@shared/types";
 
-
 @customElement("cart-page")
 export class CartPage extends LitElement {
     @property({ type: Object }) public productData!: CartItem;
     private _userService: UserService = new UserService();
-    
+
     @property({ type: Number }) public cartItemsCount: number = 1;
 
     @state() private _cartItemsArray: CartItem[] = [];
@@ -18,7 +17,6 @@ export class CartPage extends LitElement {
     @state()
     private _cartItem: CartItem[] | undefined = [];
 
-      
     public static styles = css`
         .cart-body {
             display: flex;
@@ -63,7 +61,6 @@ export class CartPage extends LitElement {
             border-radius: 5px;
             box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
             width: 70vw;
-
         }
 
         .game-badge {
@@ -179,7 +176,7 @@ export class CartPage extends LitElement {
             margin-top: 10px;
         }
 
-        .game-image{
+        .game-image {
             max-height: 10vh;
             max-width: 10vw;
         }
@@ -228,8 +225,10 @@ export class CartPage extends LitElement {
                     <div class="game-amount">
                         <div class="game-price-quantity">
                             <div class="quantity-control">
-                                <button class="remove-btn"
-                                @click=${async (): Promise<void> => this.deleteAmountToCart(cartItem)}>
+                                <button
+                                    class="remove-btn"
+                                    @click=${async (): Promise<void> => this.deleteAmountToCart(cartItem)}
+                                >
                                     <img src="/assets/img/trash.png" />
                                 </button>
                                 <button
@@ -242,7 +241,7 @@ export class CartPage extends LitElement {
                                 <button
                                     class="quantity-btn plus"
                                     @click=${async (): Promise<void> => this.addOneAmountToCart(cartItem)}
-                                    >
+                                >
                                     +
                                 </button>
                             </div>
@@ -279,7 +278,7 @@ export class CartPage extends LitElement {
     }
 
     private async deleteAmountToCart(cartItem: CartItem): Promise<void> {
-        const productId: number = cartItem.id;  
+        const productId: number = cartItem.id;
         const result: number | undefined = await this._userService.deleteItem(productId);
         if (result !== undefined) {
             await this.loadCartItems();
@@ -290,39 +289,29 @@ export class CartPage extends LitElement {
         return html` <div class="my-cart-title">My Cart:</div>`;
     }
 
-
-
     public renderCheckout(): TemplateResult {
-        return html` 
-            <div class="checkout-box">
-                <button class="checkout-button" @click=${this.triggerNavigation()}>
-                    Checkout
-                </button>
-                <div class="total-price">Total: €${this.calculateTotalPrice(this._cartItemsArray)}</div>
-            </div>`;
+        return html` <div class="checkout-box">
+            <button class="checkout-button" @click=${this.triggerNavigation()}>Checkout</button>
+            <div class="total-price">Total: €${this.calculateTotalPrice(this._cartItemsArray)}</div>
+        </div>`;
     }
 
-
     private triggerNavigation(): any {
-    return this.renderCheckoutPage();
-      }
-  
+        return this.renderCheckoutPage();
+    }
+
     public renderCheckoutPage(): TemplateResult {
-        return html` 
-            <!-- <checkout-page></checkout-page> -->
-            `;
+        return html` <!-- <checkout-page></checkout-page> --> `;
     }
 
     public render(): TemplateResult {
         return html`
             <div class="cart-body">
-                ${this._cartItemsArray.length === 0 
+                ${this._cartItemsArray.length === 0
                     ? html`<div>Loading... Please wait a moment.</div>`
                     : html`
                           ${this.renderMyCartText()}
-                          ${this._cartItemsArray.map((e) => this.renderOrderItem(e))}
-                          ${this.renderCheckout()}
-                          
+                          ${this._cartItemsArray.map((e) => this.renderOrderItem(e))} ${this.renderCheckout()}
                           ${this.renderCheckoutPage()}
                       `}
             </div>

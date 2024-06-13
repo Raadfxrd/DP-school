@@ -929,7 +929,7 @@ export class Root extends LitElement {
 
     @state()
     private _updatedProfile: UserData = {
-        id: 0, // Standaardwaarde voor id
+        id: 0,
         email: "",
         password: "",
         name: "",
@@ -1003,14 +1003,12 @@ export class Root extends LitElement {
 
     private checkIfloggedIn(): any {
         const result: boolean = this._userService.checkIfLoggedIn();
-            if(result === true){
-                return this._isLoggedIn = true;}
-            else {
-                return this._isLoggedIn = false;
-            }
-        };
-
-
+        if (result === true) {
+            return (this._isLoggedIn = true);
+        } else {
+            return (this._isLoggedIn = false);
+        }
+    }
 
     private async submitRegisterForm(event: Event): Promise<void> {
         event.preventDefault();
@@ -1555,12 +1553,15 @@ export class Root extends LitElement {
 
     private async handleSearchSubmit(event: Event): Promise<void> {
         event.preventDefault();
+        console.log("Search form submitted");
         const input: HTMLInputElement | null = (event.target as HTMLFormElement).querySelector("input");
         const query: string = (input?.value || "").trim();
+        console.log("Search query:", query);
 
         if (query && query !== this._searchQuery) {
             try {
                 const searchResults: OrderItem[] | undefined = await this._orderItemService.search(query);
+                console.log("Search results:", searchResults);
                 if (searchResults) {
                     this._searchQuery = query;
                     this._searchResults = searchResults;

@@ -188,7 +188,6 @@ export class ProductPage extends LitElement {
 
     public async addToCart(): Promise<void> {
         if (this._isLoggedIn) {
-            // Roep de methode aan van de UserService om het product aan de winkelwagen toe te voegen
             const result: number | undefined = await this.userService.addOrderItemToCart(this.productData.id);
 
             if (result) {
@@ -209,8 +208,9 @@ export class ProductPage extends LitElement {
         if (!this.productData) {
             return html`<div>No product data available</div>`;
         }
+
         if (typeof this.productData.images === "string") {
-            (this.productData.images as string).split(", ");
+            this.productData.images = this.productData.images.split(", ");
         }
         let allImages: string[] = [];
         if (this.productData.thumbnail) {
