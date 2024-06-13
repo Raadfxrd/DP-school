@@ -886,6 +886,7 @@ export class Root extends LitElement {
 
     public async connectedCallback(): Promise<void> {
         super.connectedCallback();
+        await this.checkIfloggedIn();
         await this.getOrderItems();
         this.startAutoSlide();
         this._newsItems = [
@@ -937,10 +938,22 @@ export class Root extends LitElement {
         if (result) {
             alert("Successfully logged in!");
             this._currentPage = RouterPage.Home;
+            window.location.reload();
         } else {
             alert("Failed to login!");
         }
     }
+
+    private checkIfloggedIn():any{
+        const result: boolean = this._userService.checkIfLoggedIn();
+            if(result === true){
+                return this._isLoggedIn = true;}
+            else {
+                return;
+            }
+        };
+
+
 
     private async submitRegisterForm(event: Event): Promise<void> {
         event.preventDefault();

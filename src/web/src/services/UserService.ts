@@ -367,4 +367,12 @@ export class UserService {
             return false;
         }
     }
+
+    
+    public checkIfLoggedIn(): boolean {
+        const token: string | undefined = this._tokenService.getToken();
+        if (!token) {
+            return false;
+        } else { return true;}
+    }
 }
