@@ -54,11 +54,6 @@ router.get(
     asyncHandler((req: Request, res: Response) => userController.logout(req, res))
 );
 
-router.get(
-    "/users/hello",
-    asyncHandler((req: Request, res: Response) => userController.hello(req, res))
-);
-
 router.post(
     "/users/cart/plusone/:id",
     asyncHandler((req: Request, res: Response) => userController.addOneToCart(req, res))

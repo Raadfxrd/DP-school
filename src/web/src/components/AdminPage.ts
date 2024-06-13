@@ -146,9 +146,6 @@ export class AdminPage extends LitElement {
     private products: OrderItem[] = [];
 
     @state()
-    private product: OrderItem | null = null;
-
-    @state()
     private loading: boolean = true;
 
     @state()

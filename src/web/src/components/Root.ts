@@ -4,14 +4,12 @@ import { UserService } from "../services/UserService";
 import { OrderItem } from "@shared/types/OrderItem";
 import { TokenService } from "../services/TokenService";
 import { OrderItemService } from "../services/OrderItemService";
-import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
 import { ProductPage } from "./ProductPage";
 import { CartPage } from "./CartPage";
 import { AdminPage } from "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
-import { CartItem } from "@shared/types";
 import { CheckoutPage } from "./CheckoutPage";
 
 export enum RouterPage {
@@ -841,9 +839,6 @@ export class Root extends LitElement {
     private _cartItemsCount: number = 0;
 
     @state()
-    private _cartItem: CartItem[] | undefined = [];
-
-    @state()
     private selectedProduct: OrderItem | undefined = undefined;
 
     @state()
@@ -891,7 +886,6 @@ export class Root extends LitElement {
 
     public async connectedCallback(): Promise<void> {
         super.connectedCallback();
-        await this.getWelcome();
         await this.getOrderItems();
         this.startAutoSlide();
         this._newsItems = [
@@ -908,15 +902,7 @@ export class Root extends LitElement {
         super.disconnectedCallback();
     }
 
-    private async getWelcome(): Promise<void> {
-        const result: UserHelloResponse | undefined = await this._userService.getWelcome();
 
-        if (result) {
-            this._isLoggedIn = true;
-            this._cartItem = await this._userService.getItemFromCart();
-            if (this._cartItem) this._cartItemsCount = this._cartItem.length;
-        }
-    }
 
     private async getOrderItems(): Promise<void> {
         this._loadingOrderItems = true;
@@ -950,7 +936,6 @@ export class Root extends LitElement {
 
         if (result) {
             alert("Successfully logged in!");
-            await this.getWelcome();
             this._currentPage = RouterPage.Home;
         } else {
             alert("Failed to login!");
@@ -981,16 +966,8 @@ export class Root extends LitElement {
         }
     }
 
-    private async clickCartButton(): Promise<void> {
-        const result: UserHelloResponse | undefined = await this._userService.getWelcome();
-        this.navigateToPage(RouterPage.Cart);
-        if (!result) {
-            return;
-        }
-
-        `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
-            result.cartItems?.join("\r\n- ") || "None"
-        }`;
+    private clickCartButton(): any{
+        return this.navigateToPage(RouterPage.Cart);
     }
 
     private navigateToPage(page: RouterPage, query?: string, searchResults?: OrderItem[]): void {

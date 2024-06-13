@@ -1,7 +1,6 @@
 import { UserLoginFormModel } from "@shared/formModels/UserLoginFormModel";
 import { UserRegisterFormModel } from "@shared/formModels/UserRegisterFormModel";
 import { TokenService } from "./TokenService";
-import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
 import { CartItem } from "@shared/types";
 import { UserCheckoutFormModel } from "@shared/formModels/UserCheckoutFormModel";
@@ -135,43 +134,7 @@ export class UserService {
         }
     }
 
-    /**
-     * Handles user welcome message containing user and cart data. Requires a valid token.
-     *
-     * @returns Object with user and cart data when successful, otherwise `undefined`.
-     */
-    public async getWelcome(): Promise<UserHelloResponse | undefined> {
-        const token: string | undefined = this._tokenService.getToken();
-
-        if (!token) {
-            console.error("No token found in local storage.");
-            return undefined;
-        }
-
-        try {
-            const response: Response = await fetch(`${viteConfiguration.API_URL}users/hello`, {
-                method: "GET",
-                headers: {
-                    ...headers,
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                const errorText: string = await response.text();
-                console.error(
-                    `Error fetching welcome message: ${response.status} ${response.statusText} - ${errorText}`
-                );
-                return undefined;
-            }
-
-            return (await response.json()) as UserHelloResponse;
-        } catch (error) {
-            console.error("Get welcome error", error);
-            return undefined;
-        }
-    }
-
+   
     /**
      * Handles adding an order item to the cart of the current user. Requires a valid token.
      *
