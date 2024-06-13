@@ -25,6 +25,7 @@ router.post(
     asyncHandler((req: Request, res: Response) => userController.register(req, res))
 );
 
+
 router.post(
     "/users/login",
     asyncHandler((req: Request, res: Response) => userController.login(req, res))
@@ -46,7 +47,7 @@ router.get(
 );
 
 // Apply authentication middleware to routes that require it
-router.use(asyncHandler(handleTokenBasedAuthentication));
+router.use(asyncMiddleware(handleTokenBasedAuthentication));
 
 router.get(
     "/users/logout",

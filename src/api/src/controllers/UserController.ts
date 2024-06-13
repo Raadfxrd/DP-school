@@ -10,21 +10,17 @@ import { queryDatabase } from "../../database/database";
 import { orderItems } from "../fakeDatabase";
 import { UserCheckoutFormModel } from "@shared/formModels/UserCheckoutFormModel";
 
-// Function to escape values
 function escape(value: string): string {
     return mysql.escape(value);
 }
 
 export class UserController {
-    // Register a new user
     public async register(req: Request, res: Response): Promise<void> {
         const { name: username, email, password } = req.body as UserRegisterFormModel;
 
         try {
-            // Escape the email to prevent SQL injection
             const escapedEmail: string = escape(email);
 
-            // Check if the user already exists
             const existingUsers: UserData[] = await queryDatabase<UserData[]>(
                 `SELECT id FROM user WHERE email = ${escapedEmail}`
             );
@@ -34,7 +30,6 @@ export class UserController {
                 return;
             }
 
-            // Hash the user's password
             const hashedPassword: string = await bcrypt.hash(password, 10);
 
             // Insert the new user into the database
@@ -52,7 +47,6 @@ export class UserController {
         }
     }
 
-    // Login an existing user
     public async login(req: Request, res: Response): Promise<void> {
         const { email, password } = req.body as UserLoginFormModel;
 
@@ -62,10 +56,8 @@ export class UserController {
         }
 
         try {
-            // Escape the email to prevent SQL injection
             const escapedEmail: string = escape(email);
 
-            // Find the user in the database
             const users: UserData[] = await queryDatabase<UserData[]>(
                 `SELECT * FROM user WHERE email = ${escapedEmail}`
             );
