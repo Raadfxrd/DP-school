@@ -6,6 +6,8 @@ import { game } from "@shared/types";
 @customElement("game-page")
 export class GamePage extends LitElement {
     @state() private games: game[] = [];
+    @state() private selectedGame: game | null = null;
+    @state() private _currentPage: string = "home";
 
     private gameService = new GamesService();
 
@@ -74,6 +76,28 @@ export class GamePage extends LitElement {
         .details:hover {
             background-color: #0056b3;
         }
+
+        .game-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
     `;
 
     public connectedCallback(): void {
@@ -83,7 +107,8 @@ export class GamePage extends LitElement {
 
     public async fetchGames(): Promise<void> {
         try {
-            const data: game[] | undefined = await this.gameService.getAllgame();
+            // eslint-disable-next-line @typescript-eslint/typedef
+            const data = await this.gameService.getAllgame();
             this.games = data ? data : [];
         } catch (error) {
             console.error("Failed to fetch game items:", error);
@@ -91,45 +116,65 @@ export class GamePage extends LitElement {
         }
     }
 
-    private handleDetailsClick(item: game): void {
-        this.dispatchEvent(
-            new CustomEvent("./ProductPage", {
-                detail: { item },
-                bubbles: true,
-                composed: true,
-            })
-        );
+    private handleDetailsClick(game: game): void {
+        this.navigateToPage("details", game);
+    }
+
+    private navigateToPage(page: string, game: game | null = null): void {
+        this._currentPage = page;
+        this.selectedGame = game;
+        this.requestUpdate();
     }
 
     private truncateDescription(description: string | undefined): string {
-        return description && description.length > 30
-            ? `${description.substring(0, 10)}...`
-            : description || "";
+        return description && description.length > 30 ? `${description.substring(0, 30)}...` : description || "";
     }
 
-    public render(): TemplateResult<1> {
+    private renderGameList(): TemplateResult {
         return html`
             <h1>Games</h1>
             <div class="game-container">
-                ${this.games.length > 0
-                    ? this.games.map(
-                          (item) => html`
-                              <div class="game-item">
-                                  <img src="${item.thumbnail}" alt="${item.title}" />
-                                  <h2>${item.title}</h2>
-                                  <p>${this.truncateDescription(item.description)}</p>
-                                  <p>Authors: ${item.authors}</p>
-                                  <p>Tags: ${item.tags}</p>
-                                  <p class="price">$${item.price}</p>
-                                  <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
-                                      View details
-                                  </button>
-                              </div>
-                          `
-                      )
-                    : html`<p>No games available at the moment.</p>`}
+                ${this.games.length > 0 ? this.games.map(
+                    (item) => html`
+                        <div class="game-item">
+                            <img src="${item.thumbnail}" alt="${item.title}" />
+                            <h2>${item.title}</h2>
+                            <p>${this.truncateDescription(item.description)}</p>
+                            <p>Authors: ${item.authors}</p>
+                            <p>Tags: ${item.tags}</p>
+                            <p class="price">$${item.price}</p>
+                            <button class="details" @click=${(): void => this.handleDetailsClick(item)}>
+                                View details
+                            </button>
+                        </div>
+                    `
+                ) : html`<p>No games available at the moment.</p>`}
             </div>
         `;
+    }
+
+    private renderGameDetails(): TemplateResult {
+        if (!this.selectedGame) {
+            return html`<p>No game selected.</p>`;
+        }
+
+        return html`
+            <div class="game-details">
+                <img src="${this.selectedGame.thumbnail}" alt="${this.selectedGame.title}" />
+                <h2>${this.selectedGame.title}</h2>
+                <p>${this.selectedGame.description}</p>
+                <p>Authors: ${this.selectedGame.authors}</p>
+                <p>Tags: ${this.selectedGame.tags}</p>
+                <p class="price">$${this.selectedGame.price}</p>
+                <button class="back-button" @click=${(): void => this.navigateToPage("home")}>
+                    Back to Games
+                </button>
+            </div>
+        `;
+    }
+
+    public render(): TemplateResult {
+        return this._currentPage === "home" ? this.renderGameList() : this.renderGameDetails();
     }
 }
 

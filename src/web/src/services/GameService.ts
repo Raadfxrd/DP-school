@@ -5,7 +5,7 @@ export class GamesService {
     private tokenService: TokenService = new TokenService();
 
     public async getAllgame(): Promise<game[] | undefined> {
-        const apiUrl: string = viteConfiguration.API_URL;
+        const apiUrl: string = viteConfiguration.API_URL; // Assuming you have this configuration 
         console.log("API_URL:", apiUrl);
         const url: string = `${apiUrl}game`;
         console.log(`Fetching URL: ${url}`);

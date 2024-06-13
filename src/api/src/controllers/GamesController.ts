@@ -1,3 +1,4 @@
+//game controller 
 import { Request, Response } from "express";
 import { queryDatabase } from "../../database/database";
 import { game } from "@shared/types/game";
