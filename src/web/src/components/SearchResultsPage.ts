@@ -121,15 +121,12 @@ export class SearchResultsPage extends LitElement {
                                           <div class="search-result-info">
                                               <h4>${item.title ?? ""}</h4>
                                               <p>${item.description ?? ""}</p>
-                                              ${item.authors
-                                                  ? html`<p>
-                                                        Authors: ${item.authors.join(", ").split(", ")}
-                                                    </p>`
+                                              ${Array.isArray(item.authors)
+                                                  ? html`<p>Authors: ${item.authors.join(", ")}</p>`
                                                   : null}
-                                              <p>
-                                                  Tags: ${item.tags ? item.tags.join(", ").split(", ") : ""}
-                                              </p>
-
+                                              ${Array.isArray(item.tags)
+                                                  ? html`<p>Authors: ${item.tags.join(", ")}</p>`
+                                                  : null}
                                               <p>Price: €${item.price ?? ""}</p>
                                           </div>
                                       </li>
