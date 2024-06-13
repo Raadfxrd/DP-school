@@ -32,12 +32,12 @@ router.get(
     "/orderItems",
     asyncHandler((req: Request, res: Response) => productController.getAll(req, res))
 );
-
+///
 router.get(
     "/merchandise",
     asyncHandler((req: Request, res: Response) => merchandiseController.getMerchandise(req, res))
 );
-
+///game
 router.get(
     "/Game",
     asyncHandler((req: Request, res: Response) => gamesController.getGames(req, res))

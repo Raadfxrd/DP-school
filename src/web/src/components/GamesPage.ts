@@ -20,7 +20,7 @@ export class GamePage extends LitElement {
 
         .game-container {
             display: flex;
-            flex-wrap: wrap; /* Laat de items naar een nieuwe rij springen */
+            flex-wrap: wrap; 
             gap: 16px; /* Ruimte tussen de items */
             justify-content: center; /* Centreer de items in de container */
     }   
