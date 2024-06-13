@@ -8,7 +8,7 @@ import { UserHelloResponse } from "@shared/responses/UserHelloResponse";
 import { UserData } from "@shared/types/UserData";
 import { ProductPage } from "./ProductPage";
 import { CartPage } from "./CartPage";
-import "./AdminPage";
+import { AdminPage } from "./AdminPage";
 import "./GamesPage";
 import "./MerchandisePage";
 import { CartItem } from "@shared/types";
@@ -22,13 +22,12 @@ export enum RouterPage {
     Merchandise = "merchandise",
     News = "news",
     Account = "account",
-    AdminOverviewPage = "admin",
-    AdminCreateProductPage = "admin/create",
-    AdminEditProductPage = "admin/edit",
+    Admin = "admin",
     Product = "product",
     Cart = "cart",
     Checkout = "checkout",
     SearchResults = "searchResults",
+    Favorites = "favorites",
 }
 
 declare global {
@@ -36,6 +35,7 @@ declare global {
         "product-page": ProductPage;
         "cart-page": CartPage;
         "admin-page": AdminPage;
+        "checkout-page": CheckoutPage;
     }
 }
 
@@ -95,6 +95,7 @@ export class Root extends LitElement {
             right: 3%;
             justify-content: center;
             align-items: center;
+            z-index: 99;
         }
 
         .cartbuttondesign {
@@ -832,12 +833,14 @@ export class Root extends LitElement {
     @state()
     private _OrderItem: OrderItem[] = [];
 
-
     @state()
     private _loadingOrderItems: boolean = true;
 
     @state()
     private _cartItemsCount: number = 0;
+
+    @state()
+    private _cartItem: CartItem[] | undefined = [];
 
     @state()
     private selectedProduct: OrderItem | undefined = undefined;
@@ -847,8 +850,6 @@ export class Root extends LitElement {
 
     @state()
     private _userProfile?: UserData;
-
-
 
     @state()
     private autoSlideInterval: any;
@@ -911,12 +912,10 @@ export class Root extends LitElement {
 
         if (result) {
             this._isLoggedIn = true;
-            this._cartItemsCount = result.cartItems?.length || 0;
+            this._cartItem = await this._userService.getItemFromCart();
+            if (this._cartItem) this._cartItemsCount = this._cartItem.length;
         }
     }
-    
-    
-
 
     private async getOrderItems(): Promise<void> {
         this._loadingOrderItems = true;
@@ -988,13 +987,9 @@ export class Root extends LitElement {
             return;
         }
 
-        this._cartItemsCount = result.cartItems?.length || 0;
-
-        alert(
-            `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
-                result.cartItems?.join("\r\n- ") || "None"
-            }`
-        );
+        `Hello ${result.email}!\r\n\r\nYou have the following products in your cart:\r\n- ${
+            result.cartItems?.join("\r\n- ") || "None"
+        }`;
     }
 
     private navigateToPage(page: RouterPage, query?: string, searchResults?: OrderItem[]): void {
@@ -1018,10 +1013,6 @@ export class Root extends LitElement {
         this._isLoggedIn = false;
     }
 
-
-
-
-
     private async addItemToCart(orderItem: OrderItem): Promise<void> {
         const productId: number = orderItem.id;
         const result: number | undefined = await this._userService.addOrderItemToCart(productId);
@@ -1029,29 +1020,6 @@ export class Root extends LitElement {
         window.location.reload();
         if (!result) {
             return;
-        }
-    }
-
-    private async getFavorites(): Promise<void> {
-        try {
-            const favorites: any[] = await this._userService.getFavorites();
-            this._favorites = favorites;
-        } catch (error) {
-            console.error("Error fetching favorites:", error);
-        }
-    }
-
-    private async addFavorite(productId: number): Promise<void> {
-        try {
-            const result: any = await this._userService.addFavorite(productId);
-            if (result) {
-                alert("Added to favorites!");
-            } else {
-                alert("Failed to add to favorites.");
-            }
-        } catch (error) {
-            console.error("Error adding to favorites:", error);
-            alert("An error occurred while adding to favorites.");
         }
     }
 
@@ -1108,6 +1076,18 @@ export class Root extends LitElement {
                 contentTemplate = this.renderCartPage();
                 break;
 
+            case RouterPage.Checkout:
+                contentTemplate = this.renderCheckoutPage();
+                break;
+
+            case RouterPage.Checkout:
+                contentTemplate = this.renderCheckoutPage();
+                break;
+
+            case RouterPage.Checkout:
+                contentTemplate = this.renderCheckoutPage();
+                break;
+
             case RouterPage.Admin:
                 contentTemplate = html`<admin-page></admin-page>`;
                 break;
@@ -1143,6 +1123,7 @@ export class Root extends LitElement {
                 <nav>
                     <div class="nav-left">
                         ${this.renderProductsInNav()} ${this.renderNewsInNav()} ${this.renderAccountInNav()}
+                        ${this.renderCheckoutInNav()}
                     </div>
                     <div
                         class="logo"
@@ -1278,7 +1259,7 @@ export class Root extends LitElement {
                                         viewBox="0 0 448 512"
                                     >
                                         <path
-                                            d="M0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM337.5 108.5l44.6 116.4 .4 1.2c5.6 16.8 7.2 35.2 2.3 52.5c-5 17.2-15.4 32.4-29.8 43.3l-.2 .1-68.4 51.2-54.1 40.9c-.5 .2-1.1 .5-1.7 .8c-2 1-4.4 2-6.7 2c-3 0-6.8-1.8-8.3-2.8l-54.2-40.9L93.5 322.3l-.4-.3-.2-.1c-14.3-10.8-24.8-26-29.7-43.3s-4.2-35.7 2.2-52.5l.5-1.2 44.7-116.4c.9-2.3 2.5-4.3 4.5-5.6c1.6-1 3.4-1.6 5.2-1.8c1.3-.7 2.1-.4 3.4 .1c.6 .2 1.2 .5 2 .7c1 .4 1.6 .9 2.4 1.5c.6 .4 1.2 1 2.1 1.5c1.2 1.4 2.2 3 2.7 4.8l29.2 92.2H285l30.2-92.2c.5-1.8 1.4-3.4 2.6-4.8s2.8-2.4 4.5-3.1c1.7-.6 3.6-.9 5.4-.7s3.6 .8 5.2 1.8c2 1.3 3.7 3.3 4.6 5.6z"
+                                            d="M0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64C28.7 32 0 60.7 0 96zm337.5 12.5l44.6 116.4 .4 1.2c5.6 16.8 7.2 35.2 2.3 52.5c-5 17.2-15.4 32.4-29.8 43.3l-.2 .1-68.4 51.2-54.1 40.9c-.5 .2-1.1 .5-1.7 .8c-2 1-4.4 2-6.7 2c-3 0-6.8-1.8-8.3-2.8l-54.2-40.9L93.5 322.3l-.4-.3-.2-.1c-14.3-10.8-24.8-26-29.7-43.3s-4.2-35.7 2.2-52.5l.5-1.2 44.7-116.4c.9-2.3 2.5-4.3 4.5-5.6c1.6-1 3.4-1.6 5.2-1.8c1.3-.7 2.1-.4 3.4 .1c.6 .2 1.2 .5 2 .7c1 .4 1.6 .9 2.4 1.5c.6 .4 1.2 1 2.1 1.5c1.2 1.4 2.2 3 2.7 4.8l29.2 92.2H285l30.2-92.2c.5-1.8 1.4-3.4 2.6-4.8s2.8-2.4 4.5-3.1c1.7-.6 3.6-.9 5.4-.7s3.6 .8 5.2 1.8c2 1.3 3.7 3.3 4.6 5.6z"
                                         ></path>
                                     </svg>
                                 </a>
@@ -1450,6 +1431,10 @@ export class Root extends LitElement {
         return html`<cart-page></cart-page>`;
     }
 
+    private renderCheckoutPage(): TemplateResult {
+        return html`<checkout-page></checkout-page>`;
+    }
+
     private renderProductsInNav(): TemplateResult {
         return html`
             <div class="dropdown">
@@ -1478,6 +1463,17 @@ export class Root extends LitElement {
         >
             <button>News</button>
         </div>`;
+    }
+
+    private renderCheckoutInNav(): any {
+        if (this._currentPage === RouterPage.Cart) {
+            return html`<div
+                class="checkout"
+                @click=${(_e: MouseEvent): void => this.navigateToPage(RouterPage.Checkout)}
+            >
+                <button>Checkout</button>
+            </div>`;
+        }
     }
 
     private renderAccountInNav(): TemplateResult {
@@ -1544,9 +1540,6 @@ export class Root extends LitElement {
         }
     }
 
-
-    
-
     private renderCartInNav(): TemplateResult {
         return html`
             <div @click=${this.clickCartButton}>
@@ -1559,7 +1552,7 @@ export class Root extends LitElement {
                 </button>
             </div>
         `;
-}
+    }
 
     private renderLoginInNav(): TemplateResult {
         if (this._isLoggedIn) {
@@ -1920,17 +1913,6 @@ export class Root extends LitElement {
         this.requestUpdate();
     }
 
-    private renderAdminButton(): TemplateResult {
-        if (this._isLoggedIn) {
-            return html`
-                <div @click=${(): void => this.navigateToPage(RouterPage.Admin)}>
-                    <button>Admin</button>
-                </div>
-            `;
-        }
-        return html``;
-    }
-
     private onChangeEmail(event: InputEvent): void {
         this._email = (event.target as HTMLInputElement).value;
     }
@@ -1942,8 +1924,6 @@ export class Root extends LitElement {
     private onChangeName(event: InputEvent): void {
         this._name = (event.target as HTMLInputElement).value;
     }
-
-    
 
     private renderAdminButton(): TemplateResult {
         if (this._isLoggedIn) {
