@@ -949,7 +949,7 @@ export class Root extends LitElement {
             if(result === true){
                 return this._isLoggedIn = true;}
             else {
-                return;
+                return this._isLoggedIn = false;
             }
         };
 
