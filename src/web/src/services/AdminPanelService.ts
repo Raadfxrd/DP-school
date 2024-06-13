@@ -29,27 +29,72 @@ export class AdminPanelService {
     }
 
     public async createProduct(product: OrderItem): Promise<{ errors: any[]; data: OrderItem }> {
-        const response: Response = await fetch(`${this.apiUrl}products`, { // Updated endpoint
+        type FormattedProduct = {
+            id: number;
+            title: string;
+            description: string;
+            price: number;
+            thumbnailUrl: string;
+            imagesUrl: string[];
+            authors: string;
+            tags: string;
+            quantity: number;
+        };
+
+        const formattedProduct: FormattedProduct = {
+            id: product.id,
+            title: product.title,
+            description: product.description,
+            price: product.price,
+            thumbnailUrl: product.thumbnail,
+            imagesUrl: product.images,
+            authors: JSON.stringify(product.authors),
+            tags: JSON.stringify(product.tags),
+            quantity: product.quantity,
+        };
+
+        const response: Response = await fetch(`${this.apiUrl}products`, {
             method: "POST",
             headers: this.getHeaders(),
-            body: JSON.stringify(product),
+            body: JSON.stringify(formattedProduct),
         });
-    
+
         if (!response.ok) {
             const errorText: string = await response.text();
             console.error("Error Response: ", errorText);
             throw new Error(response.statusText);
         }
-    
+
         return response.json();
     }
-    
 
     public async updateProduct(id: number, product: OrderItem): Promise<{ errors: any[]; data: OrderItem }> {
-        const response: Response = await fetch(`${this.apiUrl}products/${id}`, { // Updated endpoint
+        type FormattedProduct = {
+            title: string;
+            description: string;
+            price: number;
+            thumbnailUrl: string;
+            imagesUrl: string[];
+            authors: string;
+            tags: string;
+            quantity: number;
+        };
+
+        const formattedProduct: FormattedProduct = {
+            title: product.title,
+            description: product.description,
+            price: product.price,
+            thumbnailUrl: product.thumbnail,
+            imagesUrl: product.images,
+            authors: JSON.stringify(product.authors),
+            tags: JSON.stringify(product.tags),
+            quantity: product.quantity,
+        };
+
+        const response: Response = await fetch(`${this.apiUrl}products/${id}`, {
             method: "PUT",
             headers: this.getHeaders(),
-            body: JSON.stringify(product),
+            body: JSON.stringify(formattedProduct),
         });
 
         if (response.status === 401) {
@@ -66,7 +111,7 @@ export class AdminPanelService {
     }
 
     public async deleteProduct(id: number): Promise<void> {
-        const response: Response = await fetch(`${this.apiUrl}products/${id}`, { // Updated endpoint
+        const response: Response = await fetch(`${this.apiUrl}products/${id}`, {
             method: "DELETE",
             headers: this.getHeaders(),
         });

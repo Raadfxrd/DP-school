@@ -33,20 +33,22 @@ export class ProductController {
 
     public async create(req: Request, res: Response): Promise<void> {
         try {
-            const { title, description, price, authors, tags, thumbnail, images } = req.body;
-
+            const { title, description, price, authors, tags, thumbnailUrl, imagesUrl } = req.body;
+    
+            console.log("Received Data:", req.body); 
+    
             const newProduct: OrderItem = {
                 id: 0,
                 title: title || "",
                 description: description || "",
                 price: price || 0,
-                thumbnail: thumbnail || "",
-                images: images || [],
+                thumbnail: thumbnailUrl || "", 
+                images: imagesUrl || [], 
                 authors: authors || [],
                 tags: tags || [],
                 quantity: 0,
             };
-
+    
             const sqlQuery: string =
                 "INSERT INTO product (title, description, price, thumbnail, images, authors, tags ) VALUES (?, ?, ?, ?, ?, ?, ?)";
             const sqlParams: any[] = [
@@ -60,13 +62,15 @@ export class ProductController {
             ];
             const result: { insertId: number } = await queryDatabase<{ insertId: number }>(sqlQuery, ...sqlParams);
             newProduct.id = result.insertId;
-
+    
             res.status(201).json(newProduct);
         } catch (error: any) {
             console.error("Database Error:", error.message);
             res.status(500).json({ message: "Database error", error: error.message });
         }
     }
+    
+    
 
     public async update(req: Request, res: Response): Promise<void> {
         try {

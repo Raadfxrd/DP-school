@@ -11,12 +11,13 @@ type InputElementType = "text" | "number" | "url" | "textarea";
 @customElement("admin-page")
 export class AdminPage extends LitElement {
     public static styles = css`
-        main {
+           main {
             display: flex;
             flex-direction: column;
             gap: 1rem;
             justify-content: center;
             align-items: center;
+            padding: 1rem;
         }
 
         h1 {
@@ -26,6 +27,7 @@ export class AdminPage extends LitElement {
         form,
         table {
             width: 100%;
+            margin: 1rem 0;
         }
 
         button {
@@ -37,6 +39,8 @@ export class AdminPage extends LitElement {
             font-size: 16px;
             padding: 10px;
             border-radius: 25px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         button.delete {
@@ -51,19 +55,21 @@ export class AdminPage extends LitElement {
             border-radius: var(--border-radius);
             font-size: 1rem;
             padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
         }
 
         label {
             font-family: sans-serif;
             color: #957dad;
-            margin-bottom: -0.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
         }
 
         span {
-            margin: 0;
-            padding: 0;
-            margin-top: -0.5rem;
             color: red;
+            font-size: 0.8rem;
         }
 
         textarea {
@@ -72,6 +78,8 @@ export class AdminPage extends LitElement {
 
         table {
             margin-top: 1rem;
+            border-collapse: collapse;
+            width: 100%;
         }
 
         th {
@@ -83,6 +91,7 @@ export class AdminPage extends LitElement {
 
         td {
             padding: 0.5rem;
+            text-align: left;
         }
 
         td img {
@@ -95,29 +104,29 @@ export class AdminPage extends LitElement {
             background-color: #f1f1f1;
         }
 
-        .table-footer,
-        .navigation {
-            display: flex;
-            justify-content: space-between;
+        .form-container {
+            background-color: #f4f4f9;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 100%;
-            gap: 1rem;
-        }
-
-        .navigation {
-            align-items: center;
-            gap: 1rem;
+            box-sizing: border-box;
         }
 
         .actions {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
             gap: 0.5rem;
         }
 
         .actions button {
-            width: 100%;
+            width: auto;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
         }
     `;
 
@@ -220,11 +229,6 @@ export class AdminPage extends LitElement {
                 </tbody>
             </table>
 
-            <div class="table-footer">
-                <button @click=${(): void => this.changeRoute(RouterPage.AdminCreateProductPage)}>
-                    Add Product
-                </button>
-            </div>
         `;
     }
 
@@ -343,12 +347,14 @@ export class AdminPage extends LitElement {
                 id: data.id ? Number(data.id) : undefined,
                 title: String(data.title || ""),
                 description: String(data.description || ""),
-                price: String(data.price || "0"), // Ensure price is a string
+                price: String(data.price || "0"),
                 authors: String(data.authors || "").split(",").map((author: string) => author.trim()),
                 tags: String(data.tags || "").split(",").map((tag: string) => tag.trim()),
                 thumbnailUrl: String(data.thumbnail || ""),
                 imagesUrl: String(data.images || "").split(",").map((image: string) => image.trim())
             });
+    
+            console.log("Form Data:", parsedData); // Log the form data to ensure it's correct
     
             const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
             const { errors, data: resp } = response;
@@ -366,8 +372,6 @@ export class AdminPage extends LitElement {
         } catch (error) {
             if (error.message === "Unauthorized") {
                 alert("You are not authorized to perform this action. Please log in.");
-                // Optionally, redirect to login page
-                // window.location.href = "/login";
                 return;
             }
     
@@ -384,4 +388,4 @@ export class AdminPage extends LitElement {
             alert("An internal error occurred. Please try again later.");
         }
     }
-}
+}    
