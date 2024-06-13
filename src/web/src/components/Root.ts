@@ -906,8 +906,6 @@ export class Root extends LitElement {
         super.disconnectedCallback();
     }
 
-
-
     private async getOrderItems(): Promise<void> {
         this._loadingOrderItems = true;
         const result: OrderItem[] | undefined = await this._orderItemService.getAll();
@@ -947,16 +945,14 @@ export class Root extends LitElement {
         }
     }
 
-    private checkIfloggedIn():any{
+    private checkIfloggedIn(): any {
         const result: boolean = this._userService.checkIfLoggedIn();
-            if(result === true){
-                return this._isLoggedIn = true;}
-            else {
-                return this._isLoggedIn = false;
-            }
-        };
-
-
+        if (result === true) {
+            return (this._isLoggedIn = true);
+        } else {
+            return (this._isLoggedIn = false);
+        }
+    }
 
     private async submitRegisterForm(event: Event): Promise<void> {
         event.preventDefault();
@@ -982,7 +978,7 @@ export class Root extends LitElement {
         }
     }
 
-    private clickCartButton(): any{
+    private clickCartButton(): any {
         return this.navigateToPage(RouterPage.Cart);
     }
 

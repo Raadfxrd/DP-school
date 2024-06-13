@@ -325,9 +325,9 @@ ${value}</textarea
         const form: HTMLFormElement = event.target as HTMLFormElement;
         const formData: FormData = new FormData(form);
         const data: Record<string, any> = Object.fromEntries(formData.entries());
-    
+
         this.errors = {};
-    
+
         try {
             const parsedData: any = CreateProductFormModelSchema.parse({
                 id: data.id ? Number(data.id) : undefined,
@@ -345,17 +345,19 @@ ${value}</textarea
                     .split(",")
                     .map((image: string) => image.trim()),
             });
-    
-            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(parsedData);
+
+            const response: { errors: any[]; data: OrderItem } = await this.adminPanelService.createProduct(
+                parsedData
+            );
             const { errors, data: resp } = response;
-    
+
             if (errors && errors.length) {
                 this.errors = errors.reduce((prev: Record<string, string>, curr) => {
                     return { ...prev, [curr.field[0]]: curr.message };
                 }, {});
                 return;
             }
-    
+
             if (resp?.id) {
                 this.changeRoute(RouterPage.AdminEditProductPage, { searchParams: { id: resp.id } });
             }
