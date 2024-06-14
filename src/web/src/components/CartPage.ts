@@ -196,10 +196,6 @@ export class CartPage extends LitElement {
         }
     `;
 
-    private navigateToPage(page: string): void {
-        this._currentPage = page;
-        this.requestUpdate();
-    }
 
     public async firstUpdated(): Promise<void> {
         await this.loadCartItems();
