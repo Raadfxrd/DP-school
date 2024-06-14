@@ -9,7 +9,7 @@ export class CartController {
             const result: OrderItem[] = await queryDatabase<OrderItem[]>(
                 "INSERT INTO `cart`(`user_id`, `product_id`, `amount`) VALUES ('?','?','1')",
                 sessionStorage.id,
-                productId
+                
             );
             res.json(result);
         } catch (error: any) {
