@@ -1,3 +1,12 @@
+# Don't Play!
+
+![Thumbnail](https://raw.githubusercontent.com/Raadfxrd/DP-school/refs/heads/main/src/web/wwwroot/public/assets/img/logo.png)
+
+**Don't Play!** is a vibrant and modern webshop designed to captivate and engage users from the moment they land on the site. With a sleek and playful design, **Don't Play!** combines functionality with aesthetics, making shopping an enjoyable experience.  
+
+The website features a striking **pink and white color scheme**, reflecting its fun and energetic vibe while maintaining a clean and professional look. Every element is thoughtfully designed to encourage users to explore, interact, and stay longer on the site.  
+
+Whether you're browsing for fun or making a purchase, **Don't Play!** delivers a seamless and visually appealing experience that sets it apart from the typical online store.  
 [[_TOC_]]
 
 ## Opdrachtomschrijving
