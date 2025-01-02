@@ -7,6 +7,7 @@
 The website features a striking **pink and white color scheme**, reflecting its fun and energetic vibe while maintaining a clean and professional look. Every element is thoughtfully designed to encourage users to explore, interact, and stay longer on the site.  
 
 Whether you're browsing for fun or making a purchase, **Don't Play!** delivers a seamless and visually appealing experience that sets it apart from the typical online store.  
+
 [[_TOC_]]
 
 ## Opdrachtomschrijving
